@@ -6,7 +6,7 @@
       "type": "coreclr",
       "request": "launch",
       "preLaunchTask": "build",
-      "program": "${workspaceFolder}/bin/Debug/net5.0/evergreen.dll",
+      "program": "${workspaceFolder}/Evergreen.Gtk/bin/Debug/net5.0/evergreen.dll",
       "args": [],
       "cwd": "${workspaceFolder}",
       "console": "internalConsole",
