@@ -1,4 +1,6 @@
 using System;
+using System.Collections.Generic;
+using System.IO;
 
 using Evergreen.Lib.Configuration;
 using Evergreen.Lib.Git;
@@ -7,6 +9,8 @@ using Evergreen.Lib.Helpers;
 using Evergreen.Lib.Session;
 
 using Gtk;
+
+using LibGit2Sharp;
 
 using UI = Gtk.Builder.ObjectAttribute;
 
@@ -18,9 +22,18 @@ namespace Evergreen.Gtk.Windows
         [UI] private readonly TreeView commitList = null;
         [UI] private readonly HeaderBar headerBar = null;
         [UI] private readonly Button openRepo = null;
+        [UI] private readonly TextBuffer diffBuffer = null;
+        [UI] private readonly TextView commitFileDiff = null;
+        [UI] private readonly TreeView commitFiles = null;
 
         private TreeStore branchTreeStore;
         private ListStore commitListStore;
+        private ListStore commitFilesStore;
+
+        private TreeChanges CommitChanges;
+
+        public RepositorySession ActiveSession { get; set; }
+        public GitService Git { get; private set; }
 
         public MainWindow() : this(new Builder("MainWindow.glade")) { }
 
@@ -31,14 +44,12 @@ namespace Evergreen.Gtk.Windows
             Titlebar = headerBar;
 
             DeleteEvent += Window_DeleteEvent;
-            openRepo.Clicked += OpenRepo_Clicked;
+            // openRepo.Clicked += OpenRepo_Clicked;
+
+            commitList.CursorChanged += CommitListCursorChanged;
 
             RenderSession(RestoreSession.LoadSession());
         }
-
-        public RepositorySession ActiveSession { get; set; }
-
-        public GitService Git { get; private set; }
 
         private void Window_DeleteEvent(object sender, DeleteEventArgs a)
         {
@@ -47,13 +58,14 @@ namespace Evergreen.Gtk.Windows
             Application.Quit();
         }
 
-        private void OpenRepo_Clicked(object sender, EventArgs a)
+        private void OpenRepo_Clicked()
         {
-            var filechooser = new FileChooserDialog(
+            var filechooser = new FileChooserNative(
                 "Open Reposiory",
-                this, FileChooserAction.SelectFolder,
-                "Cancel", ResponseType.Cancel,
-                "Open", ResponseType.Accept
+                this,
+                FileChooserAction.SelectFolder,
+                "Open",
+                "Cancel"
             );
 
             var response = (ResponseType)filechooser.Run();
@@ -71,6 +83,23 @@ namespace Evergreen.Gtk.Windows
             filechooser.Dispose();
         }
 
+        private void CommitListCursorChanged(object sender, EventArgs args)
+        {
+            commitList.Selection.SelectedForeach((model, _, iter) =>
+            {
+                var selectHash = (string)model.GetValue(iter, 2);
+
+                if (string.IsNullOrEmpty(selectHash))
+                {
+                    return;
+                }
+
+                CommitChanges = Git.GetCommitFiles(selectHash);
+
+                BuildCommitChangesList();
+            });
+        }
+
         private void RenderSession(RepositorySession session)
         {
             if (session is null)
@@ -82,10 +111,15 @@ namespace Evergreen.Gtk.Windows
 
             Git = new GitService(session);
 
+            if (ActiveSession.UseNativeTitleBar)
+            {
+                Titlebar = null;
+            }
+
             BuildBranchTree();
             BuildCommitList();
 
-            headerBar.Title = $"{session.RepositoryFriendlyName} - Evergreen.Gtk";
+            Title = $"{session.RepositoryFriendlyName} - Evergreen";
         }
 
         private void BuildBranchTree()
@@ -164,8 +198,6 @@ namespace Evergreen.Gtk.Windows
                 typeof(string)
             );
 
-            commitList.Model = commitListStore;
-
             foreach (var commit in commits)
             {
                 var commitDate = $"{commit.Author.When:dd MMM yyyy HH:mm}";
@@ -180,6 +212,31 @@ namespace Evergreen.Gtk.Windows
                     commitDate
                 );
             }
+
+            commitList.Model = commitListStore;
+        }
+
+        private void BuildCommitChangesList()
+        {
+            if (commitFiles.Columns.Length == 0)
+            {
+                var nameColumn = CreateColumn("Filename", 0);
+
+                commitFiles.AppendColumn(nameColumn);
+            }
+
+            commitFilesStore = new ListStore(
+                typeof(string)
+            );
+
+            foreach (var change in CommitChanges)
+            {
+                commitFilesStore.AppendValues(
+                    System.IO.Path.GetFileName(change.Path)
+                );
+            }
+
+            commitFiles.Model = commitFilesStore;
         }
 
         private static TreeViewColumn CreateColumn(string title, int index, int? maxWidth = null)

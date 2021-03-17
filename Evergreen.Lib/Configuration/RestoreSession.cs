@@ -10,7 +10,9 @@ namespace Evergreen.Lib.Configuration
     {
         private static readonly JsonSerializerOptions JsonSerializerOptions = new()
         {
-            AllowTrailingCommas = true, WriteIndented = true, PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
+            AllowTrailingCommas = true,
+            WriteIndented = true,
+            PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
         };
 
         public static void SaveSession(RepositorySession session)

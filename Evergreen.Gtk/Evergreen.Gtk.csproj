@@ -1,8 +1,10 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <OutputType>WinExe</OutputType>
+    <OutputType>Exe</OutputType>
     <TargetFramework>net5.0</TargetFramework>
+    <TargetName>evergreen</TargetName>
+    <AssemblyName>evergreen</AssemblyName>
   </PropertyGroup>
 
   <ItemGroup>
@@ -13,7 +15,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="GtkSharp" Version="3.22.25.*" />
+    <PackageReference Include="GtkSharp" Version="3.24.24.4" />
     <PackageReference Include="LibGit2Sharp" Version="0.26.2" />
   </ItemGroup>
 
