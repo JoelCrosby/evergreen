@@ -1,6 +1,4 @@
 using System;
-using System.Collections.Generic;
-using System.IO;
 
 using Evergreen.Lib.Configuration;
 using Evergreen.Lib.Git;
@@ -21,7 +19,7 @@ namespace Evergreen.Gtk.Windows
         [UI] private readonly TreeView branchTree = null;
         [UI] private readonly TreeView commitList = null;
         [UI] private readonly HeaderBar headerBar = null;
-        [UI] private readonly Button openRepo = null;
+        [UI] private readonly MenuItem openRepo = null;
         [UI] private readonly TextBuffer diffBuffer = null;
         [UI] private readonly TextView commitFileDiff = null;
         [UI] private readonly TreeView commitFiles = null;
@@ -32,8 +30,8 @@ namespace Evergreen.Gtk.Windows
 
         private TreeChanges CommitChanges;
 
-        public RepositorySession ActiveSession { get; set; }
-        public GitService Git { get; private set; }
+        private RepositorySession ActiveSession { get; set; }
+        private GitService Git { get; set; }
 
         public MainWindow() : this(new Builder("MainWindow.glade")) { }
 
@@ -44,7 +42,7 @@ namespace Evergreen.Gtk.Windows
             Titlebar = headerBar;
 
             DeleteEvent += Window_DeleteEvent;
-            // openRepo.Clicked += OpenRepo_Clicked;
+            openRepo.Activated += OpenRepo_Clicked;
 
             commitList.CursorChanged += CommitListCursorChanged;
 
@@ -58,7 +56,7 @@ namespace Evergreen.Gtk.Windows
             Application.Quit();
         }
 
-        private void OpenRepo_Clicked()
+        private void OpenRepo_Clicked(object sender, EventArgs _)
         {
             var filechooser = new FileChooserNative(
                 "Open Reposiory",
@@ -87,14 +85,14 @@ namespace Evergreen.Gtk.Windows
         {
             commitList.Selection.SelectedForeach((model, _, iter) =>
             {
-                var selectHash = (string)model.GetValue(iter, 2);
+                var selectedId = (string)model.GetValue(iter, 4);
 
-                if (string.IsNullOrEmpty(selectHash))
+                if (string.IsNullOrEmpty(selectedId))
                 {
                     return;
                 }
 
-                CommitChanges = Git.GetCommitFiles(selectHash);
+                CommitChanges = Git.GetCommitFiles(selectedId);
 
                 BuildCommitChangesList();
             });
@@ -132,24 +130,42 @@ namespace Evergreen.Gtk.Windows
             if (branchTree.Columns.Length == 0)
             {
                 // Init columns
-                var columeSections = new TreeViewColumn
+                var labelColumn = new TreeViewColumn
                 {
                     Title = "Branches",
                 };
 
-                columeSections.PackStart(cellName, true);
-                columeSections.AddAttribute(cellName, "text", 0);
+                labelColumn.PackStart(cellName, true);
+                labelColumn.AddAttribute(cellName, "text", 0);
+                labelColumn.AddAttribute(cellName, "weight", 2);
 
-                branchTree.AppendColumn(columeSections);
+                branchTree.AppendColumn(labelColumn);
+
+                var nameColumn = new TreeViewColumn
+                {
+                    Title = "CanonicalName",
+                    Visible = false,
+                };
+
+                branchTree.AppendColumn(nameColumn);
             }
 
             // Init treeview
-            branchTreeStore = new TreeStore(typeof(string));
+            branchTreeStore = new TreeStore(typeof(string), typeof(string), typeof(int));
             branchTree.Model = branchTreeStore;
+
+            var headCanonicalName = Git.GetHeadCanonicalName();
 
             void AddTreeItems(TreeIter parentIter, TreeItem<BranchTreeItem> item)
             {
-                var treeIter = branchTreeStore.AppendValues(parentIter, item.Item.Label);
+                var weight = item.Item.Name == headCanonicalName ? Pango.Weight.Bold : Pango.Weight.Normal;
+
+                var treeIter = branchTreeStore.AppendValues(
+                    parentIter,
+                    item.Item.Label,
+                    item.Item.Name,
+                    weight
+                );
 
                 foreach (var child in item.Children)
                 {
@@ -175,23 +191,28 @@ namespace Evergreen.Gtk.Windows
 
             if (commitList.Columns.Length == 0)
             {
-                var messageColumn = CreateColumn("Message", 0);
+                var messageColumn = CreateColumn("Message", 0, 800);
                 var authorColumn = CreateColumn("Author", 1);
                 var shaColumn = CreateColumn("Sha", 2);
                 var dateColumn = CreateColumn("Date", 3, 20);
+                var idColumn = CreateColumn("ID", 3, 20);
 
                 messageColumn.Resizable = true;
                 authorColumn.Resizable = true;
                 shaColumn.Resizable = true;
                 dateColumn.Resizable = true;
 
+                idColumn.Visible = false;
+
                 commitList.AppendColumn(messageColumn);
                 commitList.AppendColumn(authorColumn);
                 commitList.AppendColumn(shaColumn);
                 commitList.AppendColumn(dateColumn);
+                commitList.AppendColumn(dateColumn);
             }
 
             commitListStore = new ListStore(
+                typeof(string),
                 typeof(string),
                 typeof(string),
                 typeof(string),
@@ -204,12 +225,14 @@ namespace Evergreen.Gtk.Windows
                 var author = commit.Author.Name;
                 var message = commit.MessageShort;
                 var sha = commit.Sha.Substring(0, 7);
+                var id = commit.Id.Sha;
 
                 commitListStore.AppendValues(
                     message,
                     author,
                     sha,
-                    commitDate
+                    commitDate,
+                    id
                 );
             }
 
@@ -239,7 +262,7 @@ namespace Evergreen.Gtk.Windows
             commitFiles.Model = commitFilesStore;
         }
 
-        private static TreeViewColumn CreateColumn(string title, int index, int? maxWidth = null)
+        private TreeViewColumn CreateColumn(string title, int index, int? maxWidth = null)
         {
             var cell = new CellRendererText();
 

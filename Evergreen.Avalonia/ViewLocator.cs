@@ -3,7 +3,6 @@ using System;
 using Avalonia.Controls;
 using Avalonia.Controls.Templates;
 
-using Evergreen.Avalonia.ViewModels;
 using Evergreen.Avalonia.ViewModels.Common;
 
 namespace Evergreen.Avalonia

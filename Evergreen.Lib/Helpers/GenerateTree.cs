@@ -21,7 +21,10 @@ namespace Evergreen.Lib.Helpers
             Func<T, TK> idSelector,
             Func<T, TK> parentIdSelector,
             TK rootId = default)
+
         {
+            // ReSharper disable once ArrangeMethodOrOperatorBody
+
             return collection.Where(c => parentIdSelector(c).Equals(rootId)).Select(c => new TreeItem<T>
             {
                 Item = c,

@@ -4,6 +4,8 @@ namespace Evergreen.Lib.Git.Models
     {
         public string Label { get; set; }
 
+        public string Name { get; set; }
+
         public string Parent { get; set; }
     }
 }

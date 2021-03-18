@@ -1,5 +1,4 @@
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 
 using Evergreen.Lib.Git.Models;
@@ -12,24 +11,17 @@ namespace Evergreen.Lib.Git
 {
     public class GitService
     {
-        public readonly RepositorySession Repo;
-
+        private readonly RepositorySession repo;
         private readonly Repository repository;
 
         public GitService(RepositorySession repo)
         {
-            Repo = repo;
+            this.repo = repo;
             repository = new Repository(repo.Path);
         }
 
-        public List<Commit> GetCommits() => repository.Commits.ToList();
-
-        public List<Branch> GetBranches()
-        {
-            GetBranchTree();
-
-            return repository.Branches.ToList();
-        }
+        public string GetHeadCanonicalName() => repository.Head.CanonicalName;
+        public IEnumerable<Commit> GetCommits() => repository.Commits;
 
         public IEnumerable<TreeItem<BranchTreeItem>> GetBranchTree()
         {
@@ -44,6 +36,7 @@ namespace Evergreen.Lib.Git
                 {
                     var item = new BranchTreeItem
                     {
+                        Name  = branch.CanonicalName,
                         Label = branchLevels.ElementAtOrDefault(i),
                         Parent = branchLevels.ElementAtOrDefault(i - 1) ?? "Repository",
                     };
@@ -61,9 +54,16 @@ namespace Evergreen.Lib.Git
                 .GenerateTree(c => c.Label, c => c.Parent, "Repository");
         }
 
-        public TreeChanges GetCommitFiles(string shortCommitHash)
+        public TreeChanges GetCommitFiles(string commitId)
         {
-            var commit =  repository.Commits.FirstOrDefault(c => c.Sha.StartsWith(shortCommitHash));
+            var commitObjectId = new ObjectId(commitId);
+            var commit =  repository.Commits.FirstOrDefault(c => c.Id == commitObjectId);
+
+            if (commit is null)
+            {
+                return null;
+            }
+
             var prevCommit = commit.Parents.FirstOrDefault();
 
             if (prevCommit is null)
