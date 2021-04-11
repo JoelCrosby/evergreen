@@ -91,6 +91,8 @@
                   <object class="GtkTreeView" id="branchTree">
                     <property name="visible">True</property>
                     <property name="can-focus">True</property>
+                    <property name="headers-clickable">False</property>
+                    <property name="activate-on-single-click">True</property>
                     <child internal-child="selection">
                       <object class="GtkTreeSelection"/>
                     </child>
@@ -135,12 +137,13 @@
                   <object class="GtkPaned">
                     <property name="visible">True</property>
                     <property name="can-focus">True</property>
-                    <property name="position">80</property>
+                    <property name="position">400</property>
                     <property name="position-set">True</property>
                     <child>
                       <object class="GtkTreeView" id="commitFiles">
                         <property name="visible">True</property>
                         <property name="can-focus">True</property>
+                        <property name="activate-on-single-click">True</property>
                         <child internal-child="selection">
                           <object class="GtkTreeSelection"/>
                         </child>

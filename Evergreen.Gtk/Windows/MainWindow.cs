@@ -11,6 +11,7 @@ using Gtk;
 using LibGit2Sharp;
 
 using UI = Gtk.Builder.ObjectAttribute;
+using Window = Gtk.Window;
 
 namespace Evergreen.Gtk.Windows
 {
@@ -45,8 +46,34 @@ namespace Evergreen.Gtk.Windows
             openRepo.Activated += OpenRepo_Clicked;
 
             commitList.CursorChanged += CommitListCursorChanged;
+            commitFiles.CursorChanged += CommitFilesCursorChanged;
+            branchTree.ButtonPressEvent += BranchTreeOnButtonPress;
 
             RenderSession(RestoreSession.LoadSession());
+        }
+
+        private static void BranchTreeOnButtonPress(object sender, ButtonPressEventArgs args)
+        {
+            // right click
+            if (args.Event.Button != 3)
+            {
+                return;
+            }
+
+            var menu = new Menu();
+
+            var checkoutMenuItem = new MenuItem("Checkout");
+            menu.Add(checkoutMenuItem);
+
+
+            var deleteMenuItem = new MenuItem("Delete");
+            menu.Add(deleteMenuItem);
+
+            var renameMenuItem = new MenuItem("Rename");
+            menu.Add(renameMenuItem);
+
+            menu.ShowAll();
+            menu.Popup(null, null, null, args.Event.Button, args.Event.Time);
         }
 
         private void Window_DeleteEvent(object sender, DeleteEventArgs a)
@@ -95,6 +122,19 @@ namespace Evergreen.Gtk.Windows
                 CommitChanges = Git.GetCommitFiles(selectedId);
 
                 BuildCommitChangesList();
+            });
+        }
+
+        private void CommitFilesCursorChanged(object sender, EventArgs args)
+        {
+            commitFiles.Selection.SelectedForeach((model, _, iter) =>
+            {
+                var selectedPath = (string)model.GetValue(iter, 1);
+
+                if (string.IsNullOrEmpty(selectedPath))
+                {
+                    return;
+                }
             });
         }
 
@@ -181,7 +221,6 @@ namespace Evergreen.Gtk.Windows
             }
 
             branchTree.ExpandAll();
-
             branchTree.EnableSearch = true;
         }
 
@@ -208,7 +247,7 @@ namespace Evergreen.Gtk.Windows
                 commitList.AppendColumn(authorColumn);
                 commitList.AppendColumn(shaColumn);
                 commitList.AppendColumn(dateColumn);
-                commitList.AppendColumn(dateColumn);
+                commitList.AppendColumn(idColumn);
             }
 
             commitListStore = new ListStore(
