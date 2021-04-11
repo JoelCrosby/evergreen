@@ -19,4 +19,5 @@
     "**/dist/**": true,
     "**/node_modules/**": true
   },
+  "csharp.semanticHighlighting.enabled": true,
 }

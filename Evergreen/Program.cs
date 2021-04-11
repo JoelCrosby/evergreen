@@ -1,12 +1,12 @@
 using System;
 
-using Evergreen.Gtk.Windows;
+using Evergreen.Windows;
 
 using GLib;
 
 using Application = Gtk.Application;
 
-namespace Evergreen.Gtk
+namespace Evergreen
 {
     public static class Program
     {

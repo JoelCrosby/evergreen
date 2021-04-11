@@ -11,16 +11,18 @@ namespace Evergreen.Lib.Git
 {
     public class GitService
     {
-        private readonly RepositorySession repo;
+        public RepositorySession Session { get; }
+
         private readonly Repository repository;
 
         public GitService(RepositorySession repo)
         {
-            this.repo = repo;
+            Session = repo;
             repository = new Repository(repo.Path);
         }
 
         public string GetHeadCanonicalName() => repository.Head.CanonicalName;
+        public string GetHeadFriendlyName() => repository.Head.FriendlyName;
         public IEnumerable<Commit> GetCommits() => repository.Commits;
 
         public IEnumerable<TreeItem<BranchTreeItem>> GetBranchTree()
@@ -36,7 +38,7 @@ namespace Evergreen.Lib.Git
                 {
                     var item = new BranchTreeItem
                     {
-                        Name  = branch.CanonicalName,
+                        Name  = branch.FriendlyName,
                         Label = branchLevels.ElementAtOrDefault(i),
                         Parent = branchLevels.ElementAtOrDefault(i - 1) ?? "Repository",
                     };
@@ -72,6 +74,11 @@ namespace Evergreen.Lib.Git
             }
 
             return repository.Diff.Compare<TreeChanges>(prevCommit.Tree, commit.Tree);
+        }
+
+        public void Checkout(string branch)
+        {
+            Commands.Checkout(repository, branch);
         }
     }
 }

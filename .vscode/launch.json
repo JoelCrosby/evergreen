@@ -2,11 +2,11 @@
   "version": "0.2.0",
   "configurations": [
     {
-      "name": ".NET Core Launch (console)",
+      "name": "Launch",
       "type": "coreclr",
       "request": "launch",
       "preLaunchTask": "build",
-      "program": "${workspaceFolder}/Evergreen.Gtk/bin/Debug/net5.0/evergreen.dll",
+      "program": "${workspaceFolder}/Evergreen/bin/Debug/net5.0/evergreen.dll",
       "args": [],
       "cwd": "${workspaceFolder}",
       "console": "internalConsole",
@@ -18,7 +18,7 @@
       }
     },
     {
-      "name": ".NET Core Attach",
+      "name": "Attach",
       "type": "coreclr",
       "request": "attach",
       "processId": "${command:pickProcess}"

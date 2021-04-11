@@ -2,25 +2,25 @@
   "version": "2.0.0",
   "tasks": [
     {
-      "linux": {
-        "command": "/usr/share/dotnet/dotnet",
-        "type": "process",
-        "args": [
-          "build",
-          "${workspaceFolder}/Evergreen.Gtk/Evergreen.Gtk.csproj",
-          "/property:GenerateFullPaths=true",
-          "/consoleloggerparameters:NoSummary"
-        ]
-      },
       "label": "build",
       "command": "dotnet",
       "type": "process",
       "args": [
         "build",
-        "${workspaceFolder}/Evergreen.Gtk/Evergreen.Gtk.csproj",
+        "${workspaceFolder}/Evergreen/Evergreen.csproj",
         "/property:GenerateFullPaths=true",
         "/consoleloggerparameters:NoSummary"
       ],
+      "linux": {
+        "command": "/usr/share/dotnet/dotnet",
+        "type": "process",
+        "args": [
+          "build",
+          "${workspaceFolder}/Evergreen/Evergreen.csproj",
+          "/property:GenerateFullPaths=true",
+          "/consoleloggerparameters:NoSummary"
+        ]
+      },
       "presentation": {
         "echo": true,
         "reveal": "silent",
@@ -30,6 +30,22 @@
         "clear": false
       },
       "problemMatcher": "$msCompile"
+    },
+    {
+      "label": "install",
+      "type": "shell",
+      "command": "sh",
+      "args": [
+        "install.sh"
+      ],
+      "presentation": {
+        "echo": true,
+        "reveal": "always",
+        "focus": false,
+        "panel": "shared",
+        "showReuseMessage": true,
+        "clear": true
+      },
     }
   ]
 }

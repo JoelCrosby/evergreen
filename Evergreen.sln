@@ -3,11 +3,9 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
 VisualStudioVersion = 15.0.26124.0
 MinimumVisualStudioVersion = 15.0.26124.0
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Evergreen.Gtk", "Evergreen.Gtk\Evergreen.Gtk.csproj", "{E8442D0C-22FD-43F7-9CDD-201C2ABC0F5F}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Evergreen", "Evergreen\Evergreen.csproj", "{E8442D0C-22FD-43F7-9CDD-201C2ABC0F5F}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Evergreen.Lib", "Evergreen.Lib\Evergreen.Lib.csproj", "{BA1BDD4E-211A-491D-AC76-42525150CE9F}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Evergreen.Avalonia", "Evergreen.Avalonia\Evergreen.Avalonia.csproj", "{3B91CDCF-95D4-4660-B7DD-B02B14FF3D6E}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
