@@ -1,4 +1,4 @@
-using System;
+using System.Diagnostics;
 using System.IO;
 using System.Text.Json;
 
@@ -33,7 +33,7 @@ namespace Evergreen.Lib.Configuration
             }
             catch
             {
-                Console.WriteLine("[Config] Save session failed. ");
+                Debug.WriteLine("[Config] Save session failed. ");
             }
         }
 
@@ -54,7 +54,7 @@ namespace Evergreen.Lib.Configuration
             }
             catch
             {
-                Console.WriteLine("[Config] Save session failed. ");
+                Debug.WriteLine("[Config] Save session failed. ");
 
                 return null;
             }

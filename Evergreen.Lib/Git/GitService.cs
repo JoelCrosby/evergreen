@@ -1,5 +1,8 @@
 using System.Collections.Generic;
+using System.Diagnostics;
+using System.IO;
 using System.Linq;
+using System.Text;
 
 using Evergreen.Lib.Git.Models;
 using Evergreen.Lib.Helpers;
@@ -79,6 +82,38 @@ namespace Evergreen.Lib.Git
         public void Checkout(string branch)
         {
             Commands.Checkout(repository, branch);
+        }
+
+        public string GetCommitAuthor(string commitId)
+        {
+            var commit = repository.Lookup<Commit>(commitId);
+            return $"{commit.Author.Name} {commit.Author.Email}";
+        }
+
+        public string GetFileContent(string path, string commitId)
+        {
+            var commit = repository.Lookup<Commit>(commitId);
+
+            if (commit is null)
+            {
+                return $"[ERROR] Failed to find commit with id: {commitId}";
+            }
+
+            var treeEntry = commit[path];
+
+            if (treeEntry is null)
+            {
+                return "[ERROR] Failed to read commit tree conent.";
+            }
+
+            Debug.Assert(treeEntry.TargetType == TreeEntryTargetType.Blob);
+            var blob = (Blob)treeEntry.Target;
+
+            var contentStream = blob.GetContentStream();
+
+            using var sr = new StreamReader(contentStream, Encoding.UTF8);
+
+            return sr.ReadToEnd();
         }
     }
 }
