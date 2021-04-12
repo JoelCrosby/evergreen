@@ -4,6 +4,10 @@ using System.IO;
 using System.Linq;
 using System.Text;
 
+using DiffPlex;
+using DiffPlex.DiffBuilder;
+using DiffPlex.DiffBuilder.Model;
+
 using Evergreen.Lib.Git.Models;
 using Evergreen.Lib.Helpers;
 using Evergreen.Lib.Session;
@@ -39,18 +43,23 @@ namespace Evergreen.Lib.Git
 
                 for (var i = 0; i < branchLevels.Count; i++)
                 {
-                    var item = new BranchTreeItem
+                    var branchLevel = new BranchTreeItem
                     {
                         Name  = branch.FriendlyName,
                         Label = branchLevels.ElementAtOrDefault(i),
                         Parent = branchLevels.ElementAtOrDefault(i - 1) ?? "Repository",
+                        IsRemote = branch.IsRemote,
                     };
 
-                    var exists = items.Any(x => x.Label == item.Label && x.Parent == item.Parent);
+                    var exists = items.Any(item =>
+                        item.Label == branchLevel.Label
+                        && item.Parent == branchLevel.Parent
+                        && item.IsRemote == branchLevel.IsRemote
+                    );
 
                     if (!exists)
                     {
-                        items.Add(item);
+                        items.Add(branchLevel);
                     }
                 }
             }
@@ -61,8 +70,7 @@ namespace Evergreen.Lib.Git
 
         public TreeChanges GetCommitFiles(string commitId)
         {
-            var commitObjectId = new ObjectId(commitId);
-            var commit =  repository.Commits.FirstOrDefault(c => c.Id == commitObjectId);
+        var commit = repository.Lookup<Commit>(commitId);
 
             if (commit is null)
             {
@@ -77,6 +85,48 @@ namespace Evergreen.Lib.Git
             }
 
             return repository.Diff.Compare<TreeChanges>(prevCommit.Tree, commit.Tree);
+        }
+
+        public Patch GetCommitPatch(string commitId)
+        {
+            var commit = repository.Lookup<Commit>(commitId);
+
+            if (commit is null)
+            {
+                return null;
+            }
+
+            var prevCommit = commit.Parents.FirstOrDefault();
+
+            if (prevCommit is null)
+            {
+                return repository.Diff.Compare<Patch>(commit.Tree, commit.Tree);
+            }
+
+            return repository.Diff.Compare<Patch>(prevCommit.Tree, commit.Tree);
+        }
+
+        public DiffPaneModel GetCommitDiff(string commitId, string path)
+        {
+            var commit = repository.Lookup<Commit>(commitId);
+
+            if (commit is null)
+            {
+                return null;
+            }
+
+            var prevCommit = commit.Parents.FirstOrDefault();
+            var content = GetFileContent(path, commit.Sha);
+            var diffBuilder = new InlineDiffBuilder(new Differ());
+
+            if (prevCommit is null)
+            {
+                return diffBuilder.BuildDiffModel(content, content);
+            }
+
+            var prevContent = GetFileContent(path, prevCommit.Sha);
+
+            return diffBuilder.BuildDiffModel(prevContent ?? string.Empty, content ?? string.Empty);
         }
 
         public void Checkout(string branch)
@@ -96,21 +146,20 @@ namespace Evergreen.Lib.Git
 
             if (commit is null)
             {
-                return $"[ERROR] Failed to find commit with id: {commitId}";
+                return null;
             }
 
             var treeEntry = commit[path];
 
             if (treeEntry is null)
             {
-                return "[ERROR] Failed to read commit tree conent.";
+                return null;
             }
 
             Debug.Assert(treeEntry.TargetType == TreeEntryTargetType.Blob);
             var blob = (Blob)treeEntry.Target;
 
-            var contentStream = blob.GetContentStream();
-
+            using var contentStream = blob.GetContentStream();
             using var sr = new StreamReader(contentStream, Encoding.UTF8);
 
             return sr.ReadToEnd();

@@ -7,5 +7,7 @@ namespace Evergreen.Lib.Git.Models
         public string Name { get; set; }
 
         public string Parent { get; set; }
+
+        public bool IsRemote { get; set; }
     }
 }

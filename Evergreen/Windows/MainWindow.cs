@@ -9,8 +9,6 @@ using Evergreen.Lib.Session;
 using Gtk;
 using GtkSource;
 
-using LibGit2Sharp;
-
 using UI = Gtk.Builder.ObjectAttribute;
 using Window = Gtk.Window;
 
@@ -34,6 +32,7 @@ namespace Evergreen.Windows
         private BranchTree BranchTreeWidget;
         private CommitList CommitListWidget;
         private CommitFiles CommitFilesWidget;
+        private CommitFileChanges CommitFileChangesWidget;
 
         private SourceView CommitFileSourceView;
 
@@ -89,6 +88,7 @@ namespace Evergreen.Windows
             BranchTreeWidget = new BranchTree(branchTree, Git).Build();
             CommitListWidget = new CommitList(commitList, Git).Build();
             CommitFilesWidget = new CommitFiles(commitFiles, Git).Build();
+            CommitFileChangesWidget = new CommitFileChanges(CommitFileSourceView, Git).Build();
 
             CommitListWidget.CommitSelected += CommitSelected;
             BranchTreeWidget.CheckoutClicked += CheckoutClicked;
@@ -134,54 +134,23 @@ namespace Evergreen.Windows
 
         private void CommitSelected(object sender, CommitSelectedEventArgs e)
         {
-            CommitFilesWidget.Update(e.CommitId);
-
-            commitShaLabel.Text = $"CommitId: {e.CommitId}";
-            commitFileLabel.Text = string.Empty;
-            commitAuthorLabel.Text = Git.GetCommitAuthor(e.CommitId);
+            if (CommitFilesWidget.Update(e.CommitId))
+            {
+                commitShaLabel.Text = $"CommitId: {e.CommitId}";
+                commitFileLabel.Text = string.Empty;
+                commitAuthorLabel.Text = Git.GetCommitAuthor(e.CommitId);
+            }
         }
 
         private void CommitFileSelected(object sender, CommitFileSelectedEventArgs e)
         {
-            CommitFileSourceView.Buffer.HighlightSyntax = true;
-            CommitFileSourceView.Buffer.Language = GetLanguage(e.Path);
-            CommitFileSourceView.Buffer.Text = Git.GetFileContent(e.Path, e.CommitId);
-
-            commitShaLabel.Text = $"CommitId: {e.CommitId}";
-            commitFileLabel.Text = $"File: {System.IO.Path.GetFileName(e.Path)}";
-            commitAuthorLabel.Text = Git.GetCommitAuthor(e.CommitId);
-        }
-
-        private Language GetLanguage(string path)
-        {
-            var ext = System.IO.Path.GetExtension(path);
-            var mgr = new LanguageManager();
-
-            var ls = mgr.LanguageIds;
-            var lss = string.Join('\n', ls);
-
-            switch (ext)
+            if (CommitFileChangesWidget.Render(e.CommitChanges, e.CommitId, e.Path))
             {
-                case ".cs":
-                    return mgr.GetLanguage("c-sharp");
-                case ".html":
-                    return mgr.GetLanguage("html");
-                case ".css":
-                case ".scss":
-                    return mgr.GetLanguage("css");
-                case ".sql":
-                    return mgr.GetLanguage("sql");
-                case ".ts":
-                    return mgr.GetLanguage("typescript");
-                case ".js":
-                    return mgr.GetLanguage("javascript");
-                case ".json":
-                    return mgr.GetLanguage("json");
-                case ".rs":
-                    return mgr.GetLanguage("rust");
-                default:
-                    return mgr.GetLanguage("c-sharp");
+                commitShaLabel.Text = $"CommitId: {e.CommitId}";
+                commitFileLabel.Text = $"File: {System.IO.Path.GetFileName(e.Path)}";
+                commitAuthorLabel.Text = Git.GetCommitAuthor(e.CommitId);
             }
+
         }
     }
 }

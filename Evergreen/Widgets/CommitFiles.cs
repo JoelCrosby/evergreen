@@ -20,6 +20,7 @@ namespace Evergreen.Widgets
         public event EventHandler<CommitFileSelectedEventArgs> CommitFileSelected;
 
         private string CommitId;
+        private TreeChanges CommitChanges;
 
         public CommitFiles(TreeView view, GitService git)
         {
@@ -44,16 +45,21 @@ namespace Evergreen.Widgets
             return this;
         }
 
-        public CommitFiles Update(string commitId)
+        public bool Update(string commitId)
         {
-            var commitChanges = Git.GetCommitFiles(commitId);
+            if (CommitId == commitId)
+            {
+                return false;
+            }
+
+            CommitChanges = Git.GetCommitFiles(commitId);
 
             store = new TreeStore(
                 typeof(string),
                 typeof(string)
             );
 
-            foreach (var change in commitChanges)
+            foreach (var change in CommitChanges)
             {
                 store.AppendValues(
                     getFileLabel(change),
@@ -64,7 +70,7 @@ namespace Evergreen.Widgets
             View.Model = store;
             CommitId = commitId;
 
-            return this;
+            return true;
         }
 
         private void CommitFilesCursorChanged(object sender, EventArgs args)
@@ -87,6 +93,7 @@ namespace Evergreen.Widgets
                 {
                     CommitId = CommitId,
                     Path = selectedPath,
+                    CommitChanges = CommitChanges,
                 });
             });
         }
@@ -126,6 +133,8 @@ namespace Evergreen.Widgets
     public class CommitFileSelectedEventArgs : EventArgs
     {
         public string CommitId { get; set; }
+
+        public TreeChanges CommitChanges { get; set; }
 
         public string Path { get; set; }
     }
