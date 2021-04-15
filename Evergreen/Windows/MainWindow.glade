@@ -2,10 +2,30 @@
 <!-- Generated with glade 3.38.2 -->
 <interface>
   <requires lib="gtk+" version="3.24"/>
-  <object class="GtkImage" id="open">
+  <object class="GtkImage" id="imgCreateBranch">
+    <property name="visible">True</property>
+    <property name="can-focus">False</property>
+    <property name="icon-name">list-add</property>
+  </object>
+  <object class="GtkImage" id="imgOpen">
     <property name="visible">True</property>
     <property name="can-focus">False</property>
     <property name="icon-name">folder-open</property>
+  </object>
+  <object class="GtkImage" id="imgPull">
+    <property name="visible">True</property>
+    <property name="can-focus">False</property>
+    <property name="icon-name">go-down</property>
+  </object>
+  <object class="GtkImage" id="imgPush">
+    <property name="visible">True</property>
+    <property name="can-focus">False</property>
+    <property name="icon-name">go-up</property>
+  </object>
+  <object class="GtkImage" id="imgfetch">
+    <property name="visible">True</property>
+    <property name="can-focus">False</property>
+    <property name="icon-name">object-rotate-left</property>
   </object>
   <object class="GtkApplicationWindow" id="MainWindow">
     <property name="can-focus">False</property>
@@ -29,9 +49,70 @@
                 <property name="visible">True</property>
                 <property name="can-focus">True</property>
                 <property name="receives-default">True</property>
-                <property name="image">open</property>
+                <property name="image">imgOpen</property>
                 <property name="always-show-image">True</property>
               </object>
+            </child>
+            <child>
+              <object class="GtkSeparator">
+                <property name="visible">True</property>
+                <property name="can-focus">False</property>
+              </object>
+              <packing>
+                <property name="position">1</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkButton" id="fetch">
+                <property name="label" translatable="yes"> Fetch</property>
+                <property name="visible">True</property>
+                <property name="can-focus">True</property>
+                <property name="receives-default">True</property>
+                <property name="image">imgfetch</property>
+                <property name="always-show-image">True</property>
+              </object>
+              <packing>
+                <property name="position">2</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkButton" id="pull">
+                <property name="label" translatable="yes"> Pull</property>
+                <property name="visible">True</property>
+                <property name="can-focus">True</property>
+                <property name="receives-default">True</property>
+                <property name="image">imgPull</property>
+                <property name="always-show-image">True</property>
+              </object>
+              <packing>
+                <property name="position">3</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkButton" id="push">
+                <property name="label" translatable="yes"> Push</property>
+                <property name="visible">True</property>
+                <property name="can-focus">True</property>
+                <property name="receives-default">True</property>
+                <property name="image">imgPush</property>
+                <property name="always-show-image">True</property>
+              </object>
+              <packing>
+                <property name="position">4</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkButton" id="createBranch">
+                <property name="label" translatable="yes"> Create Branch</property>
+                <property name="visible">True</property>
+                <property name="can-focus">True</property>
+                <property name="receives-default">True</property>
+                <property name="image">imgCreateBranch</property>
+                <property name="always-show-image">True</property>
+              </object>
+              <packing>
+                <property name="position">5</property>
+              </packing>
             </child>
           </object>
           <packing>
@@ -112,7 +193,7 @@
                         <property name="margin-end">10</property>
                         <property name="margin-top">2</property>
                         <property name="margin-bottom">2</property>
-                        <property name="spacing">8</property>
+                        <property name="spacing">16</property>
                         <child type="center">
                           <object class="GtkLabel" id="commitFileLabel">
                             <property name="visible">True</property>
@@ -126,10 +207,10 @@
                           </packing>
                         </child>
                         <child>
-                          <object class="GtkLabel" id="commitShaLabel">
+                          <object class="GtkImage">
                             <property name="visible">True</property>
                             <property name="can-focus">False</property>
-                            <property name="label" translatable="yes">commitShaLabel</property>
+                            <property name="icon-name">contact-new</property>
                           </object>
                           <packing>
                             <property name="expand">False</property>
@@ -149,6 +230,41 @@
                             <property name="position">2</property>
                           </packing>
                         </child>
+                        <child>
+                          <object class="GtkSeparator">
+                            <property name="visible">True</property>
+                            <property name="can-focus">False</property>
+                          </object>
+                          <packing>
+                            <property name="expand">False</property>
+                            <property name="fill">True</property>
+                            <property name="position">3</property>
+                          </packing>
+                        </child>
+                        <child>
+                          <object class="GtkLabel" id="commitShaLabel">
+                            <property name="visible">True</property>
+                            <property name="can-focus">False</property>
+                            <property name="label" translatable="yes">commitShaLabel</property>
+                          </object>
+                          <packing>
+                            <property name="expand">False</property>
+                            <property name="fill">True</property>
+                            <property name="position">5</property>
+                          </packing>
+                        </child>
+                        <child>
+                          <object class="GtkImage">
+                            <property name="visible">True</property>
+                            <property name="can-focus">False</property>
+                            <property name="icon-name">folder</property>
+                          </object>
+                          <packing>
+                            <property name="expand">False</property>
+                            <property name="fill">True</property>
+                            <property name="position">6</property>
+                          </packing>
+                        </child>
                       </object>
                       <packing>
                         <property name="expand">False</property>
@@ -166,12 +282,17 @@
                           <object class="GtkScrolledWindow">
                             <property name="visible">True</property>
                             <property name="can-focus">True</property>
+                            <property name="border-width">0</property>
                             <property name="shadow-type">in</property>
                             <child>
                               <object class="GtkTreeView" id="commitFiles">
                                 <property name="visible">True</property>
                                 <property name="can-focus">True</property>
+                                <property name="border-width">0</property>
                                 <property name="activate-on-single-click">True</property>
+                                <child internal-child="selection">
+                                  <object class="GtkTreeSelection"/>
+                                </child>
                               </object>
                             </child>
                           </object>
