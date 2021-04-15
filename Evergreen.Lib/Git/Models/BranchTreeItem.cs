@@ -9,5 +9,9 @@ namespace Evergreen.Lib.Git.Models
         public string Parent { get; set; }
 
         public bool IsRemote { get; set; }
+
+        public int Ahead { get; set; }
+
+        public int Behind { get; set; }
     }
 }

@@ -36,6 +36,22 @@ namespace Evergreen.Lib.Git
         {
             var branches = repository.Branches.ToList();
 
+            static string getBranchLabel(string name, int ahead, int behind)
+            {
+                if (ahead == 0 && behind == 0)
+                {
+                    return name;
+                }
+
+                return (ahead, behind) switch
+                {
+                    (int, int) when ahead != 0 && behind == 0 => $"{name} ↑{ahead}",
+                    (int, int) when ahead == 0 && behind != 0 => $"{name} ↓{behind}",
+                    (int, int) when ahead != 0 && behind != 0 => $"{name} ↑{ahead} ↓{behind}",
+                    _ => name,
+                };
+            }
+
             static IEnumerable<TreeItem<BranchTreeItem>> getBranchTree(List<Branch> branches, bool isLocal)
             {
                 var items = new List<BranchTreeItem>();
@@ -44,14 +60,20 @@ namespace Evergreen.Lib.Git
                 foreach (var branch in branches.Where(b => b.IsRemote != isLocal))
                 {
                     var branchLevels = branch.CanonicalName.Split('/').Skip(2).ToList();
+                    var ahead = branch.TrackingDetails.AheadBy ?? 0;
+                    var behind = branch.TrackingDetails.BehindBy ?? 0;
 
                     for (var i = 0; i < branchLevels.Count; i++)
                     {
+                        var label = getBranchLabel(branchLevels.ElementAtOrDefault(i), ahead, behind);
+
                         var branchLevel = new BranchTreeItem
                         {
                             Name  = branch.FriendlyName,
-                            Label = branchLevels.ElementAtOrDefault(i),
+                            Label = label,
                             Parent = branchLevels.ElementAtOrDefault(i - 1) ?? root,
+                            Ahead = ahead,
+                            Behind = behind,
                             IsRemote = branch.IsRemote,
                         };
 
