@@ -106,18 +106,7 @@ namespace Evergreen.Windows
         {
             var paned = builder.GetObject("commitFilesDiffPanned") as Paned;
 
-            var scroller = new ScrolledWindow();
-            scroller.Visible = true;
-
-            var sourceView = new SourceView();
-
-            sourceView.ShowLineNumbers = true;
-            sourceView.ShowLineMarks = true;
-            sourceView.TabWidth = 4;
-            sourceView.Editable = false;
-            sourceView.Visible = true;
-            sourceView.Monospace = true;
-            sourceView.SetSizeRequest(400, 4000);
+            var (sourceView, scroller) = SourceViews.Create();
 
             CommitFileSourceView = sourceView;
 
@@ -150,7 +139,6 @@ namespace Evergreen.Windows
                 commitFileLabel.Text = $"File: {System.IO.Path.GetFileName(e.Path)}";
                 commitAuthorLabel.Text = Git.GetCommitAuthor(e.CommitId);
             }
-
         }
     }
 }
