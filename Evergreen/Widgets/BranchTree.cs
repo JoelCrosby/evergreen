@@ -16,7 +16,8 @@ namespace Evergreen.Widgets
         private TreeView View { get; set; }
         private TreeStore store;
 
-        public event EventHandler<CheckoutClickedEventArgs> CheckoutClicked;
+        public event EventHandler<BranchClickedEventArgs> CheckoutClicked;
+        public event EventHandler<BranchClickedEventArgs> FastForwardClicked;
 
         public BranchTree(TreeView view, GitService git)
         {
@@ -120,8 +121,11 @@ namespace Evergreen.Widgets
 
             var checkoutMenuItem = new MenuItem("Checkout");
             checkoutMenuItem.Activated += CheckoutActivated;
-
             menu.Add(checkoutMenuItem);
+
+            var fastforwardMenuItem = new MenuItem("Fast-forward");
+            fastforwardMenuItem.Activated += FastForwardActivated;
+            menu.Add(fastforwardMenuItem);
 
 
             var deleteMenuItem = new MenuItem("Delete");
@@ -136,34 +140,62 @@ namespace Evergreen.Widgets
 
         private void CheckoutActivated(object sender, EventArgs args)
         {
-            View.Selection.SelectedForeach((model, _, iter) =>
+            var branch = GetSelected<string>(1);
+
+            if (string.IsNullOrEmpty(branch))
             {
-                var branch = (string)model.GetValue(iter, 1);
+                return;
+            }
 
-                if (string.IsNullOrEmpty(branch))
-                {
-                    return;
-                }
-
-                OnCheckoutClicked(new CheckoutClickedEventArgs
-                {
-                    Branch = branch,
-                });
+            OnCheckoutClicked(new BranchClickedEventArgs
+            {
+                Branch = branch,
             });
         }
 
-        protected virtual void OnCheckoutClicked(CheckoutClickedEventArgs e)
+        protected virtual void OnCheckoutClicked(BranchClickedEventArgs e)
         {
-            EventHandler<CheckoutClickedEventArgs> handler = CheckoutClicked;
+            EventHandler<BranchClickedEventArgs> handler = CheckoutClicked;
 
             if (handler is null) return;
 
             handler(this, e);
         }
+
+        private void FastForwardActivated(object sender, EventArgs args)
+        {
+            var branch = GetSelected<string>(1);
+
+            if (string.IsNullOrEmpty(branch))
+            {
+                return;
+            }
+
+            OnFastForwardClicked(new BranchClickedEventArgs
+            {
+                Branch = branch,
+            });
+        }
+
+        protected virtual void OnFastForwardClicked(BranchClickedEventArgs e)
+        {
+            EventHandler<BranchClickedEventArgs> handler = FastForwardClicked;
+
+            if (handler is null) return;
+
+            handler(this, e);
+        }
+
+        private T GetSelected<T>(int index)
+        {
+            View.Selection.GetSelected(out var model, out var iter);
+
+            return (T)model.GetValue(iter, index);
+        }
     }
 
 
-    public class CheckoutClickedEventArgs : EventArgs
+    public class BranchClickedEventArgs : EventArgs
     {
         public string Branch { get; set; }
     }

@@ -1,3 +1,4 @@
+using System.Diagnostics;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -75,7 +76,7 @@ namespace Evergreen.Lib.Git
 
                         var branchLevel = new BranchTreeItem
                         {
-                            Name  = branch.FriendlyName,
+                            Name  = branch.CanonicalName,
                             Label = label,
                             Parent = branchLevels.ElementAtOrDefault(i - 1) ?? root,
                             Ahead = ahead,
@@ -174,6 +175,25 @@ namespace Evergreen.Lib.Git
         public void Checkout(string branch)
         {
             Commands.Checkout(repository, branch);
+        }
+
+        public void FastForwad(string branch)
+        {
+            var repoBranch = repository
+                .Branches
+                .FirstOrDefault(b => !b.IsRemote && b.CanonicalName == branch);
+
+            var remote = repoBranch.TrackedBranch.RemoteName;
+            var shortBranchName = branch.Substring(branch.LastIndexOf('/') + 1);
+
+            var proc = Process.Start(new ProcessStartInfo
+            {
+                Arguments = $"fetch {remote} {shortBranchName}:{shortBranchName}",
+                FileName = "git",
+                WorkingDirectory = repository.Info.Path,
+            });
+
+            proc.WaitForExit();
         }
 
         public string GetCommitAuthor(string commitId)

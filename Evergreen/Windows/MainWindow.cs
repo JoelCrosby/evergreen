@@ -92,6 +92,7 @@ namespace Evergreen.Windows
 
             CommitListWidget.CommitSelected += CommitSelected;
             BranchTreeWidget.CheckoutClicked += CheckoutClicked;
+            BranchTreeWidget.FastForwardClicked += FastforwardClicked;
             CommitFilesWidget.CommitFileSelected += CommitFileSelected;
 
             RefreshStatusBar();
@@ -112,9 +113,16 @@ namespace Evergreen.Windows
             paned.Pack2(scroller, true, true);
         }
 
-        private void CheckoutClicked(object sender, CheckoutClickedEventArgs e)
+        private void CheckoutClicked(object sender, BranchClickedEventArgs e)
         {
             Git.Checkout(e.Branch);
+            BranchTreeWidget.Refresh();
+            RefreshStatusBar();
+        }
+
+        private void FastforwardClicked(object sender, BranchClickedEventArgs e)
+        {
+            Git.FastForwad(e.Branch);
             BranchTreeWidget.Refresh();
             RefreshStatusBar();
         }
