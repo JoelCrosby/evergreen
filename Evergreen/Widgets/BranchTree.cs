@@ -70,7 +70,7 @@ namespace Evergreen.Widgets
             store = new TreeStore(typeof(string), typeof(string), typeof(int));
             View.Model = store;
 
-            var activeBranch = Git.GetHeadFriendlyName();
+            var activeBranch = Git.GetHeadCanonicalName();
 
             void AddTreeItems(TreeIter parentIter, TreeItem<BranchTreeItem> item)
             {
