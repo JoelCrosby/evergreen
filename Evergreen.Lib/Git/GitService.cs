@@ -30,7 +30,13 @@ namespace Evergreen.Lib.Git
         public string GetHeadCanonicalName() => repository.Head.CanonicalName;
         public string GetHeadFriendlyName() => repository.Head.FriendlyName;
 
-        public IEnumerable<Commit> GetCommits() => repository.Commits;
+        public IEnumerable<Commit> GetCommits()
+        {
+            return repository.Commits.QueryBy(new CommitFilter
+            {
+                IncludeReachableFrom = repository.Refs,
+            });
+        }
 
         public BranchTree GetBranchTree()
         {
