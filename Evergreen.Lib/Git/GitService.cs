@@ -1,5 +1,4 @@
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -30,47 +29,62 @@ namespace Evergreen.Lib.Git
 
         public string GetHeadCanonicalName() => repository.Head.CanonicalName;
         public string GetHeadFriendlyName() => repository.Head.FriendlyName;
+
         public IEnumerable<Commit> GetCommits() => repository.Commits;
 
-        public IEnumerable<TreeItem<BranchTreeItem>> GetBranchTree()
+        public BranchTree GetBranchTree()
         {
             var branches = repository.Branches.ToList();
-            var items = new List<BranchTreeItem>();
 
-            foreach (var branch in branches)
+            static IEnumerable<TreeItem<BranchTreeItem>> getBranchTree(List<Branch> branches, bool isLocal)
             {
-                var branchLevels = branch.CanonicalName.Split('/').Skip(1).ToList();
+                var items = new List<BranchTreeItem>();
+                var root = isLocal ? "Branches" : "Remotes";
 
-                for (var i = 0; i < branchLevels.Count; i++)
+                foreach (var branch in branches.Where(b => b.IsRemote != isLocal))
                 {
-                    var branchLevel = new BranchTreeItem
-                    {
-                        Name  = branch.FriendlyName,
-                        Label = branchLevels.ElementAtOrDefault(i),
-                        Parent = branchLevels.ElementAtOrDefault(i - 1) ?? "Repository",
-                        IsRemote = branch.IsRemote,
-                    };
+                    var branchLevels = branch.CanonicalName.Split('/').Skip(2).ToList();
 
-                    var exists = items.Any(item =>
-                        item.Label == branchLevel.Label
-                        && item.Parent == branchLevel.Parent
-                        && item.IsRemote == branchLevel.IsRemote
-                    );
-
-                    if (!exists)
+                    for (var i = 0; i < branchLevels.Count; i++)
                     {
+                        var branchLevel = new BranchTreeItem
+                        {
+                            Name  = branch.FriendlyName,
+                            Label = branchLevels.ElementAtOrDefault(i),
+                            Parent = branchLevels.ElementAtOrDefault(i - 1) ?? root,
+                            IsRemote = branch.IsRemote,
+                        };
+
+                        var exists = items.Any(i =>
+                            i.Label == branchLevel.Label
+                            && i.Parent == branchLevel.Parent
+                        );
+
+                        if (exists)
+                        {
+                            continue;
+                        }
+
                         items.Add(branchLevel);
                     }
                 }
+
+                return items.GenerateTree(c => c.Label, c => c.Parent, root);
             }
 
-            return items
-                .GenerateTree(c => c.Label, c => c.Parent, "Repository");
+            var local = getBranchTree(branches, true);
+            var remote = getBranchTree(branches, false);
+
+            return new BranchTree
+            {
+                Local = local,
+                Remote = remote,
+            };
         }
 
         public TreeChanges GetCommitFiles(string commitId)
         {
-        var commit = repository.Lookup<Commit>(commitId);
+            var commit = repository.Lookup<Commit>(commitId);
 
             if (commit is null)
             {
@@ -156,7 +170,6 @@ namespace Evergreen.Lib.Git
                 return null;
             }
 
-            Debug.Assert(treeEntry.TargetType == TreeEntryTargetType.Blob);
             var blob = (Blob)treeEntry.Target;
 
             using var contentStream = blob.GetContentStream();

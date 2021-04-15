@@ -29,8 +29,6 @@ namespace Evergreen.Widgets
         {
             View.ButtonPressEvent += BranchTreeOnButtonPress;
 
-
-
             // Init cells
             var cellName = new CellRendererText();
 
@@ -39,7 +37,7 @@ namespace Evergreen.Widgets
                 // Init columns
                 var labelColumn = new TreeViewColumn
                 {
-                    Title = "Branches",
+                    Title = Git.Session.RepositoryFriendlyName
                 };
 
                 labelColumn.PackStart(cellName, true);
@@ -66,7 +64,7 @@ namespace Evergreen.Widgets
 
         public void Refresh()
         {
-            var branches = Git.GetBranchTree();
+            var tree = Git.GetBranchTree();
 
             store = new TreeStore(typeof(string), typeof(string), typeof(int));
             View.Model = store;
@@ -90,11 +88,20 @@ namespace Evergreen.Widgets
                 }
             }
 
-            var iter = store.AppendValues(ActiveSession.RepositoryFriendlyName);
+            // store.get
 
-            foreach (var b in branches)
+            var branchesIter = store.AppendValues("Branches", "branches", Pango.Weight.Bold);
+
+            foreach (var b in tree.Local)
             {
-                AddTreeItems(iter, b);
+                AddTreeItems(branchesIter, b);
+            }
+
+            var remoteIter = store.AppendValues("Remotes", "remotes", Pango.Weight.Bold);
+
+            foreach (var b in tree.Remote)
+            {
+                AddTreeItems(remoteIter, b);
             }
 
             View.ExpandAll();
