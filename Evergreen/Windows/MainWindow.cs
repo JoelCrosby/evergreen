@@ -109,8 +109,6 @@ namespace Evergreen.Windows
             var (sourceView, scroller) = SourceViews.Create();
 
             CommitFileSourceView = sourceView;
-
-            scroller.Add(sourceView);
             paned.Pack2(scroller, true, true);
         }
 
