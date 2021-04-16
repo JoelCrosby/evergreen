@@ -120,7 +120,7 @@ namespace Evergreen.Windows
             {
                 var session = new RepositorySession
                 {
-                    Path = dialog.CurrentFolder,
+                    Path = dialog.Filename,
                 };
 
                 RenderSession(session);
