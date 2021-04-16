@@ -1,5 +1,7 @@
 using System.Linq;
 
+using Evergreen.Lib.Helpers;
+
 namespace Evergreen.Lib.Session
 {
     public class RepositorySession
@@ -8,6 +10,6 @@ namespace Evergreen.Lib.Session
 
         public string Path { get; init; }
 
-        public string RepositoryFriendlyName => Path.Split('/').LastOrDefault();
+        public string RepositoryFriendlyName => Path.Split('/').LastOrDefault().ToTitleCase();
     }
 }

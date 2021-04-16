@@ -38,7 +38,7 @@ namespace Evergreen.Widgets
                 // Init columns
                 var labelColumn = new TreeViewColumn
                 {
-                    Title = Git.Session.RepositoryFriendlyName
+                    Title = Git.Session.RepositoryFriendlyName,
                 };
 
                 labelColumn.PackStart(cellName, true);
@@ -88,8 +88,6 @@ namespace Evergreen.Widgets
                     AddTreeItems(treeIter, child);
                 }
             }
-
-            // store.get
 
             var branchesIter = store.AppendValues("Branches", "branches", Pango.Weight.Bold);
 
