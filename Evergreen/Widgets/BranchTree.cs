@@ -17,6 +17,7 @@ namespace Evergreen.Widgets
         private TreeStore store;
 
         public event EventHandler<BranchClickedEventArgs> CheckoutClicked;
+        public event EventHandler<BranchClickedEventArgs> DeleteClicked;
         public event EventHandler<BranchClickedEventArgs> FastForwardClicked;
 
         public BranchTree(TreeView view, GitService git)
@@ -107,6 +108,7 @@ namespace Evergreen.Widgets
             View.EnableSearch = true;
         }
 
+        [GLib.ConnectBefore]
         private void BranchTreeOnButtonPress(object sender, ButtonPressEventArgs args)
         {
             // right click
@@ -127,6 +129,7 @@ namespace Evergreen.Widgets
 
 
             var deleteMenuItem = new MenuItem("Delete");
+            deleteMenuItem.Activated += DeleteActivated;
             menu.Add(deleteMenuItem);
 
             var renameMenuItem = new MenuItem("Rename");
@@ -178,6 +181,30 @@ namespace Evergreen.Widgets
         protected virtual void OnFastForwardClicked(BranchClickedEventArgs e)
         {
             EventHandler<BranchClickedEventArgs> handler = FastForwardClicked;
+
+            if (handler is null) return;
+
+            handler(this, e);
+        }
+
+        private void DeleteActivated(object sender, EventArgs args)
+        {
+            var branch = GetSelected<string>(1);
+
+            if (string.IsNullOrEmpty(branch))
+            {
+                return;
+            }
+
+            OnDeleteClicked(new BranchClickedEventArgs
+            {
+                Branch = branch,
+            });
+        }
+
+        protected virtual void OnDeleteClicked(BranchClickedEventArgs e)
+        {
+            EventHandler<BranchClickedEventArgs> handler = DeleteClicked;
 
             if (handler is null) return;
 

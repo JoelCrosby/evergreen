@@ -84,6 +84,7 @@ namespace Evergreen.Windows
             CommitListWidget.CommitSelected += CommitSelected;
             BranchTreeWidget.CheckoutClicked += CheckoutClicked;
             BranchTreeWidget.FastForwardClicked += FastforwardClicked;
+            BranchTreeWidget.DeleteClicked += DeleteBranchClicked;
             CommitFilesWidget.CommitFileSelected += CommitFileSelected;
 
             RefreshStatusBar();
@@ -154,6 +155,14 @@ namespace Evergreen.Windows
         private void FastforwardClicked(object sender, BranchClickedEventArgs e)
         {
             Git.FastForwad(e.Branch);
+            Refresh();
+            CommitListWidget.Refresh();
+        }
+
+        private async void DeleteBranchClicked(object sender, BranchClickedEventArgs e)
+        {
+            await Git.DeleteBranch(e.Branch);
+
             Refresh();
             CommitListWidget.Refresh();
         }

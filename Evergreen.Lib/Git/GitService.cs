@@ -205,6 +205,15 @@ namespace Evergreen.Lib.Git
             return ExecAsync("push");
         }
 
+        public Task DeleteBranch(string branch)
+        {
+            var repoBranch = repository
+                .Branches
+                .FirstOrDefault(b => !b.IsRemote && b.CanonicalName == branch);
+
+            return ExecAsync($"branch -d {repoBranch.FriendlyName}");
+        }
+
         public string GetCommitAuthor(string commitId)
         {
             var commit = repository.Lookup<Commit>(commitId);
