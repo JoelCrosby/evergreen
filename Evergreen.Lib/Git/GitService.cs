@@ -14,6 +14,7 @@ using Evergreen.Lib.Helpers;
 using Evergreen.Lib.Session;
 
 using LibGit2Sharp;
+using System;
 
 namespace Evergreen.Lib.Git
 {
@@ -178,7 +179,7 @@ namespace Evergreen.Lib.Git
             Commands.Checkout(repository, branch);
         }
 
-        public Task FastForwad(string branch)
+        public Task<ExecResult> FastForwad(string branch)
         {
             var repoBranch = repository
                 .Branches
@@ -190,22 +191,22 @@ namespace Evergreen.Lib.Git
             return ExecAsync($"fetch {remote} {shortBranchName}:{shortBranchName}");
         }
 
-        public Task Fetch()
+        public Task<ExecResult> Fetch()
         {
             return ExecAsync("fetch --prune");
         }
 
-        public Task Pull()
+        public Task<ExecResult> Pull()
         {
             return ExecAsync("pull");
         }
 
-        public Task Push()
+        public Task<ExecResult> Push()
         {
             return ExecAsync("push");
         }
 
-        public Task DeleteBranch(string branch)
+        public Task<ExecResult> DeleteBranch(string branch)
         {
             var repoBranch = repository
                 .Branches
@@ -259,27 +260,38 @@ namespace Evergreen.Lib.Git
             proc.WaitForExit();
         }
 
-        private async Task ExecAsync(string args)
+        private async Task<ExecResult> ExecAsync(string args)
         {
-            var proc = Process.Start(new ProcessStartInfo
+            try
             {
-                Arguments = args,
-                FileName = "git",
-                UseShellExecute = false,
-                RedirectStandardOutput = true,
-                StandardOutputEncoding = Encoding.UTF8,
-                WorkingDirectory = repository.Info.WorkingDirectory,
-            });
+                var proc = Process.Start(new ProcessStartInfo
+                {
+                    Arguments = args,
+                    FileName = "git",
+                    UseShellExecute = false,
+                    RedirectStandardOutput = true,
+                    StandardOutputEncoding = Encoding.UTF8,
+                    WorkingDirectory = repository.Info.WorkingDirectory,
+                });
 
-            await proc.WaitForExitAsync();
+                await proc.WaitForExitAsync();
 
-            Debug.Assert(proc.ExitCode == 0);
+                Debug.Assert(proc.ExitCode == 0);
 
-            if (proc.ExitCode != 0)
+                if (proc.ExitCode != 0)
+                {
+                    var stdOut = await proc.StandardOutput.ReadToEndAsync();
+
+                    Debug.WriteLine(stdOut);
+
+                    return ExecResult.Failed(stdOut);
+                }
+
+                return ExecResult.Success();
+            }
+            catch (Exception ex)
             {
-                var stdOut = await proc.StandardOutput.ReadToEndAsync();
-
-                Debug.WriteLine(stdOut);
+                return ExecResult.Failed($"Git exec failed. {ex.Message}");
             }
         }
     }

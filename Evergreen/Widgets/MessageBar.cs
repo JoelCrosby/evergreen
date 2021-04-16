@@ -1,0 +1,52 @@
+using System.Threading.Tasks;
+
+using Gtk;
+
+namespace Evergreen.Widgets
+{
+    public class MessageBar
+    {
+        private InfoBar View { get; set; }
+        private Label MessageLabel { get; set; }
+
+        public MessageBar(InfoBar view, Label label)
+        {
+            View = view;
+            MessageLabel = label;
+        }
+
+        public MessageBar Build()
+        {
+            View.Respond += (e, _) => Hide();
+
+            return this;
+        }
+
+        public Task Open(string msg, MessageType type = MessageType.Info)
+        {
+            MessageLabel.Text = msg;
+            View.MessageType = type;
+
+            return Task.Run(Reveal);
+        }
+
+        private async Task Reveal()
+        {
+            Show();
+
+            await Task.Delay(3000);
+
+            Hide();
+        }
+
+        private void Show()
+        {
+            View.SetProperty("revealed", new GLib.Value(true));
+        }
+
+        private void Hide()
+        {
+            View.SetProperty("revealed", new GLib.Value(false));
+        }
+    }
+}

@@ -11,7 +11,6 @@ using GtkSource;
 
 using UI = Gtk.Builder.ObjectAttribute;
 using Window = Gtk.Window;
-using System.Threading.Tasks;
 
 namespace Evergreen.Windows
 {
@@ -24,12 +23,15 @@ namespace Evergreen.Windows
         [UI] private readonly Button pull = null;
         [UI] private readonly Button push = null;
         [UI] private readonly Button createBranch = null;
+        [UI] private readonly Button search = null;
         [UI] private readonly TreeView commitFiles = null;
-        [UI] private readonly Label branchLabel = null;
         [UI] private readonly Label commitShaLabel = null;
         [UI] private readonly Label commitFileLabel = null;
         [UI] private readonly Label commitAuthorLabel = null;
         [UI] private readonly HeaderBar headerBar = null;
+        [UI] private readonly InfoBar infoBar = null;
+        [UI] private readonly Label infoMessage = null;
+        [UI] private readonly SearchBar searchBar = null;
 
         private RepositorySession ActiveSession { get; set; }
         private GitService Git { get; set; }
@@ -38,6 +40,7 @@ namespace Evergreen.Windows
         private CommitList CommitListWidget;
         private CommitFiles CommitFilesWidget;
         private CommitFileChanges CommitFileChangesWidget;
+        private MessageBar MessageBarWidget;
 
         private SourceView CommitFileSourceView;
 
@@ -54,6 +57,7 @@ namespace Evergreen.Windows
             fetch.Clicked += FetchClicked;
             pull.Clicked += PullClicked;
             push.Clicked += PushClicked;
+            search.Clicked += SearchClicked;
 
             RenderSession(RestoreSession.LoadSession());
         }
@@ -80,19 +84,13 @@ namespace Evergreen.Windows
             CommitListWidget = new CommitList(commitList, Git).Build();
             CommitFilesWidget = new CommitFiles(commitFiles, Git).Build();
             CommitFileChangesWidget = new CommitFileChanges(CommitFileSourceView, Git).Build();
+            MessageBarWidget = new MessageBar(infoBar, infoMessage).Build();
 
             CommitListWidget.CommitSelected += CommitSelected;
             BranchTreeWidget.CheckoutClicked += CheckoutClicked;
             BranchTreeWidget.FastForwardClicked += FastforwardClicked;
             BranchTreeWidget.DeleteClicked += DeleteBranchClicked;
             CommitFilesWidget.CommitFileSelected += CommitFileSelected;
-
-            RefreshStatusBar();
-        }
-
-        private void  RefreshStatusBar()
-        {
-            branchLabel.Text = Git.GetHeadFriendlyName();
         }
 
         private void BuildDiffView(Builder builder)
@@ -124,7 +122,16 @@ namespace Evergreen.Windows
 
         private async void FetchClicked(object sender, EventArgs _)
         {
-            await Git.Fetch();
+            var result = await Git.Fetch();
+
+            if (!result.IsSuccess)
+            {
+                await MessageBarWidget.Open(result.Message);
+            }
+            else
+            {
+                await MessageBarWidget.Open("Fetch complete.");
+            }
 
             Refresh();
             CommitListWidget.Refresh();
@@ -136,6 +143,11 @@ namespace Evergreen.Windows
 
             Refresh();
             CommitListWidget.Refresh();
+        }
+
+        private void SearchClicked(object sender, EventArgs _)
+        {
+            searchBar.SearchModeEnabled = true;
         }
 
         private async void PushClicked(object sender, EventArgs _)
@@ -190,7 +202,6 @@ namespace Evergreen.Windows
         private void Refresh()
         {
             BranchTreeWidget.Refresh();
-            RefreshStatusBar();
         }
     }
 }
