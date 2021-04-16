@@ -23,7 +23,7 @@ namespace Evergreen.Widgets
         private string CurrentCommitId;
         private string CurrentPath;
 
-        public CommitFileChanges(SourceView view, GitService git)
+            public CommitFileChanges(SourceView view, GitService git)
         {
             View = view;
             Git = git;
@@ -34,7 +34,8 @@ namespace Evergreen.Widgets
         {
             View.Buffer.HighlightSyntax = true;
 
-            View.SetMarkAttributes("Inserted", new MarkAttributes {
+            View.SetMarkAttributes("Inserted", new MarkAttributes
+            {
                 Background =  new RGBA
                 {
                     Alpha = 0.1,
@@ -44,7 +45,8 @@ namespace Evergreen.Widgets
                 }
             }, 10);
 
-            View.SetMarkAttributes("Deleted", new MarkAttributes {
+            View.SetMarkAttributes("Deleted", new MarkAttributes
+            {
                 Background =  new RGBA
                 {
                     Alpha = 0.1,
@@ -54,7 +56,8 @@ namespace Evergreen.Widgets
                 }
             }, 10);
 
-            View.SetMarkAttributes("Modified", new MarkAttributes {
+            View.SetMarkAttributes("Modified", new MarkAttributes
+            {
                 Background =  new RGBA
                 {
                     Alpha = 0.1,
@@ -80,6 +83,12 @@ namespace Evergreen.Widgets
             View.Buffer = CreateBuffer();
 
             var diff = Git.GetCommitDiff(commitId, path);
+
+            if (diff is null)
+            {
+                return false;
+            }
+
             var buffer = diff.Lines.Aggregate(new StringBuilder(), (b, l) => b.AppendLine(l.Text));
 
             View.IsMapped = true;
@@ -153,6 +162,8 @@ namespace Evergreen.Widgets
                     return mgr.GetLanguage("json");
                 case ".rs":
                     return mgr.GetLanguage("rust");
+                case ".toml":
+                    return mgr.GetLanguage("toml");
                 default:
                     return mgr.GetLanguage("c-sharp");
             }

@@ -24,6 +24,8 @@ namespace Evergreen.Windows
         [UI] private readonly Button push = null;
         [UI] private readonly Button createBranch = null;
         [UI] private readonly Button search = null;
+        [UI] private readonly Button about = null;
+        [UI] private readonly AboutDialog aboutDialog = null;
         [UI] private readonly TreeView commitFiles = null;
         [UI] private readonly Label commitShaLabel = null;
         [UI] private readonly Label commitFileLabel = null;
@@ -58,6 +60,11 @@ namespace Evergreen.Windows
             pull.Clicked += PullClicked;
             push.Clicked += PushClicked;
             search.Clicked += SearchClicked;
+            about.Clicked += AboutClicked;
+            aboutDialog.ButtonPressEvent += AboutClose;
+            createBranch.Clicked += CreateBranchClicked;
+
+            Titlebar = headerBar;
 
             RenderSession(RestoreSession.LoadSession());
         }
@@ -91,6 +98,8 @@ namespace Evergreen.Windows
             BranchTreeWidget.FastForwardClicked += FastforwardClicked;
             BranchTreeWidget.DeleteClicked += DeleteBranchClicked;
             CommitFilesWidget.CommitFileSelected += CommitFileSelected;
+
+            RestoreSession.SaveSession(ActiveSession);
         }
 
         private void BuildDiffView(Builder builder)
@@ -156,6 +165,21 @@ namespace Evergreen.Windows
 
             Refresh();
             CommitListWidget.Refresh();
+        }
+
+        private void AboutClicked(object sender, EventArgs _)
+        {
+            aboutDialog.Show();
+        }
+
+        private void AboutClose(object sender, EventArgs _)
+        {
+            aboutDialog.Hide();
+        }
+
+        private void CreateBranchClicked(object sender, EventArgs _)
+        {
+
         }
 
         private void CheckoutClicked(object sender, BranchClickedEventArgs e)
