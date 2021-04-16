@@ -126,6 +126,7 @@ namespace Evergreen.Windows
             await Git.Fetch();
 
             Refresh();
+            CommitListWidget.Refresh();
         }
 
         private async void PullClicked(object sender, EventArgs _)
@@ -133,6 +134,7 @@ namespace Evergreen.Windows
             await Git.Pull();
 
             Refresh();
+            CommitListWidget.Refresh();
         }
 
         private async void PushClicked(object sender, EventArgs _)
@@ -140,6 +142,7 @@ namespace Evergreen.Windows
             await Git.Push();
 
             Refresh();
+            CommitListWidget.Refresh();
         }
 
         private void CheckoutClicked(object sender, BranchClickedEventArgs e)
@@ -152,6 +155,7 @@ namespace Evergreen.Windows
         {
             Git.FastForwad(e.Branch);
             Refresh();
+            CommitListWidget.Refresh();
         }
 
         private void CommitSelected(object sender, CommitSelectedEventArgs e)

@@ -82,6 +82,38 @@ namespace Evergreen.Widgets
             return this;
         }
 
+        public void Refresh()
+        {
+            var commits = Git.GetCommits();
+
+            store = new TreeStore(
+                typeof(string),
+                typeof(string),
+                typeof(string),
+                typeof(string),
+                typeof(string)
+            );
+
+            foreach (var commit in commits)
+            {
+                var commitDate = $"{commit.Author.When:dd MMM yyyy HH:mm}";
+                var author = commit.Author.Name;
+                var message = commit.MessageShort;
+                var sha = commit.Sha.Substring(0, 7);
+                var id = commit.Id.Sha;
+
+                store.AppendValues(
+                    message,
+                    author,
+                    sha,
+                    commitDate,
+                    id
+                );
+            }
+
+            View.Model = store;
+        }
+
         private void CommitListCursorChanged(object sender, EventArgs args)
         {
             View.Selection.SelectedForeach((model, _, iter) =>
