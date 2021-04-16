@@ -53,6 +53,7 @@ namespace Evergreen.Windows
             openRepo.Clicked += OpenRepoClicked;
             fetch.Clicked += FetchClicked;
             pull.Clicked += PullClicked;
+            push.Clicked += PushClicked;
 
             RenderSession(RestoreSession.LoadSession());
         }
@@ -130,6 +131,13 @@ namespace Evergreen.Windows
         private async void PullClicked(object sender, EventArgs _)
         {
             await Git.Pull();
+
+            Refresh();
+        }
+
+        private async void PushClicked(object sender, EventArgs _)
+        {
+            await Git.Push();
 
             Refresh();
         }

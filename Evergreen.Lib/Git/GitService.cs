@@ -200,6 +200,11 @@ namespace Evergreen.Lib.Git
             return ExecAsync("pull");
         }
 
+        public Task Push()
+        {
+            return ExecAsync("push");
+        }
+
         public string GetCommitAuthor(string commitId)
         {
             var commit = repository.Lookup<Commit>(commitId);
