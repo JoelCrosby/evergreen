@@ -46,7 +46,7 @@ namespace Evergreen.Windows
 
         private SourceView CommitFileSourceView;
 
-        public MainWindow() : this(new Builder("MainWindow.glade")) { }
+        public MainWindow() : this(new Builder("MainWindow.ui")) { }
 
         private MainWindow(Builder builder) : base(builder.GetObject("MainWindow").Handle)
         {
