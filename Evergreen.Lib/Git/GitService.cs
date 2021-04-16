@@ -1,3 +1,4 @@
+using System.Threading.Tasks;
 using System.Diagnostics;
 using System.Collections.Generic;
 using System.IO;
@@ -177,7 +178,7 @@ namespace Evergreen.Lib.Git
             Commands.Checkout(repository, branch);
         }
 
-        public void FastForwad(string branch)
+        public Task FastForwad(string branch)
         {
             var repoBranch = repository
                 .Branches
@@ -186,14 +187,17 @@ namespace Evergreen.Lib.Git
             var remote = repoBranch.TrackedBranch.RemoteName;
             var shortBranchName = branch.Substring(branch.LastIndexOf('/') + 1);
 
-            var proc = Process.Start(new ProcessStartInfo
-            {
-                Arguments = $"fetch {remote} {shortBranchName}:{shortBranchName}",
-                FileName = "git",
-                WorkingDirectory = repository.Info.Path,
-            });
+            return ExecAsync($"fetch {remote} {shortBranchName}:{shortBranchName}");
+        }
 
-            proc.WaitForExit();
+        public Task Fetch()
+        {
+            return ExecAsync("fetch --prune");
+        }
+
+        public Task Pull()
+        {
+            return ExecAsync("pull");
         }
 
         public string GetCommitAuthor(string commitId)
@@ -224,6 +228,45 @@ namespace Evergreen.Lib.Git
             using var sr = new StreamReader(contentStream, Encoding.UTF8);
 
             return sr.ReadToEnd();
+        }
+
+        private void Exec(string args)
+        {
+            var proc = Process.Start(new ProcessStartInfo
+            {
+                Arguments = args,
+                FileName = "git",
+                UseShellExecute = false,
+                RedirectStandardOutput = true,
+                StandardOutputEncoding = Encoding.UTF8,
+                WorkingDirectory = repository.Info.WorkingDirectory,
+            });
+
+            proc.WaitForExit();
+        }
+
+        private async Task ExecAsync(string args)
+        {
+            var proc = Process.Start(new ProcessStartInfo
+            {
+                Arguments = args,
+                FileName = "git",
+                UseShellExecute = false,
+                RedirectStandardOutput = true,
+                StandardOutputEncoding = Encoding.UTF8,
+                WorkingDirectory = repository.Info.WorkingDirectory,
+            });
+
+            await proc.WaitForExitAsync();
+
+            Debug.Assert(proc.ExitCode == 0);
+
+            if (proc.ExitCode != 0)
+            {
+                var stdOut = await proc.StandardOutput.ReadToEndAsync();
+
+                Debug.WriteLine(stdOut);
+            }
         }
     }
 }

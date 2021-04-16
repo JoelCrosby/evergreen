@@ -11,6 +11,7 @@ using GtkSource;
 
 using UI = Gtk.Builder.ObjectAttribute;
 using Window = Gtk.Window;
+using System.Threading.Tasks;
 
 namespace Evergreen.Windows
 {
@@ -19,6 +20,10 @@ namespace Evergreen.Windows
         [UI] private readonly TreeView branchTree = null;
         [UI] private readonly TreeView commitList = null;
         [UI] private readonly Button openRepo = null;
+        [UI] private readonly Button fetch = null;
+        [UI] private readonly Button pull = null;
+        [UI] private readonly Button push = null;
+        [UI] private readonly Button createBranch = null;
         [UI] private readonly TreeView commitFiles = null;
         [UI] private readonly Label branchLabel = null;
         [UI] private readonly Label commitShaLabel = null;
@@ -45,7 +50,9 @@ namespace Evergreen.Windows
             builder.Autoconnect(this);
 
             DeleteEvent += Window_DeleteEvent;
-            openRepo.Clicked += OpenRepo_Clicked;
+            openRepo.Clicked += OpenRepoClicked;
+            fetch.Clicked += FetchClicked;
+            pull.Clicked += PullClicked;
 
             RenderSession(RestoreSession.LoadSession());
         }
@@ -54,23 +61,6 @@ namespace Evergreen.Windows
         {
             RestoreSession.SaveSession(ActiveSession);
             Application.Quit();
-        }
-
-        private void OpenRepo_Clicked(object sender, EventArgs _)
-        {
-            var (response, dialog) = Dialogs.Open(this, "Open Reposiory", FileChooserAction.SelectFolder);
-
-            if (response == ResponseType.Accept)
-            {
-                var session = new RepositorySession
-                {
-                    Path = dialog.CurrentFolder,
-                };
-
-                RenderSession(session);
-            }
-
-            dialog.Dispose();
         }
 
         private void RenderSession(RepositorySession session)
@@ -113,18 +103,47 @@ namespace Evergreen.Windows
             paned.Pack2(scroller, true, true);
         }
 
+        private void OpenRepoClicked(object sender, EventArgs _)
+        {
+            var (response, dialog) = Dialogs.Open(this, "Open Reposiory", FileChooserAction.SelectFolder);
+
+            if (response == ResponseType.Accept)
+            {
+                var session = new RepositorySession
+                {
+                    Path = dialog.CurrentFolder,
+                };
+
+                RenderSession(session);
+            }
+
+            dialog.Dispose();
+        }
+
+        private async void FetchClicked(object sender, EventArgs _)
+        {
+            await Git.Fetch();
+
+            Refresh();
+        }
+
+        private async void PullClicked(object sender, EventArgs _)
+        {
+            await Git.Pull();
+
+            Refresh();
+        }
+
         private void CheckoutClicked(object sender, BranchClickedEventArgs e)
         {
             Git.Checkout(e.Branch);
-            BranchTreeWidget.Refresh();
-            RefreshStatusBar();
+            Refresh();
         }
 
         private void FastforwardClicked(object sender, BranchClickedEventArgs e)
         {
             Git.FastForwad(e.Branch);
-            BranchTreeWidget.Refresh();
-            RefreshStatusBar();
+            Refresh();
         }
 
         private void CommitSelected(object sender, CommitSelectedEventArgs e)
@@ -145,6 +164,12 @@ namespace Evergreen.Windows
                 commitFileLabel.Text = $"File: {System.IO.Path.GetFileName(e.Path)}";
                 commitAuthorLabel.Text = Git.GetCommitAuthor(e.CommitId);
             }
+        }
+
+        private void Refresh()
+        {
+            BranchTreeWidget.Refresh();
+            RefreshStatusBar();
         }
     }
 }
