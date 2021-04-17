@@ -15,6 +15,8 @@ using Evergreen.Lib.Session;
 
 using LibGit2Sharp;
 using System;
+using Evergreen.Lib.Models;
+using Evergreen.Lib.Models.Common;
 
 namespace Evergreen.Lib.Git
 {
@@ -32,6 +34,11 @@ namespace Evergreen.Lib.Git
 
         public string GetHeadCanonicalName() => repository.Head.CanonicalName;
         public string GetHeadFriendlyName() => repository.Head.FriendlyName;
+
+        public string GetPath()
+        {
+            return repository.Info.WorkingDirectory;
+        }
 
         public IEnumerable<Commit> GetCommits()
         {
@@ -179,7 +186,7 @@ namespace Evergreen.Lib.Git
             Commands.Checkout(repository, branch);
         }
 
-        public Task<ExecResult> FastForwad(string branch)
+        public Task<Result<ExecResult>> FastForwad(string branch)
         {
             var repoBranch = repository
                 .Branches
@@ -191,22 +198,22 @@ namespace Evergreen.Lib.Git
             return ExecAsync($"fetch {remote} {shortBranchName}:{shortBranchName}");
         }
 
-        public Task<ExecResult> Fetch()
+        public Task<Result<ExecResult>> Fetch()
         {
             return ExecAsync("fetch --prune");
         }
 
-        public Task<ExecResult> Pull()
+        public Task<Result<ExecResult>> Pull()
         {
             return ExecAsync("pull");
         }
 
-        public Task<ExecResult> Push()
+        public Task<Result<ExecResult>> Push()
         {
             return ExecAsync("push");
         }
 
-        public Task<ExecResult> DeleteBranch(string branch)
+        public Task<Result<ExecResult>> DeleteBranch(string branch)
         {
             var repoBranch = repository
                 .Branches
@@ -260,7 +267,7 @@ namespace Evergreen.Lib.Git
             proc.WaitForExit();
         }
 
-        private async Task<ExecResult> ExecAsync(string args)
+        private async Task<Result<ExecResult>> ExecAsync(string args)
         {
             try
             {
@@ -284,14 +291,14 @@ namespace Evergreen.Lib.Git
 
                     Debug.WriteLine(stdOut);
 
-                    return ExecResult.Failed(stdOut);
+                    return Result<ExecResult>.Failed(stdOut);
                 }
 
-                return ExecResult.Success();
+                return Result<ExecResult>.Success();
             }
             catch (Exception ex)
             {
-                return ExecResult.Failed($"Git exec failed. {ex.Message}");
+                return Result<ExecResult>.Failed($"Git exec failed. {ex.Message}");
             }
         }
     }

@@ -11,6 +11,7 @@ using GtkSource;
 
 using UI = Gtk.Builder.ObjectAttribute;
 using Window = Gtk.Window;
+using Evergreen.Dialogs;
 
 namespace Evergreen.Windows
 {
@@ -22,7 +23,7 @@ namespace Evergreen.Windows
         [UI] private readonly Button fetch = null;
         [UI] private readonly Button pull = null;
         [UI] private readonly Button push = null;
-        [UI] private readonly Button createBranch = null;
+        [UI] private readonly Button btnCreateBranch = null;
         [UI] private readonly Button search = null;
         [UI] private readonly Button about = null;
         [UI] private readonly AboutDialog aboutDialog = null;
@@ -34,6 +35,7 @@ namespace Evergreen.Windows
         [UI] private readonly InfoBar infoBar = null;
         [UI] private readonly Label infoMessage = null;
         [UI] private readonly SearchBar searchBar = null;
+        [UI] private readonly Paned commitFilesDiffPanned = null;
 
         private RepositorySession ActiveSession { get; set; }
         private GitService Git { get; set; }
@@ -43,16 +45,17 @@ namespace Evergreen.Windows
         private CommitFiles CommitFilesWidget;
         private CommitFileChanges CommitFileChangesWidget;
         private MessageBar MessageBarWidget;
+        private CreateBranch createBranchDialog;
 
         private SourceView CommitFileSourceView;
 
-        public MainWindow() : this(new Builder("MainWindow.ui")) { }
+        public MainWindow() : this(new Builder("main.ui")) { }
 
-        private MainWindow(Builder builder) : base(builder.GetObject("MainWindow").Handle)
+        private MainWindow(Builder builder) : base(builder.GetObject("main").Handle)
         {
-            BuildDiffView(builder);
-
             builder.Autoconnect(this);
+
+            BuildDiffView();
 
             DeleteEvent += Window_DeleteEvent;
             openRepo.Clicked += OpenRepoClicked;
@@ -62,7 +65,7 @@ namespace Evergreen.Windows
             search.Clicked += SearchClicked;
             about.Clicked += AboutClicked;
             aboutDialog.ButtonPressEvent += AboutClose;
-            createBranch.Clicked += CreateBranchClicked;
+            btnCreateBranch.Clicked += CreateBranchClicked;
 
             Titlebar = headerBar;
 
@@ -83,6 +86,7 @@ namespace Evergreen.Windows
 
             Title = $"{session.RepositoryFriendlyName} - Evergreen";
             headerBar.Title = $"{session.RepositoryFriendlyName} - Evergreen";
+            headerBar.Subtitle = Git.GetPath();
 
             commitShaLabel.Text = string.Empty;
             commitFileLabel.Text = string.Empty;
@@ -92,6 +96,7 @@ namespace Evergreen.Windows
             CommitFilesWidget = new CommitFiles(commitFiles, Git).Build();
             CommitFileChangesWidget = new CommitFileChanges(CommitFileSourceView, Git).Build();
             MessageBarWidget = new MessageBar(infoBar, infoMessage).Build();
+            createBranchDialog = new CreateBranch().Build(Git);
 
             CommitListWidget.CommitSelected += CommitSelected;
             BranchTreeWidget.CheckoutClicked += CheckoutClicked;
@@ -102,19 +107,17 @@ namespace Evergreen.Windows
             RestoreSession.SaveSession(ActiveSession);
         }
 
-        private void BuildDiffView(Builder builder)
+        private void BuildDiffView()
         {
-            var paned = builder.GetObject("commitFilesDiffPanned") as Paned;
-
             var (sourceView, scroller) = SourceViews.Create();
 
             CommitFileSourceView = sourceView;
-            paned.Pack2(scroller, true, true);
+            commitFilesDiffPanned.Pack2(scroller, true, true);
         }
 
         private void OpenRepoClicked(object sender, EventArgs _)
         {
-            var (response, dialog) = Dialogs.Open(this, "Open Reposiory", FileChooserAction.SelectFolder);
+            var (response, dialog) = FileChooser.Open(this, "Open Reposiory", FileChooserAction.SelectFolder);
 
             if (response == ResponseType.Accept)
             {
@@ -179,7 +182,7 @@ namespace Evergreen.Windows
 
         private void CreateBranchClicked(object sender, EventArgs _)
         {
-
+            createBranchDialog.Show();
         }
 
         private void CheckoutClicked(object sender, BranchClickedEventArgs e)
