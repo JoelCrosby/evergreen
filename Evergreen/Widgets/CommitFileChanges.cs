@@ -2,7 +2,6 @@ using System.Linq;
 using System.IO;
 
 using Evergreen.Lib.Git;
-using Evergreen.Lib.Session;
 
 using GtkSource;
 
@@ -16,9 +15,8 @@ namespace Evergreen.Widgets
 {
     public class CommitFileChanges
     {
-        private RepositorySession ActiveSession { get; set; }
-        private GitService Git { get; set; }
-        private SourceView View { get; set; }
+        private GitService Git { get; }
+        private SourceView View { get; }
 
         private string CurrentCommitId;
         private string CurrentPath;
@@ -27,7 +25,6 @@ namespace Evergreen.Widgets
         {
             View = view;
             Git = git;
-            ActiveSession = Git.Session;
         }
 
         public CommitFileChanges Build()

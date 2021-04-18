@@ -3,7 +3,6 @@ using System;
 using Evergreen.Lib.Git;
 using Evergreen.Lib.Git.Models;
 using Evergreen.Lib.Helpers;
-using Evergreen.Lib.Session;
 
 using Gtk;
 
@@ -11,9 +10,8 @@ namespace Evergreen.Widgets
 {
     public class BranchTree
     {
-        private RepositorySession ActiveSession { get; set; }
-        private GitService Git { get; set; }
-        private TreeView View { get; set; }
+        private GitService Git { get; }
+        private TreeView View { get; }
         private TreeStore store;
 
         public event EventHandler<BranchClickedEventArgs> CheckoutClicked;
@@ -24,7 +22,6 @@ namespace Evergreen.Widgets
         {
             View = view;
             Git = git;
-            ActiveSession = Git.Session;
         }
 
         public BranchTree Build()
@@ -127,7 +124,6 @@ namespace Evergreen.Widgets
             fastforwardMenuItem.Activated += FastForwardActivated;
             menu.Add(fastforwardMenuItem);
 
-
             var deleteMenuItem = new MenuItem("Delete");
             deleteMenuItem.Activated += DeleteActivated;
             menu.Add(deleteMenuItem);
@@ -156,7 +152,7 @@ namespace Evergreen.Widgets
 
         protected virtual void OnCheckoutClicked(BranchClickedEventArgs e)
         {
-            EventHandler<BranchClickedEventArgs> handler = CheckoutClicked;
+            var handler = CheckoutClicked;
 
             if (handler is null) return;
 
@@ -180,7 +176,7 @@ namespace Evergreen.Widgets
 
         protected virtual void OnFastForwardClicked(BranchClickedEventArgs e)
         {
-            EventHandler<BranchClickedEventArgs> handler = FastForwardClicked;
+            var handler = FastForwardClicked;
 
             if (handler is null) return;
 
@@ -204,7 +200,7 @@ namespace Evergreen.Widgets
 
         protected virtual void OnDeleteClicked(BranchClickedEventArgs e)
         {
-            EventHandler<BranchClickedEventArgs> handler = DeleteClicked;
+            var handler = DeleteClicked;
 
             if (handler is null) return;
 
@@ -218,7 +214,6 @@ namespace Evergreen.Widgets
             return (T)model.GetValue(iter, index);
         }
     }
-
 
     public class BranchClickedEventArgs : EventArgs
     {

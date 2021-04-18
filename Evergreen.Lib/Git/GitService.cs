@@ -35,10 +35,7 @@ namespace Evergreen.Lib.Git
         public string GetHeadCanonicalName() => repository.Head.CanonicalName;
         public string GetHeadFriendlyName() => repository.Head.FriendlyName;
 
-        public string GetPath()
-        {
-            return repository.Info.WorkingDirectory;
-        }
+        public string GetPath() => repository.Info.WorkingDirectory;
 
         public IEnumerable<Commit> GetCommits()
         {
@@ -252,21 +249,6 @@ namespace Evergreen.Lib.Git
             return sr.ReadToEnd();
         }
 
-        private void Exec(string args)
-        {
-            var proc = Process.Start(new ProcessStartInfo
-            {
-                Arguments = args,
-                FileName = "git",
-                UseShellExecute = false,
-                RedirectStandardOutput = true,
-                StandardOutputEncoding = Encoding.UTF8,
-                WorkingDirectory = repository.Info.WorkingDirectory,
-            });
-
-            proc.WaitForExit();
-        }
-
         private async Task<Result<ExecResult>> ExecAsync(string args)
         {
             try
@@ -281,7 +263,7 @@ namespace Evergreen.Lib.Git
                     WorkingDirectory = repository.Info.WorkingDirectory,
                 });
 
-                await proc.WaitForExitAsync();
+                await proc.WaitForExitAsync().ConfigureAwait(false);
 
                 Debug.Assert(proc.ExitCode == 0);
 

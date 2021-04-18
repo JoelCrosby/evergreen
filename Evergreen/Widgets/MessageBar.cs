@@ -6,8 +6,8 @@ namespace Evergreen.Widgets
 {
     public class MessageBar
     {
-        private InfoBar View { get; set; }
-        private Label MessageLabel { get; set; }
+        private InfoBar View { get; }
+        private Label MessageLabel { get; }
 
         public MessageBar(InfoBar view, Label label)
         {

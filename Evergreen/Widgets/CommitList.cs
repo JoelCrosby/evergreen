@@ -2,7 +2,6 @@ using System;
 
 using Evergreen.Utils;
 using Evergreen.Lib.Git;
-using Evergreen.Lib.Session;
 
 using Gtk;
 
@@ -10,9 +9,8 @@ namespace Evergreen.Widgets
 {
     public class CommitList
     {
-        private RepositorySession ActiveSession { get; set; }
-        private GitService Git { get; set; }
-        private TreeView View { get; set; }
+        private GitService Git { get; }
+        private TreeView View { get; }
         private TreeStore store;
 
         public event EventHandler<CommitSelectedEventArgs> CommitSelected;
@@ -21,7 +19,6 @@ namespace Evergreen.Widgets
         {
             View = view;
             Git = git;
-            ActiveSession = Git.Session;
         }
 
         public CommitList Build()

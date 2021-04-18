@@ -10,6 +10,6 @@ namespace Evergreen.Lib.Session
 
         public string Path { get; init; }
 
-        public string RepositoryFriendlyName => Path.Split('/').LastOrDefault().ToTitleCase();
+        public string RepositoryFriendlyName => Path.Split('/').LastOrDefault()?.ToTitleCase();
     }
 }

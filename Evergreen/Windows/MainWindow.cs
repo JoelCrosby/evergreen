@@ -40,14 +40,14 @@ namespace Evergreen.Windows
         private RepositorySession ActiveSession { get; set; }
         private GitService Git { get; set; }
 
-        private BranchTree BranchTreeWidget;
-        private CommitList CommitListWidget;
-        private CommitFiles CommitFilesWidget;
-        private CommitFileChanges CommitFileChangesWidget;
-        private MessageBar MessageBarWidget;
+        private BranchTree branchTreeWidget;
+        private CommitList commitListWidget;
+        private CommitFiles commitFilesWidget;
+        private CommitFileChanges commitFileChangesWidget;
+        private MessageBar messageBarWidget;
         private CreateBranch createBranchDialog;
 
-        private SourceView CommitFileSourceView;
+        private SourceView commitFileSourceView;
 
         public MainWindow() : this(new Builder("main.ui")) { }
 
@@ -91,18 +91,18 @@ namespace Evergreen.Windows
             commitShaLabel.Text = string.Empty;
             commitFileLabel.Text = string.Empty;
 
-            BranchTreeWidget = new BranchTree(branchTree, Git).Build();
-            CommitListWidget = new CommitList(commitList, Git).Build();
-            CommitFilesWidget = new CommitFiles(commitFiles, Git).Build();
-            CommitFileChangesWidget = new CommitFileChanges(CommitFileSourceView, Git).Build();
-            MessageBarWidget = new MessageBar(infoBar, infoMessage).Build();
+            branchTreeWidget = new BranchTree(branchTree, Git).Build();
+            commitListWidget = new CommitList(commitList, Git).Build();
+            commitFilesWidget = new CommitFiles(commitFiles, Git).Build();
+            commitFileChangesWidget = new CommitFileChanges(commitFileSourceView, Git).Build();
+            messageBarWidget = new MessageBar(infoBar, infoMessage).Build();
             createBranchDialog = new CreateBranch().Build(Git);
 
-            CommitListWidget.CommitSelected += CommitSelected;
-            BranchTreeWidget.CheckoutClicked += CheckoutClicked;
-            BranchTreeWidget.FastForwardClicked += FastforwardClicked;
-            BranchTreeWidget.DeleteClicked += DeleteBranchClicked;
-            CommitFilesWidget.CommitFileSelected += CommitFileSelected;
+            commitListWidget.CommitSelected += CommitSelected;
+            branchTreeWidget.CheckoutClicked += CheckoutClicked;
+            branchTreeWidget.FastForwardClicked += FastforwardClicked;
+            branchTreeWidget.DeleteClicked += DeleteBranchClicked;
+            commitFilesWidget.CommitFileSelected += CommitFileSelected;
 
             RestoreSession.SaveSession(ActiveSession);
         }
@@ -111,7 +111,7 @@ namespace Evergreen.Windows
         {
             var (sourceView, scroller) = SourceViews.Create();
 
-            CommitFileSourceView = sourceView;
+            commitFileSourceView = sourceView;
             commitFilesDiffPanned.Pack2(scroller, true, true);
         }
 
@@ -138,15 +138,15 @@ namespace Evergreen.Windows
 
             if (!result.IsSuccess)
             {
-                await MessageBarWidget.Open(result.Message);
+                await messageBarWidget.Open(result.Message);
             }
             else
             {
-                await MessageBarWidget.Open("Fetch complete.");
+                await messageBarWidget.Open("Fetch complete.");
             }
 
             Refresh();
-            CommitListWidget.Refresh();
+            commitListWidget.Refresh();
         }
 
         private async void PullClicked(object sender, EventArgs _)
@@ -154,7 +154,7 @@ namespace Evergreen.Windows
             await Git.Pull();
 
             Refresh();
-            CommitListWidget.Refresh();
+            commitListWidget.Refresh();
         }
 
         private void SearchClicked(object sender, EventArgs _)
@@ -167,7 +167,7 @@ namespace Evergreen.Windows
             await Git.Push();
 
             Refresh();
-            CommitListWidget.Refresh();
+            commitListWidget.Refresh();
         }
 
         private void AboutClicked(object sender, EventArgs _)
@@ -195,7 +195,7 @@ namespace Evergreen.Windows
         {
             Git.FastForwad(e.Branch);
             Refresh();
-            CommitListWidget.Refresh();
+            commitListWidget.Refresh();
         }
 
         private async void DeleteBranchClicked(object sender, BranchClickedEventArgs e)
@@ -203,12 +203,12 @@ namespace Evergreen.Windows
             await Git.DeleteBranch(e.Branch);
 
             Refresh();
-            CommitListWidget.Refresh();
+            commitListWidget.Refresh();
         }
 
         private void CommitSelected(object sender, CommitSelectedEventArgs e)
         {
-            if (CommitFilesWidget.Update(e.CommitId))
+            if (commitFilesWidget.Update(e.CommitId))
             {
                 commitShaLabel.Text = $"CommitId: {e.CommitId}";
                 commitFileLabel.Text = string.Empty;
@@ -218,7 +218,7 @@ namespace Evergreen.Windows
 
         private void CommitFileSelected(object sender, CommitFileSelectedEventArgs e)
         {
-            if (CommitFileChangesWidget.Render(e.CommitChanges, e.CommitId, e.Path))
+            if (commitFileChangesWidget.Render(e.CommitChanges, e.CommitId, e.Path))
             {
                 commitShaLabel.Text = $"CommitId: {e.CommitId}";
                 commitFileLabel.Text = $"File: {System.IO.Path.GetFileName(e.Path)}";
@@ -228,7 +228,7 @@ namespace Evergreen.Windows
 
         private void Refresh()
         {
-            BranchTreeWidget.Refresh();
+            branchTreeWidget.Refresh();
         }
     }
 }

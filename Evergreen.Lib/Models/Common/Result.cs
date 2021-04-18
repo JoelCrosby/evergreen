@@ -6,22 +6,16 @@ namespace Evergreen.Lib.Models.Common
 
         public string Message { get; set; }
 
-        public static Result Success()
+        public static Result Success() => new()
         {
-            return new Result
-            {
-                IsSuccess = true,
-            };
-        }
+            IsSuccess = true,
+        };
 
-        public static Result Failed(string message)
+        public static Result Failed(string message) => new()
         {
-            return new Result
-            {
-                IsSuccess = false,
-                Message = message,
-            };
-        }
+            IsSuccess = false,
+            Message = message,
+        };
     }
 
     public record Result<T>
@@ -32,22 +26,16 @@ namespace Evergreen.Lib.Models.Common
 
         public T Payload { get; set; }
 
-        public static Result<T> Success(T payload = default)
+        public static Result<T> Success(T payload = default) => new()
         {
-            return new Result<T>
-            {
-                IsSuccess = true,
-                Payload = payload,
-            };
-        }
+            IsSuccess = true,
+            Payload = payload,
+        };
 
-        public static Result<T> Failed(string message)
+        public static Result<T> Failed(string message) => new()
         {
-            return new Result<T>
-            {
-                IsSuccess = false,
-                Message = message,
-            };
-        }
+            IsSuccess = false,
+            Message = message,
+        };
     }
 }
