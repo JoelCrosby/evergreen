@@ -190,7 +190,7 @@ namespace Evergreen.Lib.Git
                 .FirstOrDefault(b => !b.IsRemote && b.CanonicalName == branch);
 
             var remote = repoBranch.TrackedBranch.RemoteName;
-            var shortBranchName = branch.Substring(branch.LastIndexOf('/') + 1);
+            var shortBranchName = branch[(branch.LastIndexOf('/') + 1)..];
 
             return ExecAsync($"fetch {remote} {shortBranchName}:{shortBranchName}");
         }
@@ -210,13 +210,35 @@ namespace Evergreen.Lib.Git
             return ExecAsync("push");
         }
 
-        public Task<Result<ExecResult>> DeleteBranch(string branch)
+        public Task<Result<ExecResult>> DeleteBranch(string name)
         {
+            if (string.IsNullOrWhiteSpace(name))
+            {
+                throw new ArgumentNullException(nameof(name));
+            }
+
             var repoBranch = repository
                 .Branches
-                .FirstOrDefault(b => !b.IsRemote && b.CanonicalName == branch);
+                .FirstOrDefault(b => !b.IsRemote && b.CanonicalName == name);
 
             return ExecAsync($"branch -d {repoBranch.FriendlyName}");
+        }
+
+        public Result<Branch> CreateBranch(string name, bool checkout)
+        {
+            if (string.IsNullOrWhiteSpace(name))
+            {
+                throw new ArgumentNullException(nameof(name));
+            }
+
+            var newBranch = repository.CreateBranch(name);
+
+            if (checkout)
+            {
+                Commands.Checkout(repository, newBranch.CanonicalName);
+            }
+
+            return Result<Branch>.Success(newBranch);
         }
 
         public string GetCommitAuthor(string commitId)

@@ -154,7 +154,10 @@ namespace Evergreen.Widgets
         {
             var handler = CheckoutClicked;
 
-            if (handler is null) return;
+            if (handler is null)
+            {
+                return;
+            }
 
             handler(this, e);
         }
@@ -178,7 +181,10 @@ namespace Evergreen.Widgets
         {
             var handler = FastForwardClicked;
 
-            if (handler is null) return;
+            if (handler is null)
+            {
+                return;
+            }
 
             handler(this, e);
         }
@@ -202,7 +208,10 @@ namespace Evergreen.Widgets
         {
             var handler = DeleteClicked;
 
-            if (handler is null) return;
+            if (handler is null)
+            {
+                return;
+            }
 
             handler(this, e);
         }

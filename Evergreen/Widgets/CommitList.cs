@@ -122,7 +122,6 @@ namespace Evergreen.Widgets
                     return;
                 }
 
-
                 OnCommitSelected(new CommitSelectedEventArgs
                 {
                     CommitId = selectedId,
@@ -132,9 +131,12 @@ namespace Evergreen.Widgets
 
         protected virtual void OnCommitSelected(CommitSelectedEventArgs e)
         {
-            EventHandler<CommitSelectedEventArgs> handler = CommitSelected;
+            var handler = CommitSelected;
 
-            if (handler is null) return;
+            if (handler is null)
+            {
+                return;
+            }
 
             handler(this, e);
         }

@@ -17,8 +17,8 @@ namespace Evergreen.Widgets
 
         public event EventHandler<CommitFileSelectedEventArgs> CommitFileSelected;
 
-        private string CommitId;
-        private TreeChanges CommitChanges;
+        private string commitId;
+        private TreeChanges commitChanges;
 
         public CommitFiles(TreeView view, GitService git)
         {
@@ -44,28 +44,28 @@ namespace Evergreen.Widgets
 
         public bool Update(string commitId)
         {
-            if (CommitId == commitId)
+            if (this.commitId == commitId)
             {
                 return false;
             }
 
-            CommitChanges = Git.GetCommitFiles(commitId);
+            commitChanges = Git.GetCommitFiles(commitId);
 
             store = new TreeStore(
                 typeof(string),
                 typeof(string)
             );
 
-            foreach (var change in CommitChanges)
+            foreach (var change in commitChanges)
             {
                 store.AppendValues(
-                    getFileLabel(change),
+                    GetFileLabel(change),
                     change.Path
                 );
             }
 
             View.Model = store;
-            CommitId = commitId;
+            this.commitId = commitId;
 
             return true;
         }
@@ -81,30 +81,33 @@ namespace Evergreen.Widgets
                     return;
                 }
 
-                if (CommitId is null)
+                if (commitId is null)
                 {
                     return;
                 }
 
                 OnCommitFileSelected(new CommitFileSelectedEventArgs
                 {
-                    CommitId = CommitId,
+                    CommitId = commitId,
                     Path = selectedPath,
-                    CommitChanges = CommitChanges,
+                    CommitChanges = commitChanges,
                 });
             });
         }
 
         protected virtual void OnCommitFileSelected(CommitFileSelectedEventArgs e)
         {
-            EventHandler<CommitFileSelectedEventArgs> handler = CommitFileSelected;
+            var handler = CommitFileSelected;
 
-            if (handler is null) return;
+            if (handler is null)
+            {
+                return;
+            }
 
             handler(this, e);
         }
 
-        private static string getFileLabel(TreeEntryChanges change)
+        private static string GetFileLabel(TreeEntryChanges change)
         {
             var name = Path.GetFileName(change.Path);
             var prefix = change.Status switch

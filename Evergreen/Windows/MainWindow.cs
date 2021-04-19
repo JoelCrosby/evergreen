@@ -17,25 +17,25 @@ namespace Evergreen.Windows
 {
     public class MainWindow : Window
     {
-        [UI] private readonly TreeView branchTree = null;
-        [UI] private readonly TreeView commitList = null;
-        [UI] private readonly Button openRepo = null;
-        [UI] private readonly Button fetch = null;
-        [UI] private readonly Button pull = null;
-        [UI] private readonly Button push = null;
-        [UI] private readonly Button btnCreateBranch = null;
-        [UI] private readonly Button search = null;
-        [UI] private readonly Button about = null;
-        [UI] private readonly AboutDialog aboutDialog = null;
-        [UI] private readonly TreeView commitFiles = null;
-        [UI] private readonly Label commitShaLabel = null;
-        [UI] private readonly Label commitFileLabel = null;
-        [UI] private readonly Label commitAuthorLabel = null;
-        [UI] private readonly HeaderBar headerBar = null;
-        [UI] private readonly InfoBar infoBar = null;
-        [UI] private readonly Label infoMessage = null;
-        [UI] private readonly SearchBar searchBar = null;
-        [UI] private readonly Paned commitFilesDiffPanned = null;
+        [UI] private readonly TreeView branchTree;
+        [UI] private readonly TreeView commitList;
+        [UI] private readonly Button openRepo;
+        [UI] private readonly Button fetch;
+        [UI] private readonly Button pull;
+        [UI] private readonly Button push;
+        [UI] private readonly Button btnCreateBranch;
+        [UI] private readonly Button search;
+        [UI] private readonly Button about;
+        [UI] private readonly AboutDialog aboutDialog;
+        [UI] private readonly TreeView commitFiles;
+        [UI] private readonly Label commitShaLabel;
+        [UI] private readonly Label commitFileLabel;
+        [UI] private readonly Label commitAuthorLabel;
+        [UI] private readonly HeaderBar headerBar;
+        [UI] private readonly InfoBar infoBar;
+        [UI] private readonly Label infoMessage;
+        [UI] private readonly SearchBar searchBar;
+        [UI] private readonly Paned commitFilesDiffPanned;
 
         private RepositorySession ActiveSession { get; set; }
         private GitService Git { get; set; }
@@ -104,6 +104,8 @@ namespace Evergreen.Windows
             branchTreeWidget.DeleteClicked += DeleteBranchClicked;
             commitFilesWidget.CommitFileSelected += CommitFileSelected;
 
+            createBranchDialog.BranchCreated += BranchCreated;
+
             RestoreSession.SaveSession(ActiveSession);
         }
 
@@ -145,16 +147,16 @@ namespace Evergreen.Windows
                 await messageBarWidget.Open("Fetch complete.");
             }
 
-            Refresh();
-            commitListWidget.Refresh();
+            RefreshBranchTree();
+            RefreshCommitList();
         }
 
         private async void PullClicked(object sender, EventArgs _)
         {
             await Git.Pull();
 
-            Refresh();
-            commitListWidget.Refresh();
+            RefreshBranchTree();
+            RefreshCommitList();
         }
 
         private void SearchClicked(object sender, EventArgs _)
@@ -166,8 +168,8 @@ namespace Evergreen.Windows
         {
             await Git.Push();
 
-            Refresh();
-            commitListWidget.Refresh();
+            RefreshBranchTree();
+            RefreshCommitList();
         }
 
         private void AboutClicked(object sender, EventArgs _)
@@ -188,22 +190,23 @@ namespace Evergreen.Windows
         private void CheckoutClicked(object sender, BranchClickedEventArgs e)
         {
             Git.Checkout(e.Branch);
-            Refresh();
+            RefreshBranchTree();
         }
 
         private void FastforwardClicked(object sender, BranchClickedEventArgs e)
         {
             Git.FastForwad(e.Branch);
-            Refresh();
-            commitListWidget.Refresh();
+
+            RefreshBranchTree();
+            RefreshCommitList();
         }
 
         private async void DeleteBranchClicked(object sender, BranchClickedEventArgs e)
         {
             await Git.DeleteBranch(e.Branch);
 
-            Refresh();
-            commitListWidget.Refresh();
+            RefreshBranchTree();
+            RefreshCommitList();
         }
 
         private void CommitSelected(object sender, CommitSelectedEventArgs e)
@@ -226,9 +229,22 @@ namespace Evergreen.Windows
             }
         }
 
-        private void Refresh()
+        private void BranchCreated(object sender, CreateBranchEventArgs e)
+        {
+            Git.CreateBranch(e.Name, e.Checkout);
+
+            RefreshBranchTree();
+            RefreshCommitList();
+        }
+
+        private void RefreshBranchTree()
         {
             branchTreeWidget.Refresh();
+        }
+
+        private void RefreshCommitList()
+        {
+            commitListWidget.Refresh();
         }
     }
 }

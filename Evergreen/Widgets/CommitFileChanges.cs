@@ -1,3 +1,4 @@
+using System.Diagnostics;
 using System.Linq;
 using System.IO;
 
@@ -6,7 +7,6 @@ using Evergreen.Lib.Git;
 using GtkSource;
 
 using LibGit2Sharp;
-using DiffPlex.DiffBuilder;
 using DiffPlex.DiffBuilder.Model;
 using System.Text;
 using Gdk;
@@ -18,10 +18,10 @@ namespace Evergreen.Widgets
         private GitService Git { get; }
         private SourceView View { get; }
 
-        private string CurrentCommitId;
-        private string CurrentPath;
+        private string currentCommitId;
+        private string currentPath;
 
-            public CommitFileChanges(SourceView view, GitService git)
+        public CommitFileChanges(SourceView view, GitService git)
         {
             View = view;
             Git = git;
@@ -69,13 +69,15 @@ namespace Evergreen.Widgets
 
         public bool Render(TreeChanges changes, string commitId, string path)
         {
-            if (CurrentCommitId == commitId && CurrentPath == path)
+            Debug.Assert(changes is {});
+
+            if (currentCommitId == commitId && currentPath == path)
             {
                 return false;
             }
 
-            CurrentCommitId = commitId;
-            CurrentPath = path;
+            currentCommitId = commitId;
+            currentPath = path;
 
             View.Buffer = CreateBuffer();
 
@@ -89,7 +91,7 @@ namespace Evergreen.Widgets
             var buffer = diff.Lines.Aggregate(new StringBuilder(), (b, l) => b.AppendLine(l.Text));
 
             View.IsMapped = true;
-            View.Buffer.Language =  GetLanguage(path);
+            View.Buffer.Language = GetLanguage(path);
             View.Buffer.Text = buffer.ToString();
 
             Mark firstMark = null;
@@ -132,38 +134,24 @@ namespace Evergreen.Widgets
             return buffer;
         }
 
-        private Language GetLanguage(string path)
+        private static Language GetLanguage(string path)
         {
             var ext = Path.GetExtension(path);
             var mgr = new LanguageManager();
 
-            var ls = mgr.LanguageIds;
-            var lss = string.Join('\n', ls);
-
-            switch (ext)
+            return ext switch
             {
-                case ".cs":
-                    return mgr.GetLanguage("c-sharp");
-                case ".html":
-                    return mgr.GetLanguage("html");
-                case ".css":
-                case ".scss":
-                    return mgr.GetLanguage("css");
-                case ".sql":
-                    return mgr.GetLanguage("sql");
-                case ".ts":
-                    return mgr.GetLanguage("typescript");
-                case ".js":
-                    return mgr.GetLanguage("javascript");
-                case ".json":
-                    return mgr.GetLanguage("json");
-                case ".rs":
-                    return mgr.GetLanguage("rust");
-                case ".toml":
-                    return mgr.GetLanguage("toml");
-                default:
-                    return mgr.GetLanguage("c-sharp");
-            }
+                ".cs" => mgr.GetLanguage("c-sharp"),
+                ".html" => mgr.GetLanguage("html"),
+                ".css" or ".scss" => mgr.GetLanguage("css"),
+                ".sql" => mgr.GetLanguage("sql"),
+                ".ts" => mgr.GetLanguage("typescript"),
+                ".js" => mgr.GetLanguage("javascript"),
+                ".json" => mgr.GetLanguage("json"),
+                ".rs" => mgr.GetLanguage("rust"),
+                ".toml" => mgr.GetLanguage("toml"),
+                _ => mgr.GetLanguage("c-sharp"),
+            };
         }
     }
 }

@@ -8,19 +8,22 @@ namespace Evergreen.Utils
     {
         public static (SourceView, ScrolledWindow) Create()
         {
-            var scroller = new ScrolledWindow();
-            scroller.Visible = true;
+            var scroller = new ScrolledWindow
+            {
+                Visible = true
+            };
 
-            var sourceView = new SourceView();
+            var sourceView = new SourceView
+            {
+                ShowLineNumbers = true,
+                ShowLineMarks = true,
+                TabWidth = 4,
+                Editable = false,
+                Visible = true,
+                Monospace = true
+            };
 
-            sourceView.ShowLineNumbers = true;
-            sourceView.ShowLineMarks = true;
-            sourceView.TabWidth = 4;
-            sourceView.Editable = false;
-            sourceView.Visible = true;
-            sourceView.Monospace = true;
             sourceView.SetSizeRequest(400, 4000);
-
 
             scroller.Add(sourceView);
 
