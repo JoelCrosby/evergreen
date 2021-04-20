@@ -1,3 +1,4 @@
+using System.Linq;
 using System;
 
 using Evergreen.Lib.Git;
@@ -103,6 +104,8 @@ namespace Evergreen.Widgets
 
             View.ExpandAll();
             View.EnableSearch = true;
+
+            View.Columns[0].Title = Git.Session.RepositoryFriendlyName;
         }
 
         [GLib.ConnectBefore]
