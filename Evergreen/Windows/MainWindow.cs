@@ -1,4 +1,3 @@
-using System.Diagnostics;
 using System;
 
 using Evergreen.Utils;
@@ -43,7 +42,7 @@ namespace Evergreen.Windows
 
         #pragma warning restore 064
 
-        private RepositorySession ActiveSession { get; set; }
+        private RepositorySession Session { get; set; }
         private GitService Git { get; set; }
 
         private BranchTree branchTreeWidget;
@@ -63,6 +62,7 @@ namespace Evergreen.Windows
 
             BuildDiffView();
 
+            // Gtk widget events
             DeleteEvent += Window_DeleteEvent;
             openRepo.Clicked += OpenRepoClicked;
             fetch.Clicked += FetchClicked;
@@ -73,6 +73,7 @@ namespace Evergreen.Windows
             aboutDialog.ButtonPressEvent += AboutClose;
             btnCreateBranch.Clicked += CreateBranchClicked;
 
+            // Set the clientside headerbar
             Titlebar = headerBar;
 
             RenderSession(RestoreSession.LoadSession());
@@ -80,15 +81,37 @@ namespace Evergreen.Windows
 
         private void Window_DeleteEvent(object sender, DeleteEventArgs a)
         {
-            RestoreSession.SaveSession(ActiveSession);
+            RestoreSession.SaveSession(Session);
             Application.Quit();
         }
 
         private void RenderSession(RepositorySession session)
         {
-            ActiveSession = session;
+            Session = session;
 
             Git = new GitService(session);
+
+            // Cleanup widgets
+            commitFilesWidget?.Dispose();
+            branchTreeWidget?.Dispose();
+            commitListWidget?.Dispose();
+            messageBarWidget?.Dispose();
+
+            // Evergreen widgets
+            branchTreeWidget = new BranchTree(branchTree, Git).Build();
+            commitListWidget = new CommitList(commitList, Git).Build();
+            commitFilesWidget = new CommitFiles(commitFiles, Git).Build();
+            commitFileChangesWidget = new CommitFileChanges(commitFileSourceView, Git).Build();
+            messageBarWidget = new MessageBar(infoBar, infoMessage).Build();
+            createBranchDialog = new CreateBranch().Build(Git);
+
+            // Evergreen widget events
+            commitListWidget.CommitSelected += CommitSelected;
+            branchTreeWidget.CheckoutClicked += CheckoutClicked;
+            branchTreeWidget.FastForwardClicked += FastforwardClicked;
+            branchTreeWidget.DeleteClicked += DeleteBranchClicked;
+            commitFilesWidget.CommitFileSelected += CommitFileSelected;
+            createBranchDialog.BranchCreated += BranchCreated;
 
             Title = $"{session.RepositoryFriendlyName} - Evergreen";
             headerBar.Title = $"{session.RepositoryFriendlyName} - Evergreen";
@@ -97,22 +120,10 @@ namespace Evergreen.Windows
             commitShaLabel.Text = string.Empty;
             commitFileLabel.Text = string.Empty;
 
-            branchTreeWidget = new BranchTree(branchTree, Git).Build();
-            commitListWidget = new CommitList(commitList, Git).Build();
-            commitFilesWidget = new CommitFiles(commitFiles, Git).Build();
-            commitFileChangesWidget = new CommitFileChanges(commitFileSourceView, Git).Build();
-            messageBarWidget = new MessageBar(infoBar, infoMessage).Build();
-            createBranchDialog = new CreateBranch().Build(Git);
+            branchTreeWidget.Refresh();
+            commitListWidget.Refresh();
 
-            commitListWidget.CommitSelected += CommitSelected;
-            branchTreeWidget.CheckoutClicked += CheckoutClicked;
-            branchTreeWidget.FastForwardClicked += FastforwardClicked;
-            branchTreeWidget.DeleteClicked += DeleteBranchClicked;
-            commitFilesWidget.CommitFileSelected += CommitFileSelected;
-
-            createBranchDialog.BranchCreated += BranchCreated;
-
-            RestoreSession.SaveSession(ActiveSession);
+            RestoreSession.SaveSession(Session);
         }
 
         private void BuildDiffView()

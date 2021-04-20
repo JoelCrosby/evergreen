@@ -1,4 +1,3 @@
-using System.Linq;
 using System;
 
 using Evergreen.Lib.Git;
@@ -9,7 +8,7 @@ using Gtk;
 
 namespace Evergreen.Widgets
 {
-    public class BranchTree
+    public class BranchTree : IDisposable
     {
         private GitService Git { get; }
         private TreeView View { get; }
@@ -30,15 +29,12 @@ namespace Evergreen.Widgets
             View.ButtonPressEvent += BranchTreeOnButtonPress;
 
             // Init cells
-            var cellName = new CellRendererText();
 
             if (View.Columns.Length == 0)
             {
                 // Init columns
-                var labelColumn = new TreeViewColumn
-                {
-                    Title = Git.Session.RepositoryFriendlyName,
-                };
+                var labelColumn = new TreeViewColumn();
+                var cellName = new CellRendererText();
 
                 labelColumn.PackStart(cellName, true);
                 labelColumn.AddAttribute(cellName, "text", 0);
@@ -56,8 +52,6 @@ namespace Evergreen.Widgets
             }
 
             View.EnableSearch = true;
-
-            Refresh();
 
             return this;
         }
@@ -224,6 +218,13 @@ namespace Evergreen.Widgets
             View.Selection.GetSelected(out var model, out var iter);
 
             return (T)model.GetValue(iter, index);
+        }
+
+        public void Dispose()
+        {
+            View.ButtonPressEvent -= BranchTreeOnButtonPress;
+
+            GC.SuppressFinalize(this);
         }
     }
 

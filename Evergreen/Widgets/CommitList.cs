@@ -7,7 +7,7 @@ using Gtk;
 
 namespace Evergreen.Widgets
 {
-    public class CommitList
+    public class CommitList : IDisposable
     {
         private GitService Git { get; }
         private TreeView View { get; }
@@ -24,8 +24,6 @@ namespace Evergreen.Widgets
         public CommitList Build()
         {
             View.CursorChanged += CommitListCursorChanged;
-
-            var commits = Git.GetCommits();
 
             if (View.Columns.Length == 0)
             {
@@ -48,33 +46,6 @@ namespace Evergreen.Widgets
                 View.AppendColumn(dateColumn);
                 View.AppendColumn(idColumn);
             }
-
-            store = new TreeStore(
-                typeof(string),
-                typeof(string),
-                typeof(string),
-                typeof(string),
-                typeof(string)
-            );
-
-            foreach (var commit in commits)
-            {
-                var commitDate = $"{commit.Author.When:dd MMM yyyy HH:mm}";
-                var author = commit.Author.Name;
-                var message = commit.MessageShort;
-                var sha = commit.Sha.Substring(0, 7);
-                var id = commit.Id.Sha;
-
-                store.AppendValues(
-                    message,
-                    author,
-                    sha,
-                    commitDate,
-                    id
-                );
-            }
-
-            View.Model = store;
 
             return this;
         }
@@ -139,6 +110,13 @@ namespace Evergreen.Widgets
             }
 
             handler(this, e);
+        }
+
+        public void Dispose()
+        {
+            View.CursorChanged -= CommitListCursorChanged;
+
+            GC.SuppressFinalize(this);
         }
     }
 

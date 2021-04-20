@@ -9,7 +9,7 @@ using LibGit2Sharp;
 
 namespace Evergreen.Widgets
 {
-    public class CommitFiles
+    public class CommitFiles : IDisposable
     {
         private GitService Git { get; }
         private TreeView View { get; }
@@ -127,6 +127,13 @@ namespace Evergreen.Widgets
             };
 
             return $"{prefix} {name}";
+        }
+
+        public void Dispose()
+        {
+            View.CursorChanged -= CommitFilesCursorChanged;
+
+            GC.SuppressFinalize(this);
         }
     }
 
