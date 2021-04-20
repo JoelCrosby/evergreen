@@ -153,7 +153,16 @@ namespace Evergreen.Windows
 
         private async void PullClicked(object sender, EventArgs _)
         {
-            await Git.Pull();
+            var result = await Git.Pull();
+
+            if (!result.IsSuccess)
+            {
+                await messageBarWidget.Error($"Pull failed. {result.Message}");
+            }
+            else
+            {
+                await messageBarWidget.Open("Pull complete.");
+            }
 
             RefreshBranchTree();
             RefreshCommitList();
@@ -166,7 +175,16 @@ namespace Evergreen.Windows
 
         private async void PushClicked(object sender, EventArgs _)
         {
-            await Git.Push();
+            var result = await Git.Push();
+
+            if (!result.IsSuccess)
+            {
+                await messageBarWidget.Error($"Push failed. {result.Message}");
+            }
+            else
+            {
+                await messageBarWidget.Open("Push complete.");
+            }
 
             RefreshBranchTree();
             RefreshCommitList();
@@ -193,9 +211,14 @@ namespace Evergreen.Windows
             RefreshBranchTree();
         }
 
-        private void FastforwardClicked(object sender, BranchClickedEventArgs e)
+        private async void FastforwardClicked(object sender, BranchClickedEventArgs e)
         {
-            Git.FastForwad(e.Branch);
+            var result = await Git.FastForwad(e.Branch);
+
+            if (!result.IsSuccess)
+            {
+                await messageBarWidget.Error("Failed to delete branch.");
+            }
 
             RefreshBranchTree();
             RefreshCommitList();
@@ -203,7 +226,16 @@ namespace Evergreen.Windows
 
         private async void DeleteBranchClicked(object sender, BranchClickedEventArgs e)
         {
-            await Git.DeleteBranch(e.Branch);
+            var result = await Git.DeleteBranch(e.Branch);
+
+            if (!result.IsSuccess)
+            {
+                await messageBarWidget.Error($"Failed to delete branch {e.Branch}.");
+            }
+            else
+            {
+                await messageBarWidget.Open($"Branch {e.Branch} deleted.");
+            }
 
             RefreshBranchTree();
             RefreshCommitList();
@@ -229,9 +261,18 @@ namespace Evergreen.Windows
             }
         }
 
-        private void BranchCreated(object sender, CreateBranchEventArgs e)
+        private async void BranchCreated(object sender, CreateBranchEventArgs e)
         {
-            Git.CreateBranch(e.Name, e.Checkout);
+            var result = Git.CreateBranch(e.Name, e.Checkout);
+
+            if (!result.IsSuccess)
+            {
+                await messageBarWidget.Error("Failed to create new branch.");
+            }
+            else
+            {
+                await messageBarWidget.Open("Branch created.");
+            }
 
             RefreshBranchTree();
             RefreshCommitList();

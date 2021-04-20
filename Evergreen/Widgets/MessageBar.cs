@@ -30,6 +30,14 @@ namespace Evergreen.Widgets
             return Task.Run(Reveal);
         }
 
+        public Task Error(string msg)
+        {
+            MessageLabel.Text = msg;
+            View.MessageType = MessageType.Error;
+
+            return Task.Run(Reveal);
+        }
+
         private async Task Reveal()
         {
             Show();
