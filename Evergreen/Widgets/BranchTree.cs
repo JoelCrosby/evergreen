@@ -223,8 +223,6 @@ namespace Evergreen.Widgets
         public void Dispose()
         {
             View.ButtonPressEvent -= BranchTreeOnButtonPress;
-
-            GC.SuppressFinalize(this);
         }
     }
 

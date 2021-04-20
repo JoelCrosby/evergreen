@@ -139,8 +139,6 @@ namespace Evergreen.Widgets
         public void Dispose()
         {
             View.CursorChanged -= CommitFilesCursorChanged;
-
-            GC.SuppressFinalize(this);
         }
     }
 

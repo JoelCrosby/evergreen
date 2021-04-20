@@ -10,7 +10,7 @@ using UI = Gtk.Builder.ObjectAttribute;
 
 namespace Evergreen.Dialogs
 {
-    public class CreateBranch : Dialog
+    public class CreateBranch : Dialog, IDisposable
     {
         #pragma warning disable 0649
 
@@ -110,6 +110,14 @@ namespace Evergreen.Dialogs
             }
 
             handler(this, e);
+        }
+
+        public new void Dispose()
+        {
+            base.Dispose();
+
+            btnCancel.Clicked -= CancelClicked;
+            btnCreate.Clicked -= CreateClicked;
         }
     }
 

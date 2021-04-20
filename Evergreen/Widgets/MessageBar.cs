@@ -66,8 +66,6 @@ namespace Evergreen.Widgets
         public void Dispose()
         {
             View.Respond -= OnRespond;
-
-            GC.SuppressFinalize(this);
         }
     }
 }

@@ -96,6 +96,7 @@ namespace Evergreen.Windows
             branchTreeWidget?.Dispose();
             commitListWidget?.Dispose();
             messageBarWidget?.Dispose();
+            createBranchDialog?.Dispose();
 
             // Evergreen widgets
             branchTreeWidget = new BranchTree(branchTree, Git).Build();
