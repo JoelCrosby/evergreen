@@ -12,12 +12,16 @@ namespace Evergreen.Dialogs
 {
     public class CreateBranch : Dialog
     {
+        #pragma warning disable 0649
+
         [UI] private readonly Button btnCancel;
         [UI] private readonly Button btnCreate;
         [UI] private readonly CheckButton checkCheckout;
         [UI] private readonly HeaderBar headerBar;
         [UI] private readonly Label labelErrorText;
         [UI] private readonly Entry entryBranchName;
+
+        #pragma warning restore 064
 
         public event EventHandler<CreateBranchEventArgs> BranchCreated;
 

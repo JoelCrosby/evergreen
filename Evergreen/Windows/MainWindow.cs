@@ -18,6 +18,8 @@ namespace Evergreen.Windows
 {
     public class MainWindow : Window
     {
+        #pragma warning disable 0649
+
         [UI] private readonly TreeView branchTree;
         [UI] private readonly TreeView commitList;
         [UI] private readonly Button openRepo;
@@ -38,6 +40,8 @@ namespace Evergreen.Windows
         [UI] private readonly SearchBar searchBar;
         [UI] private readonly Paned commitFilesDiffPanned;
         [UI] private readonly Spinner spinner;
+
+        #pragma warning restore 064
 
         private RepositorySession ActiveSession { get; set; }
         private GitService Git { get; set; }
