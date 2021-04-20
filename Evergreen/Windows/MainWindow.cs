@@ -1,3 +1,4 @@
+using System.Diagnostics;
 using System;
 
 using Evergreen.Utils;
@@ -36,6 +37,7 @@ namespace Evergreen.Windows
         [UI] private readonly Label infoMessage;
         [UI] private readonly SearchBar searchBar;
         [UI] private readonly Paned commitFilesDiffPanned;
+        [UI] private readonly Spinner spinner;
 
         private RepositorySession ActiveSession { get; set; }
         private GitService Git { get; set; }
@@ -136,6 +138,8 @@ namespace Evergreen.Windows
 
         private async void FetchClicked(object sender, EventArgs _)
         {
+            ShowSpinner();
+
             var result = await Git.Fetch();
 
             if (!result.IsSuccess)
@@ -144,15 +148,19 @@ namespace Evergreen.Windows
             }
             else
             {
+                RefreshBranchTree();
+                RefreshCommitList();
+
                 await messageBarWidget.Open("Fetch complete.");
             }
 
-            RefreshBranchTree();
-            RefreshCommitList();
+            HideSpinner();
         }
 
         private async void PullClicked(object sender, EventArgs _)
         {
+            ShowSpinner();
+
             var result = await Git.Pull();
 
             if (!result.IsSuccess)
@@ -161,11 +169,13 @@ namespace Evergreen.Windows
             }
             else
             {
+                RefreshBranchTree();
+                RefreshCommitList();
+
                 await messageBarWidget.Open("Pull complete.");
             }
 
-            RefreshBranchTree();
-            RefreshCommitList();
+            HideSpinner();
         }
 
         private void SearchClicked(object sender, EventArgs _)
@@ -175,6 +185,8 @@ namespace Evergreen.Windows
 
         private async void PushClicked(object sender, EventArgs _)
         {
+            ShowSpinner();
+
             var result = await Git.Push();
 
             if (!result.IsSuccess)
@@ -183,11 +195,13 @@ namespace Evergreen.Windows
             }
             else
             {
+                RefreshBranchTree();
+                RefreshCommitList();
+
                 await messageBarWidget.Open("Push complete.");
             }
 
-            RefreshBranchTree();
-            RefreshCommitList();
+            HideSpinner();
         }
 
         private void AboutClicked(object sender, EventArgs _)
@@ -213,15 +227,21 @@ namespace Evergreen.Windows
 
         private async void FastforwardClicked(object sender, BranchClickedEventArgs e)
         {
+            ShowSpinner();
+
             var result = await Git.FastForwad(e.Branch);
 
             if (!result.IsSuccess)
             {
                 await messageBarWidget.Error("Failed to delete branch.");
             }
+            else
+            {
+                RefreshBranchTree();
+                RefreshCommitList();
+            }
 
-            RefreshBranchTree();
-            RefreshCommitList();
+            HideSpinner();
         }
 
         private async void DeleteBranchClicked(object sender, BranchClickedEventArgs e)
@@ -234,11 +254,11 @@ namespace Evergreen.Windows
             }
             else
             {
+                RefreshBranchTree();
+                RefreshCommitList();
+
                 await messageBarWidget.Open($"Branch {e.Branch} deleted.");
             }
-
-            RefreshBranchTree();
-            RefreshCommitList();
         }
 
         private void CommitSelected(object sender, CommitSelectedEventArgs e)
@@ -286,6 +306,17 @@ namespace Evergreen.Windows
         private void RefreshCommitList()
         {
             commitListWidget.Refresh();
+        }
+
+        private void ShowSpinner()
+        {
+            spinner.Active = true;
+            spinner.Show();
+        }
+
+        private void HideSpinner()
+        {
+            spinner.Hide();
         }
     }
 }
