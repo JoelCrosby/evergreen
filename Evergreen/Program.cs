@@ -1,5 +1,7 @@
+using System.IO;
 using System;
 
+using Evergreen.Lib.Helpers;
 using Evergreen.Windows;
 
 using GLib;
@@ -21,8 +23,34 @@ namespace Evergreen
             var win = new MainWindow();
             app.AddWindow(win);
 
+            AppDomain.CurrentDomain.UnhandledException += ApplicationExceptionHandler;
+
             win.Show();
             Application.Run();
+        }
+
+        private static void ApplicationExceptionHandler(object _, UnhandledExceptionEventArgs e)
+        {
+            var logDir = PathUtils.GetCacheFolder();
+
+            try
+            {
+                var stacktrace = (e.ExceptionObject as Exception)?.StackTrace;
+
+                if (stacktrace is {})
+                {
+                    Directory.CreateDirectory(logDir);
+
+                    using var fs = File.OpenWrite(Path.Join(logDir, "error.log"));
+                    using var sw = new StreamWriter(fs);
+
+                    sw.Write(stacktrace);
+                }
+            }
+            catch
+            {
+                Environment.Exit(1);
+            }
         }
     }
 }

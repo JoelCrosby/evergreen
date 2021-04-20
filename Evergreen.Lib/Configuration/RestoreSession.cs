@@ -2,6 +2,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Text.Json;
 
+using Evergreen.Lib.Helpers;
 using Evergreen.Lib.Session;
 
 namespace Evergreen.Lib.Configuration
@@ -62,7 +63,7 @@ namespace Evergreen.Lib.Configuration
 
         private static string GetSessionCachePath()
         {
-            var configFolder = LocalStorage.GetConfigurationFolder();
+            var configFolder = PathUtils.GetConfigurationFolder();
 
             return Path.Join(configFolder, "session.cache");
         }
