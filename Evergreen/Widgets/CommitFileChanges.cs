@@ -118,10 +118,12 @@ namespace Evergreen.Widgets
                 }
             }
 
-            if (firstMark is {})
-            {
-                View.ScrollToMark(firstMark, 4, true, 0, 4);
-            }
+            // TODO: Implement scrolling to first change in diff.
+
+            // if (firstMark is {})
+            // {
+            //     View.ScrollToMark(firstMark, 4, true, 0, 4);
+            // }
 
             return true;
         }
