@@ -117,7 +117,7 @@ namespace Evergreen.Windows
             // Update titles
             Title = $"{session.RepositoryFriendlyName} - Evergreen";
             headerBar.Title = $"{session.RepositoryFriendlyName} - Evergreen";
-            headerBar.Subtitle = Git.GetPath();
+            headerBar.Subtitle = Git.GetFreindlyPath();
 
             commitShaLabel.Text = string.Empty;
             commitFileLabel.Text = string.Empty;

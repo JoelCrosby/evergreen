@@ -61,5 +61,17 @@ namespace Evergreen.Lib.Helpers
 
             return Path.Join(homeDrive, homePath);
         }
+
+        public static string SubHomePath(this string path)
+        {
+            var home = GetHomeFolder();
+
+            if (path.StartsWith(home))
+            {
+                return $"~{path[home.Length..]}";
+            }
+
+            return path;
+        }
     }
 }

@@ -36,6 +36,7 @@ namespace Evergreen.Lib.Git
         public string GetHeadFriendlyName() => repository.Head.FriendlyName;
 
         public string GetPath() => repository.Info.WorkingDirectory;
+        public string GetFreindlyPath() => repository.Info.WorkingDirectory.SubHomePath();
 
         public IEnumerable<Commit> GetCommits()
         {
