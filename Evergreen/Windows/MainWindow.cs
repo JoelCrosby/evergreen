@@ -113,6 +113,7 @@ namespace Evergreen.Windows
             commitFilesWidget.CommitFileSelected += CommitFileSelected;
             createBranchDialog.BranchCreated += BranchCreated;
 
+            // Update titles
             Title = $"{session.RepositoryFriendlyName} - Evergreen";
             headerBar.Title = $"{session.RepositoryFriendlyName} - Evergreen";
             headerBar.Subtitle = Git.GetPath();
@@ -122,6 +123,8 @@ namespace Evergreen.Windows
 
             branchTreeWidget.Refresh();
             commitListWidget.Refresh();
+            commitFilesWidget.Clear();
+            commitFileChangesWidget.Clear();
 
             RestoreSession.SaveSession(Session);
         }

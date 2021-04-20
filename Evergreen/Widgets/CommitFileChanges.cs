@@ -29,7 +29,7 @@ namespace Evergreen.Widgets
 
         public CommitFileChanges Build()
         {
-            View.Buffer.HighlightSyntax = true;
+            Clear();
 
             View.SetMarkAttributes("Inserted", new MarkAttributes
             {
@@ -128,12 +128,19 @@ namespace Evergreen.Widgets
             return true;
         }
 
-        private Buffer CreateBuffer()
+        public bool Clear()
         {
-            var buffer = new Buffer();
-            View.Buffer.HighlightSyntax = true;
+            View.Buffer = CreateBuffer();
 
-            return buffer;
+            return true;
+        }
+
+        private static Buffer CreateBuffer()
+        {
+            return new Buffer
+            {
+                HighlightSyntax = true
+            };
         }
 
         private static Language GetLanguage(string path)

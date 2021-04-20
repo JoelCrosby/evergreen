@@ -70,6 +70,13 @@ namespace Evergreen.Widgets
             return true;
         }
 
+        public bool Clear()
+        {
+           View.Model = null;
+
+            return true;
+        }
+
         private void CommitFilesCursorChanged(object sender, EventArgs args)
         {
             View.Selection.SelectedForeach((model, _, iter) =>
