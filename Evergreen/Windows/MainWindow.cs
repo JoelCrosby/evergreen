@@ -295,11 +295,11 @@ namespace Evergreen.Windows
             }
             else
             {
+                RefreshBranchTree();
+                RefreshCommitList();
+
                 await messageBarWidget.Open("Branch created.");
             }
-
-            RefreshBranchTree();
-            RefreshCommitList();
         }
 
         private void RefreshBranchTree()
