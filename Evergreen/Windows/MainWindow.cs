@@ -49,8 +49,8 @@ namespace Evergreen.Windows
         private CommitFiles commitFilesWidget;
         private CommitFileChanges commitFileChangesWidget;
         private MessageBar messageBarWidget;
-        private CreateBranch createBranchDialog;
-        private About aboutDialog;
+        private CreateBranchDialog createBranchDialog;
+        private Dialogs.AboutDialog aboutDialog;
 
         private SourceView commitFileSourceView;
 
@@ -110,8 +110,8 @@ namespace Evergreen.Windows
             commitFilesWidget = new CommitFiles(commitFiles, Git).Build();
             commitFileChangesWidget = new CommitFileChanges(commitFileSourceView, Git).Build();
             messageBarWidget = new MessageBar(infoBar, infoMessage).Build();
-            createBranchDialog = new CreateBranch().Build(Git);
-            aboutDialog = new About();
+            createBranchDialog = new CreateBranchDialog().Build(Git);
+            aboutDialog = new Dialogs.AboutDialog();
 
             // Evergreen widget events
             commitListWidget.CommitSelected += CommitSelected;

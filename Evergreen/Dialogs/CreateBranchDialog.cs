@@ -10,7 +10,7 @@ using UI = Gtk.Builder.ObjectAttribute;
 
 namespace Evergreen.Dialogs
 {
-    public class CreateBranch : Dialog, IDisposable
+    public class CreateBranchDialog : Dialog, IDisposable
     {
         #pragma warning disable 0649
 
@@ -27,9 +27,9 @@ namespace Evergreen.Dialogs
 
         private GitService Git { get; set; }
 
-        public CreateBranch() : this(new Builder("create-branch.ui")) { }
+        public CreateBranchDialog() : this(new Builder("create-branch.ui")) { }
 
-        private CreateBranch(Builder builder) : base(builder.GetObject("create-branch").Handle)
+        private CreateBranchDialog(Builder builder) : base(builder.GetObject("create-branch").Handle)
         {
             builder.Autoconnect(this);
 
@@ -37,7 +37,7 @@ namespace Evergreen.Dialogs
             btnCreate.Clicked += CreateClicked;
         }
 
-        public CreateBranch Build(GitService git)
+        public CreateBranchDialog Build(GitService git)
         {
             Git = git;
 

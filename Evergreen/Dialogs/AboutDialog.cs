@@ -4,11 +4,11 @@ using Gtk;
 
 namespace Evergreen.Dialogs
 {
-    public class About : Dialog, IDisposable
+    public class AboutDialog : Dialog, IDisposable
     {
-        public About() : this(new Builder("about.ui")) { }
+        public AboutDialog() : this(new Builder("about.ui")) { }
 
-        private About(Builder builder) : base(builder.GetObject("about").Handle)
+        private AboutDialog(Builder builder) : base(builder.GetObject("about").Handle)
         {
             builder.Autoconnect(this);
 
