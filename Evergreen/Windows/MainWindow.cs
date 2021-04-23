@@ -28,7 +28,6 @@ namespace Evergreen.Windows
         [UI] private readonly Button btnCreateBranch;
         [UI] private readonly Button search;
         [UI] private readonly Button about;
-        [UI] private readonly AboutDialog aboutDialog;
         [UI] private readonly TreeView commitFiles;
         [UI] private readonly Label commitShaLabel;
         [UI] private readonly Label commitFileLabel;
@@ -51,6 +50,7 @@ namespace Evergreen.Windows
         private CommitFileChanges commitFileChangesWidget;
         private MessageBar messageBarWidget;
         private CreateBranch createBranchDialog;
+        private About aboutDialog;
 
         private SourceView commitFileSourceView;
 
@@ -71,7 +71,6 @@ namespace Evergreen.Windows
             push.Clicked += PushClicked;
             search.Clicked += SearchClicked;
             about.Clicked += AboutClicked;
-            aboutDialog.ButtonPressEvent += AboutClose;
             btnCreateBranch.Clicked += CreateBranchClicked;
 
             // Set the clientside headerbar
@@ -103,6 +102,7 @@ namespace Evergreen.Windows
             commitListWidget?.Dispose();
             messageBarWidget?.Dispose();
             createBranchDialog?.Dispose();
+            aboutDialog?.Dispose();
 
             // Evergreen widgets
             branchTreeWidget = new BranchTree(branchTree, Git).Build();
@@ -111,6 +111,7 @@ namespace Evergreen.Windows
             commitFileChangesWidget = new CommitFileChanges(commitFileSourceView, Git).Build();
             messageBarWidget = new MessageBar(infoBar, infoMessage).Build();
             createBranchDialog = new CreateBranch().Build(Git);
+            aboutDialog = new About();
 
             // Evergreen widget events
             commitListWidget.CommitSelected += CommitSelected;
@@ -232,11 +233,6 @@ namespace Evergreen.Windows
         private void AboutClicked(object sender, EventArgs _)
         {
             aboutDialog.Show();
-        }
-
-        private void AboutClose(object sender, EventArgs _)
-        {
-            aboutDialog.Hide();
         }
 
         private void CreateBranchClicked(object sender, EventArgs _)
