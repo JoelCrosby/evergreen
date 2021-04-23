@@ -272,6 +272,13 @@ namespace Evergreen.Lib.Git
             return sr.ReadToEnd();
         }
 
+        public int GetHeadDiffCount()
+        {
+            // TODO: Implement actual change count
+
+            return 0;
+        }
+
         private async Task<Result<ExecResult>> ExecAsync(string args)
         {
             try

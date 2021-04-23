@@ -14,9 +14,13 @@ namespace Evergreen.Widgets
         private TreeView View { get; }
         private TreeStore store;
 
-        public event EventHandler<BranchClickedEventArgs> CheckoutClicked;
-        public event EventHandler<BranchClickedEventArgs> DeleteClicked;
-        public event EventHandler<BranchClickedEventArgs> FastForwardClicked;
+        private const string ChangesItemId = "evergreen:changes";
+
+        public event EventHandler<BranchSelectedEventArgs> CheckoutClicked;
+        public event EventHandler<BranchSelectedEventArgs> DeleteClicked;
+        public event EventHandler<BranchSelectedEventArgs> FastForwardClicked;
+        public event EventHandler<EventArgs> ChangesSelected;
+        public event EventHandler<BranchSelectedEventArgs> BranchSelected;
 
         public BranchTree(TreeView view, GitService git)
         {
@@ -26,7 +30,9 @@ namespace Evergreen.Widgets
 
         public BranchTree Build()
         {
+            View.HeadersVisible = false;
             View.ButtonPressEvent += BranchTreeOnButtonPress;
+            View.CursorChanged += BranchTreeCursorChanged;
 
             // Init cells
 
@@ -82,6 +88,17 @@ namespace Evergreen.Widgets
                 }
             }
 
+            var headIter = store.AppendValues(Git.Session.RepositoryFriendlyName, "head", Pango.Weight.Bold);
+
+            var changeCount = Git.GetHeadDiffCount();
+
+            var treeIter = store.AppendValues(
+                headIter,
+                $"Changes ({changeCount})",
+                ChangesItemId,
+                Pango.Weight.Normal
+            );
+
             var branchesIter = store.AppendValues("Branches", "branches", Pango.Weight.Bold);
 
             foreach (var b in tree.Local)
@@ -100,6 +117,27 @@ namespace Evergreen.Widgets
             View.EnableSearch = true;
 
             View.Columns[0].Title = Git.Session.RepositoryFriendlyName;
+        }
+
+        private void BranchTreeCursorChanged(object sender, EventArgs args)
+        {
+            var selected = GetSelected<string>(1);
+
+            if (string.IsNullOrEmpty(selected))
+            {
+                return;
+            }
+
+            if (selected == ChangesItemId)
+            {
+                OnChangesSelected();
+                return;
+            }
+
+            OnBranchSelectedChanged(new BranchSelectedEventArgs
+            {
+                Branch = selected,
+            });
         }
 
         [GLib.ConnectBefore]
@@ -141,13 +179,13 @@ namespace Evergreen.Widgets
                 return;
             }
 
-            OnCheckoutClicked(new BranchClickedEventArgs
+            OnCheckoutClicked(new BranchSelectedEventArgs
             {
                 Branch = branch,
             });
         }
 
-        protected virtual void OnCheckoutClicked(BranchClickedEventArgs e)
+        protected virtual void OnCheckoutClicked(BranchSelectedEventArgs e)
         {
             var handler = CheckoutClicked;
 
@@ -168,13 +206,13 @@ namespace Evergreen.Widgets
                 return;
             }
 
-            OnFastForwardClicked(new BranchClickedEventArgs
+            OnFastForwardClicked(new BranchSelectedEventArgs
             {
                 Branch = branch,
             });
         }
 
-        protected virtual void OnFastForwardClicked(BranchClickedEventArgs e)
+        protected virtual void OnFastForwardClicked(BranchSelectedEventArgs e)
         {
             var handler = FastForwardClicked;
 
@@ -195,13 +233,13 @@ namespace Evergreen.Widgets
                 return;
             }
 
-            OnDeleteClicked(new BranchClickedEventArgs
+            OnDeleteClicked(new BranchSelectedEventArgs
             {
                 Branch = branch,
             });
         }
 
-        protected virtual void OnDeleteClicked(BranchClickedEventArgs e)
+        protected virtual void OnDeleteClicked(BranchSelectedEventArgs e)
         {
             var handler = DeleteClicked;
 
@@ -211,6 +249,30 @@ namespace Evergreen.Widgets
             }
 
             handler(this, e);
+        }
+
+        protected virtual void OnBranchSelectedChanged(BranchSelectedEventArgs e)
+        {
+            var handler = BranchSelected;
+
+            if (handler is null)
+            {
+                return;
+            }
+
+            handler(this, e);
+        }
+
+        protected virtual void OnChangesSelected()
+        {
+            var handler = ChangesSelected;
+
+            if (handler is null)
+            {
+                return;
+            }
+
+            handler(this, EventArgs.Empty);
         }
 
         private T GetSelected<T>(int index)
@@ -223,10 +285,11 @@ namespace Evergreen.Widgets
         public void Dispose()
         {
             View.ButtonPressEvent -= BranchTreeOnButtonPress;
+            View.CursorChanged -= BranchTreeCursorChanged;
         }
     }
 
-    public class BranchClickedEventArgs : EventArgs
+    public class BranchSelectedEventArgs : EventArgs
     {
         public string Branch { get; set; }
     }

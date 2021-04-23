@@ -240,13 +240,13 @@ namespace Evergreen.Windows
             createBranchDialog.Show();
         }
 
-        private void CheckoutClicked(object sender, BranchClickedEventArgs e)
+        private void CheckoutClicked(object sender, BranchSelectedEventArgs e)
         {
             Git.Checkout(e.Branch);
             RefreshBranchTree();
         }
 
-        private async void FastforwardClicked(object sender, BranchClickedEventArgs e)
+        private async void FastforwardClicked(object sender, BranchSelectedEventArgs e)
         {
             ShowSpinner();
 
@@ -265,7 +265,7 @@ namespace Evergreen.Windows
             HideSpinner();
         }
 
-        private async void DeleteBranchClicked(object sender, BranchClickedEventArgs e)
+        private async void DeleteBranchClicked(object sender, BranchSelectedEventArgs e)
         {
             var result = await Git.DeleteBranch(e.Branch);
 
