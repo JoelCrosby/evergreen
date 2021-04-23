@@ -63,7 +63,8 @@ namespace Evergreen.Windows
             BuildDiffView();
 
             // Gtk widget events
-            DeleteEvent += Window_DeleteEvent;
+            DeleteEvent += WindowDeleteEvent;
+            FocusInEvent += WindowFocusGrabbed;
             openRepo.Clicked += OpenRepoClicked;
             fetch.Clicked += FetchClicked;
             pull.Clicked += PullClicked;
@@ -79,10 +80,15 @@ namespace Evergreen.Windows
             RenderSession(RestoreSession.LoadSession());
         }
 
-        private void Window_DeleteEvent(object sender, DeleteEventArgs a)
+        private void WindowDeleteEvent(object sender, DeleteEventArgs a)
         {
             RestoreSession.SaveSession(Session);
             Application.Quit();
+        }
+
+        private void WindowFocusGrabbed(object sender, FocusInEventArgs a)
+        {
+            Console.WriteLine("Focused");
         }
 
         private void RenderSession(RepositorySession session)
