@@ -33,6 +33,7 @@ namespace Evergreen.Widgets
 
             View.SetMarkAttributes("Inserted", new MarkAttributes
             {
+                IconName = "list-add",
                 Background =  new RGBA
                 {
                     Alpha = 0.1,
@@ -44,6 +45,7 @@ namespace Evergreen.Widgets
 
             View.SetMarkAttributes("Deleted", new MarkAttributes
             {
+                IconName = "list-remove",
                 Background =  new RGBA
                 {
                     Alpha = 0.1,
