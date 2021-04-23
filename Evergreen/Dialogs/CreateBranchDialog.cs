@@ -47,6 +47,7 @@ namespace Evergreen.Dialogs
         public new Result<CreateBranchResult> Show()
         {
             headerBar.Subtitle = $"Base - {Git.GetHeadFriendlyName()}";
+            checkCheckout.Active = true;
 
             base.Show();
 
@@ -66,6 +67,12 @@ namespace Evergreen.Dialogs
         {
             var name = entryBranchName.Text;
             var checkout = checkCheckout.Active;
+
+            if (string.IsNullOrWhiteSpace(name))
+            {
+                ShowError("please enter a name for the branch");
+                return;
+            }
 
             if (name.Contains(" "))
             {
