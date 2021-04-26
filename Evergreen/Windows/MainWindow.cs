@@ -21,6 +21,8 @@ namespace Evergreen.Windows
 
         [UI] private readonly TreeView branchTree;
         [UI] private readonly TreeView commitList;
+        [UI] private readonly TreeView stagedList;
+        [UI] private readonly TreeView untrackedList;
         [UI] private readonly Button openRepo;
         [UI] private readonly Button fetch;
         [UI] private readonly Button pull;
@@ -38,8 +40,6 @@ namespace Evergreen.Windows
         [UI] private readonly SearchBar searchBar;
         [UI] private readonly Paned commitFilesDiffPanned;
         [UI] private readonly Spinner spinner;
-        [UI] private readonly Paned commitListView;
-        [UI] private readonly Paned changesListView;
         [UI] private readonly Stack changesViewStack;
 
         #pragma warning restore 064
@@ -48,6 +48,8 @@ namespace Evergreen.Windows
         private GitService Git { get; set; }
 
         private BranchTree branchTreeWidget;
+        private StagedFiles stagedFilesWidget;
+        private UntrackedFiles untrackedFilesWidget;
         private CommitList commitListWidget;
         private CommitFiles commitFilesWidget;
         private CommitFileChanges commitFileChangesWidget;
@@ -110,6 +112,8 @@ namespace Evergreen.Windows
             // Evergreen widgets
             branchTreeWidget = new BranchTree(branchTree, Git).Build();
             commitListWidget = new CommitList(commitList, Git).Build();
+            stagedFilesWidget = new StagedFiles(stagedList, Git).Build();
+            untrackedFilesWidget = new UntrackedFiles(untrackedList, Git).Build();
             commitFilesWidget = new CommitFiles(commitFiles, Git).Build();
             commitFileChangesWidget = new CommitFileChanges(commitFileSourceView, Git).Build();
             messageBarWidget = new MessageBar(infoBar, infoMessage).Build();
