@@ -331,7 +331,7 @@
                   <object class="GtkPaned" id="changesListView">
                     <property name="visible">True</property>
                     <property name="can-focus">True</property>
-                    <property name="position">160</property>
+                    <property name="position">320</property>
                     <child>
                       <object class="GtkBox">
                         <property name="visible">True</property>
