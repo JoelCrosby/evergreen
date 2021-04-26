@@ -38,6 +38,9 @@ namespace Evergreen.Windows
         [UI] private readonly SearchBar searchBar;
         [UI] private readonly Paned commitFilesDiffPanned;
         [UI] private readonly Spinner spinner;
+        [UI] private readonly Paned commitListView;
+        [UI] private readonly Paned changesListView;
+        [UI] private readonly Stack changesViewStack;
 
         #pragma warning restore 064
 
@@ -118,6 +121,8 @@ namespace Evergreen.Windows
             branchTreeWidget.CheckoutClicked += CheckoutClicked;
             branchTreeWidget.FastForwardClicked += FastforwardClicked;
             branchTreeWidget.DeleteClicked += DeleteBranchClicked;
+            branchTreeWidget.ChangesSelected += ChangesSelected;
+            branchTreeWidget.BranchSelected += BranchSelected;
             commitFilesWidget.CommitFileSelected += CommitFileSelected;
             createBranchDialog.BranchCreated += BranchCreated;
 
@@ -282,6 +287,16 @@ namespace Evergreen.Windows
             }
         }
 
+        private void ChangesSelected(object sender, EventArgs e)
+        {
+            ChangeView(ChangesView.ChangesList);
+        }
+
+        private void BranchSelected(object sender, EventArgs e)
+        {
+            ChangeView(ChangesView.CommitList);
+        }
+
         private void CommitSelected(object sender, CommitSelectedEventArgs e)
         {
             if (commitFilesWidget.Update(e.CommitId))
@@ -339,5 +354,23 @@ namespace Evergreen.Windows
         {
             spinner.Hide();
         }
+
+        public void ChangeView(ChangesView view)
+        {
+            if (view == ChangesView.ChangesList)
+            {
+                changesViewStack.SetVisibleChildFull("changesViewContainer", StackTransitionType.OverRight);
+
+                return;
+            }
+
+            changesViewStack.SetVisibleChildFull("commitsViewContainer", StackTransitionType.OverLeft);
+        }
+    }
+
+    public enum ChangesView
+    {
+        CommitList = 0,
+        ChangesList = 1,
     }
 }
