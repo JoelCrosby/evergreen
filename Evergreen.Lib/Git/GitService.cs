@@ -46,6 +46,11 @@ namespace Evergreen.Lib.Git
             });
         }
 
+        public Commit GetHeadCommit()
+        {
+            return repository.Head.Commits.FirstOrDefault();
+        }
+
         public BranchTree GetBranchTree()
         {
             var branches = repository.Branches.ToList();
@@ -135,6 +140,18 @@ namespace Evergreen.Lib.Git
             }
 
             return repository.Diff.Compare<TreeChanges>(prevCommit.Tree, commit.Tree);
+        }
+
+        public IEnumerable<StatusEntry> GetStagedFiles()
+        {
+            var status = repository.RetrieveStatus();
+
+            return status.Staged;
+        }
+
+        public TreeChanges GetChangedFiles()
+        {
+            return repository.Diff.Compare<TreeChanges>();
         }
 
         public Patch GetCommitPatch(string commitId)
@@ -274,9 +291,10 @@ namespace Evergreen.Lib.Git
 
         public int GetHeadDiffCount()
         {
-            // TODO: Implement actual change count
+            var changes = GetChangedFiles();
+            var staged = GetStagedFiles();
 
-            return 0;
+            return changes.Count + staged.Count();
         }
 
         private async Task<Result<ExecResult>> ExecAsync(string args)

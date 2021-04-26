@@ -19,7 +19,7 @@ namespace Evergreen.Widgets
 
         public event EventHandler<FilesSelectedEventArgs> FilesSelected;
 
-        private TreeChanges commitChanges;
+        private IEnumerable<StatusEntry> changes;
 
         public StagedFiles(TreeView view, GitService git)
         {
@@ -33,7 +33,7 @@ namespace Evergreen.Widgets
 
             if (View.Columns.Length == 0)
             {
-                var nameColumn = Columns.Create("Filename", 0);
+                var nameColumn = Columns.Create("Staged", 0);
                 var pathColumn = Columns.Create("Path", 0, null, true);
 
                 View.AppendColumn(nameColumn);
@@ -43,20 +43,20 @@ namespace Evergreen.Widgets
             return this;
         }
 
-        public bool Update(string commitId)
+        public bool Update()
         {
-            commitChanges = Git.GetCommitFiles(commitId);
+            changes = Git.GetStagedFiles();
 
             store = new TreeStore(
                 typeof(string),
                 typeof(string)
             );
 
-            foreach (var change in commitChanges)
+            foreach (var change in changes)
             {
                 store.AppendValues(
                     GetFileLabel(change),
-                    change.Path
+                    change.FilePath
                 );
             }
 
@@ -91,7 +91,7 @@ namespace Evergreen.Widgets
             OnFilesSelected(new FilesSelectedEventArgs
             {
                 Paths = selectedFiles,
-                CommitChanges = commitChanges,
+                CommitChanges = Git.GetChangedFiles(),
             });
         }
 
@@ -107,22 +107,21 @@ namespace Evergreen.Widgets
             handler(this, e);
         }
 
-        private static string GetFileLabel(TreeEntryChanges change)
+        private static string GetFileLabel(StatusEntry change)
         {
-            var name = Path.GetFileName(change.Path);
-            var prefix = change.Status switch
+            var name = Path.GetFileName(change.FilePath);
+            var prefix = change.State switch
             {
-                ChangeKind.Added => "[A]",
-                ChangeKind.Conflicted => "[CF]",
-                ChangeKind.Copied => "[C]",
-                ChangeKind.Deleted => "[D]",
-                ChangeKind.Ignored => "[I]",
-                ChangeKind.Modified => "[M]",
-                ChangeKind.Renamed => "[R]",
-                ChangeKind.TypeChanged => "[TC]",
-                ChangeKind.Unmodified => "[UM]",
-                ChangeKind.Unreadable => "[UR]",
-                ChangeKind.Untracked => "[UT]",
+                FileStatus.NewInIndex => "[A]",
+                FileStatus.Conflicted => "[CF]",
+                FileStatus.DeletedFromWorkdir => "[D]",
+                FileStatus.Ignored => "[I]",
+                FileStatus.ModifiedInIndex => "[M]",
+                FileStatus.RenamedInIndex => "[R]",
+                FileStatus.TypeChangeInIndex => "[TC]",
+                FileStatus.Unaltered => "[UA]",
+                FileStatus.Unreadable => "[UR]",
+                FileStatus.Nonexistent => "[NE]",
                 _ => "[Unknown]",
             };
 

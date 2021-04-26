@@ -11,7 +11,7 @@ using Evergreen.Lib.Events;
 
 namespace Evergreen.Widgets
 {
-    public class UntrackedFiles : IDisposable
+    public class ChangedFiles : IDisposable
     {
         private GitService Git { get; }
         private TreeView View { get; }
@@ -19,21 +19,21 @@ namespace Evergreen.Widgets
 
         public event EventHandler<FilesSelectedEventArgs> FilesSelected;
 
-        private TreeChanges commitChanges;
+        private TreeChanges changes;
 
-        public UntrackedFiles(TreeView view, GitService git)
+        public ChangedFiles(TreeView view, GitService git)
         {
             View = view;
             Git = git;
         }
 
-        public UntrackedFiles Build()
+        public ChangedFiles Build()
         {
             View.CursorChanged += OnCursorChanged;
 
             if (View.Columns.Length == 0)
             {
-                var nameColumn = Columns.Create("Filename", 0);
+                var nameColumn = Columns.Create("Changes", 0);
                 var pathColumn = Columns.Create("Path", 0, null, true);
 
                 View.AppendColumn(nameColumn);
@@ -43,16 +43,16 @@ namespace Evergreen.Widgets
             return this;
         }
 
-        public bool Update(string commitId)
+        public bool Update()
         {
-            commitChanges = Git.GetCommitFiles(commitId);
+            changes = Git.GetChangedFiles();
 
             store = new TreeStore(
                 typeof(string),
                 typeof(string)
             );
 
-            foreach (var change in commitChanges)
+            foreach (var change in changes)
             {
                 store.AppendValues(
                     GetFileLabel(change),
@@ -91,7 +91,7 @@ namespace Evergreen.Widgets
             OnFilesSelected(new FilesSelectedEventArgs
             {
                 Paths = selectedFiles,
-                CommitChanges = commitChanges,
+                CommitChanges = changes,
             });
         }
 

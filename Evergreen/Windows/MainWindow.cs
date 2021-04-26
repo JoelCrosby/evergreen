@@ -1,3 +1,4 @@
+using System.Linq;
 using System;
 
 using Evergreen.Utils;
@@ -12,6 +13,7 @@ using GtkSource;
 using UI = Gtk.Builder.ObjectAttribute;
 using Window = Gtk.Window;
 using Evergreen.Dialogs;
+using Evergreen.Lib.Events;
 
 namespace Evergreen.Windows
 {
@@ -22,7 +24,7 @@ namespace Evergreen.Windows
         [UI] private readonly TreeView branchTree;
         [UI] private readonly TreeView commitList;
         [UI] private readonly TreeView stagedList;
-        [UI] private readonly TreeView untrackedList;
+        [UI] private readonly TreeView changedList;
         [UI] private readonly Button openRepo;
         [UI] private readonly Button fetch;
         [UI] private readonly Button pull;
@@ -39,6 +41,7 @@ namespace Evergreen.Windows
         [UI] private readonly Label infoMessage;
         [UI] private readonly SearchBar searchBar;
         [UI] private readonly Paned commitFilesDiffPanned;
+        [UI] private readonly Box changesSourceBox;
         [UI] private readonly Spinner spinner;
         [UI] private readonly Stack changesViewStack;
 
@@ -49,15 +52,17 @@ namespace Evergreen.Windows
 
         private BranchTree branchTreeWidget;
         private StagedFiles stagedFilesWidget;
-        private UntrackedFiles untrackedFilesWidget;
+        private ChangedFiles changedFilesWidget;
         private CommitList commitListWidget;
         private CommitFiles commitFilesWidget;
         private CommitFileChanges commitFileChangesWidget;
+        private CommitFileChanges changesFileChangesWidget;
         private MessageBar messageBarWidget;
         private CreateBranchDialog createBranchDialog;
         private Dialogs.AboutDialog aboutDialog;
 
-        private SourceView commitFileSourceView;
+        private readonly SourceView commitFileSourceView;
+        private readonly SourceView changesFileSourceView;
 
         public MainWindow() : this(new Builder("main.ui")) { }
 
@@ -65,7 +70,8 @@ namespace Evergreen.Windows
         {
             builder.Autoconnect(this);
 
-            BuildDiffView();
+            commitFileSourceView = BuildDiffView(commitFilesDiffPanned);
+            changesFileSourceView = BuildDiffView(changesSourceBox);
 
             // Gtk widget events
             DeleteEvent += WindowDeleteEvent;
@@ -104,6 +110,8 @@ namespace Evergreen.Windows
             // Cleanup widgets
             commitFilesWidget?.Dispose();
             branchTreeWidget?.Dispose();
+            stagedFilesWidget?.Dispose();
+            changedFilesWidget?.Dispose();
             commitListWidget?.Dispose();
             messageBarWidget?.Dispose();
             createBranchDialog?.Dispose();
@@ -113,9 +121,10 @@ namespace Evergreen.Windows
             branchTreeWidget = new BranchTree(branchTree, Git).Build();
             commitListWidget = new CommitList(commitList, Git).Build();
             stagedFilesWidget = new StagedFiles(stagedList, Git).Build();
-            untrackedFilesWidget = new UntrackedFiles(untrackedList, Git).Build();
+            changedFilesWidget = new ChangedFiles(changedList, Git).Build();
             commitFilesWidget = new CommitFiles(commitFiles, Git).Build();
             commitFileChangesWidget = new CommitFileChanges(commitFileSourceView, Git).Build();
+            changesFileChangesWidget = new CommitFileChanges(changesFileSourceView, Git).Build();
             messageBarWidget = new MessageBar(infoBar, infoMessage).Build();
             createBranchDialog = new CreateBranchDialog().Build(Git);
             aboutDialog = new Dialogs.AboutDialog();
@@ -129,6 +138,7 @@ namespace Evergreen.Windows
             branchTreeWidget.BranchSelected += BranchSelected;
             commitFilesWidget.CommitFileSelected += CommitFileSelected;
             createBranchDialog.BranchCreated += BranchCreated;
+            changedFilesWidget.FilesSelected += ChangedFileSelected;
 
             // Update titles
             Title = $"{session.RepositoryFriendlyName} - Evergreen";
@@ -142,16 +152,25 @@ namespace Evergreen.Windows
             commitListWidget.Refresh();
             commitFilesWidget.Clear();
             commitFileChangesWidget.Clear();
+            changesFileChangesWidget.Clear();
 
             RestoreSession.SaveSession(Session);
         }
 
-        private void BuildDiffView()
+        private static SourceView BuildDiffView(Widget parent)
         {
             var (sourceView, scroller) = SourceViews.Create();
 
-            commitFileSourceView = sourceView;
-            commitFilesDiffPanned.Pack2(scroller, true, true);
+            if (parent is Paned panned)
+            {
+                panned.Pack2(scroller, true, true);
+            }
+            else if (parent is Box box)
+            {
+                box.PackStart(scroller, true, true, 0);
+            }
+
+            return sourceView;
         }
 
         private void OpenRepoClicked(object sender, EventArgs _)
@@ -321,6 +340,13 @@ namespace Evergreen.Windows
             }
         }
 
+        private void ChangedFileSelected(object sender, FilesSelectedEventArgs e)
+        {
+            var headCommit = Git.GetHeadCommit().Sha;
+
+            changesFileChangesWidget.Render(e.CommitChanges, headCommit, e.Paths.FirstOrDefault());
+        }
+
         private async void BranchCreated(object sender, CreateBranchEventArgs e)
         {
             var result = Git.CreateBranch(e.Name, e.Checkout);
@@ -363,6 +389,9 @@ namespace Evergreen.Windows
         {
             if (view == ChangesView.ChangesList)
             {
+                stagedFilesWidget.Update();
+                changedFilesWidget.Update();
+
                 changesViewStack.SetVisibleChildFull("changesViewContainer", StackTransitionType.OverRight);
 
                 return;

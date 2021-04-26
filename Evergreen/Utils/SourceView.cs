@@ -23,8 +23,6 @@ namespace Evergreen.Utils
                 Monospace = true
             };
 
-            sourceView.SetSizeRequest(400, 4000);
-
             scroller.Add(sourceView);
 
             return (sourceView, scroller);

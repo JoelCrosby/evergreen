@@ -31,6 +31,8 @@ namespace Evergreen.Widgets
         {
             Clear();
 
+            View.Visible = true;
+
             View.SetMarkAttributes("Inserted", new MarkAttributes
             {
                 IconName = "list-add",

@@ -353,7 +353,7 @@
                           </packing>
                         </child>
                         <child>
-                          <object class="GtkTreeView" id="untrackedList">
+                          <object class="GtkTreeView" id="changedList">
                             <property name="visible">True</property>
                             <property name="can-focus">True</property>
                             <child internal-child="selection">
@@ -373,7 +373,7 @@
                       </packing>
                     </child>
                     <child>
-                      <object class="GtkBox">
+                      <object class="GtkBox" id="changesSourceBox">
                         <property name="visible">True</property>
                         <property name="can-focus">False</property>
                         <property name="orientation">vertical</property>
