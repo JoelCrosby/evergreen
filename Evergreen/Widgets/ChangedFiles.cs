@@ -8,36 +8,33 @@ using System.IO;
 using LibGit2Sharp;
 using System.Collections.Generic;
 using Evergreen.Lib.Events;
+using Evergreen.Widgets.Common;
 
 namespace Evergreen.Widgets
 {
-    public class ChangedFiles : IDisposable
+    public class ChangedFiles : TreeWidget, IDisposable
     {
-        private GitService Git { get; }
-        private TreeView View { get; }
-        private TreeStore store;
+        private TreeStore _store;
+        private TreeChanges _changes;
 
         public event EventHandler<FilesSelectedEventArgs> FilesSelected;
 
-        private TreeChanges changes;
 
-        public ChangedFiles(TreeView view, GitService git)
+        public ChangedFiles(TreeView view, GitService git) : base(view, git)
         {
-            View = view;
-            Git = git;
         }
 
         public ChangedFiles Build()
         {
-            View.CursorChanged += OnCursorChanged;
+            _view.CursorChanged += OnCursorChanged;
 
-            if (View.Columns.Length == 0)
+            if (_view.Columns.Length == 0)
             {
                 var nameColumn = Columns.Create("Changes", 0);
                 var pathColumn = Columns.Create("Path", 0, null, true);
 
-                View.AppendColumn(nameColumn);
-                View.AppendColumn(pathColumn);
+                _view.AppendColumn(nameColumn);
+                _view.AppendColumn(pathColumn);
             }
 
             return this;
@@ -45,29 +42,29 @@ namespace Evergreen.Widgets
 
         public bool Update()
         {
-            changes = Git.GetChangedFiles();
+            _changes = _git.GetChangedFiles();
 
-            store = new TreeStore(
+            _store = new TreeStore(
                 typeof(string),
                 typeof(string)
             );
 
-            foreach (var change in changes)
+            foreach (var change in _changes)
             {
-                store.AppendValues(
+                _store.AppendValues(
                     GetFileLabel(change),
                     change.Path
                 );
             }
 
-            View.Model = store;
+            _view.Model = _store;
 
             return true;
         }
 
         public bool Clear()
         {
-           View.Model = null;
+           _view.Model = null;
 
             return true;
         }
@@ -76,7 +73,7 @@ namespace Evergreen.Widgets
         {
             var selectedFiles = new List<string>();
 
-            View.Selection.SelectedForeach((model, _, iter) =>
+            _view.Selection.SelectedForeach((model, _, iter) =>
             {
                 var selectedPath = (string)model.GetValue(iter, 1);
 
@@ -88,10 +85,15 @@ namespace Evergreen.Widgets
                 selectedFiles.Add(selectedPath);
             });
 
+            if (selectedFiles.Count == 0)
+            {
+                return;
+            }
+
             OnFilesSelected(new FilesSelectedEventArgs
             {
                 Paths = selectedFiles,
-                CommitChanges = changes,
+                CommitChanges = _changes,
             });
         }
 
@@ -131,7 +133,7 @@ namespace Evergreen.Widgets
 
         public void Dispose()
         {
-            View.CursorChanged -= OnCursorChanged;
+            _view.CursorChanged -= OnCursorChanged;
         }
     }
 }

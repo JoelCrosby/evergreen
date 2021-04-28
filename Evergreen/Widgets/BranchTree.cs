@@ -3,18 +3,17 @@ using System;
 using Evergreen.Lib.Git;
 using Evergreen.Lib.Git.Models;
 using Evergreen.Lib.Helpers;
+using Evergreen.Widgets.Common;
 
 using Gtk;
 
 namespace Evergreen.Widgets
 {
-    public class BranchTree : IDisposable
+    public class BranchTree : TreeWidget, IDisposable
     {
-        private GitService Git { get; }
-        private TreeView View { get; }
         private TreeStore store;
 
-        private const string ChangesItemId = "evergreen:changes";
+        private const string _changesItemId = "evergreen:changes";
 
         public event EventHandler<BranchSelectedEventArgs> CheckoutClicked;
         public event EventHandler<BranchSelectedEventArgs> DeleteClicked;
@@ -22,21 +21,19 @@ namespace Evergreen.Widgets
         public event EventHandler<EventArgs> ChangesSelected;
         public event EventHandler<BranchSelectedEventArgs> BranchSelected;
 
-        public BranchTree(TreeView view, GitService git)
+        public BranchTree(TreeView view, GitService git) : base(view, git)
         {
-            View = view;
-            Git = git;
         }
 
         public BranchTree Build()
         {
-            View.HeadersVisible = false;
-            View.ButtonPressEvent += BranchTreeOnButtonPress;
-            View.CursorChanged += BranchTreeCursorChanged;
+            _view.HeadersVisible = false;
+            _view.ButtonPressEvent += BranchTreeOnButtonPress;
+            _view.CursorChanged += BranchTreeCursorChanged;
 
             // Init cells
 
-            if (View.Columns.Length == 0)
+            if (_view.Columns.Length == 0)
             {
                 // Init columns
                 var labelColumn = new TreeViewColumn();
@@ -46,7 +43,7 @@ namespace Evergreen.Widgets
                 labelColumn.AddAttribute(cellName, "text", 0);
                 labelColumn.AddAttribute(cellName, "weight", 2);
 
-                View.AppendColumn(labelColumn);
+                _view.AppendColumn(labelColumn);
 
                 var nameColumn = new TreeViewColumn
                 {
@@ -54,22 +51,22 @@ namespace Evergreen.Widgets
                     Visible = false,
                 };
 
-                View.AppendColumn(nameColumn);
+                _view.AppendColumn(nameColumn);
             }
 
-            View.EnableSearch = true;
+            _view.EnableSearch = true;
 
             return this;
         }
 
         public void Refresh()
         {
-            var tree = Git.GetBranchTree();
+            var tree = _git.GetBranchTree();
 
             store = new TreeStore(typeof(string), typeof(string), typeof(int));
-            View.Model = store;
+            _view.Model = store;
 
-            var activeBranch = Git.GetHeadCanonicalName();
+            var activeBranch = _git.GetHeadCanonicalName();
 
             void AddTreeItems(TreeIter parentIter, TreeItem<BranchTreeItem> item)
             {
@@ -88,14 +85,14 @@ namespace Evergreen.Widgets
                 }
             }
 
-            var headIter = store.AppendValues(Git.Session.RepositoryFriendlyName, "head", Pango.Weight.Bold);
+            var headIter = store.AppendValues(_git.Session.RepositoryFriendlyName, "head", Pango.Weight.Bold);
 
-            var changeCount = Git.GetHeadDiffCount();
+            var changeCount = _git.GetHeadDiffCount();
 
             var treeIter = store.AppendValues(
                 headIter,
                 $"Changes ({changeCount})",
-                ChangesItemId,
+                _changesItemId,
                 Pango.Weight.Normal
             );
 
@@ -113,10 +110,10 @@ namespace Evergreen.Widgets
                 AddTreeItems(remoteIter, b);
             }
 
-            View.ExpandAll();
-            View.EnableSearch = true;
+            _view.ExpandAll();
+            _view.EnableSearch = true;
 
-            View.Columns[0].Title = Git.Session.RepositoryFriendlyName;
+            _view.Columns[0].Title = _git.Session.RepositoryFriendlyName;
         }
 
         private void BranchTreeCursorChanged(object sender, EventArgs args)
@@ -128,7 +125,7 @@ namespace Evergreen.Widgets
                 return;
             }
 
-            if (selected == ChangesItemId)
+            if (selected == _changesItemId)
             {
                 OnChangesSelected();
                 return;
@@ -275,17 +272,10 @@ namespace Evergreen.Widgets
             handler(this, EventArgs.Empty);
         }
 
-        private T GetSelected<T>(int index)
-        {
-            View.Selection.GetSelected(out var model, out var iter);
-
-            return (T)model.GetValue(iter, index);
-        }
-
         public void Dispose()
         {
-            View.ButtonPressEvent -= BranchTreeOnButtonPress;
-            View.CursorChanged -= BranchTreeCursorChanged;
+            _view.ButtonPressEvent -= BranchTreeOnButtonPress;
+            _view.CursorChanged -= BranchTreeCursorChanged;
         }
     }
 

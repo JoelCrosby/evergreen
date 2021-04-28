@@ -4,28 +4,25 @@ using Evergreen.Utils;
 using Evergreen.Lib.Git;
 
 using Gtk;
+using Evergreen.Widgets.Common;
 
 namespace Evergreen.Widgets
 {
-    public class CommitList : IDisposable
+    public class CommitList : TreeWidget, IDisposable
     {
-        private GitService Git { get; }
-        private TreeView View { get; }
-        private TreeStore store;
+        private TreeStore _store;
 
         public event EventHandler<CommitSelectedEventArgs> CommitSelected;
 
-        public CommitList(TreeView view, GitService git)
+        public CommitList(TreeView view, GitService git) : base(view, git)
         {
-            View = view;
-            Git = git;
         }
 
         public CommitList Build()
         {
-            View.CursorChanged += CommitListCursorChanged;
+            _view.CursorChanged += CommitListCursorChanged;
 
-            if (View.Columns.Length == 0)
+            if (_view.Columns.Length == 0)
             {
                 var messageColumn = Columns.Create("Message", 0, 800);
                 var authorColumn = Columns.Create("Author", 1);
@@ -40,11 +37,11 @@ namespace Evergreen.Widgets
 
                 idColumn.Visible = false;
 
-                View.AppendColumn(messageColumn);
-                View.AppendColumn(authorColumn);
-                View.AppendColumn(shaColumn);
-                View.AppendColumn(dateColumn);
-                View.AppendColumn(idColumn);
+                _view.AppendColumn(messageColumn);
+                _view.AppendColumn(authorColumn);
+                _view.AppendColumn(shaColumn);
+                _view.AppendColumn(dateColumn);
+                _view.AppendColumn(idColumn);
             }
 
             return this;
@@ -52,9 +49,9 @@ namespace Evergreen.Widgets
 
         public void Refresh()
         {
-            var commits = Git.GetCommits();
+            var commits = _git.GetCommits();
 
-            store = new TreeStore(
+            _store = new TreeStore(
                 typeof(string),
                 typeof(string),
                 typeof(string),
@@ -70,7 +67,7 @@ namespace Evergreen.Widgets
                 var sha = commit.Sha.Substring(0, 7);
                 var id = commit.Id.Sha;
 
-                store.AppendValues(
+                _store.AppendValues(
                     message,
                     author,
                     sha,
@@ -79,12 +76,12 @@ namespace Evergreen.Widgets
                 );
             }
 
-            View.Model = store;
+            _view.Model = _store;
         }
 
         private void CommitListCursorChanged(object sender, EventArgs args)
         {
-            View.Selection.SelectedForeach((model, _, iter) =>
+            _view.Selection.SelectedForeach((model, _, iter) =>
             {
                 var selectedId = (string)model.GetValue(iter, 4);
 
@@ -114,7 +111,7 @@ namespace Evergreen.Widgets
 
         public void Dispose()
         {
-            View.CursorChanged -= CommitListCursorChanged;
+            _view.CursorChanged -= CommitListCursorChanged;
         }
     }
 

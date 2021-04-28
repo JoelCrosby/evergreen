@@ -123,8 +123,8 @@ namespace Evergreen.Windows
             stagedFilesWidget = new StagedFiles(stagedList, Git).Build();
             changedFilesWidget = new ChangedFiles(changedList, Git).Build();
             commitFilesWidget = new CommitFiles(commitFiles, Git).Build();
-            commitFileChangesWidget = new CommitFileChanges(commitFileSourceView, Git).Build();
-            changesFileChangesWidget = new CommitFileChanges(changesFileSourceView, Git).Build();
+            commitFileChangesWidget = new CommitFileChanges(commitFileSourceView).Build();
+            changesFileChangesWidget = new CommitFileChanges(changesFileSourceView).Build();
             messageBarWidget = new MessageBar(infoBar, infoMessage).Build();
             createBranchDialog = new CreateBranchDialog().Build(Git);
             aboutDialog = new Dialogs.AboutDialog();
@@ -332,7 +332,9 @@ namespace Evergreen.Windows
 
         private void CommitFileSelected(object sender, CommitFileSelectedEventArgs e)
         {
-            if (commitFileChangesWidget.Render(e.CommitChanges, e.CommitId, e.Path))
+            var diff = Git.GetCommitDiff(e.CommitId, e.Path);
+
+            if (commitFileChangesWidget.Render(diff, e.CommitId, e.Path))
             {
                 commitShaLabel.Text = $"CommitId: {e.CommitId}";
                 commitFileLabel.Text = $"File: {System.IO.Path.GetFileName(e.Path)}";
@@ -343,8 +345,9 @@ namespace Evergreen.Windows
         private void ChangedFileSelected(object sender, FilesSelectedEventArgs e)
         {
             var headCommit = Git.GetHeadCommit().Sha;
+            var diff = Git.GetChangesDiff(e.Paths.FirstOrDefault());
 
-            changesFileChangesWidget.Render(e.CommitChanges, headCommit, e.Paths.FirstOrDefault());
+            changesFileChangesWidget.Render(diff, headCommit, e.Paths.FirstOrDefault());
         }
 
         private async void BranchCreated(object sender, CreateBranchEventArgs e)

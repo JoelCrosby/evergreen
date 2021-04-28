@@ -6,7 +6,7 @@
     <TargetName>evergreen</TargetName>
     <AssemblyName>evergreen</AssemblyName>
     <PublishReadyToRun>true</PublishReadyToRun>
-    <NoWarn>IDE0058,IDE0022,CA1816</NoWarn>
+    <NoWarn>IDE0058,IDE0022,CA1816,IDE1006</NoWarn>
   </PropertyGroup>
 
   <ItemGroup>

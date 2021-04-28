@@ -1,12 +1,8 @@
-using System.Diagnostics;
 using System.Linq;
 using System.IO;
 
-using Evergreen.Lib.Git;
-
 using GtkSource;
 
-using LibGit2Sharp;
 using DiffPlex.DiffBuilder.Model;
 using System.Text;
 using Gdk;
@@ -15,25 +11,20 @@ namespace Evergreen.Widgets
 {
     public class CommitFileChanges
     {
-        private GitService Git { get; }
-        private SourceView View { get; }
+        private readonly SourceView _view;
 
         private string currentCommitId;
         private string currentPath;
 
-        public CommitFileChanges(SourceView view, GitService git)
-        {
-            View = view;
-            Git = git;
-        }
+        public CommitFileChanges(SourceView view) => _view = view;
 
         public CommitFileChanges Build()
         {
             Clear();
 
-            View.Visible = true;
+            _view.Visible = true;
 
-            View.SetMarkAttributes("Inserted", new MarkAttributes
+            _view.SetMarkAttributes("Inserted", new MarkAttributes
             {
                 IconName = "list-add",
                 Background =  new RGBA
@@ -45,7 +36,7 @@ namespace Evergreen.Widgets
                 }
             }, 10);
 
-            View.SetMarkAttributes("Deleted", new MarkAttributes
+            _view.SetMarkAttributes("Deleted", new MarkAttributes
             {
                 IconName = "list-remove",
                 Background =  new RGBA
@@ -57,7 +48,7 @@ namespace Evergreen.Widgets
                 }
             }, 10);
 
-            View.SetMarkAttributes("Modified", new MarkAttributes
+            _view.SetMarkAttributes("Modified", new MarkAttributes
             {
                 Background =  new RGBA
                 {
@@ -71,11 +62,14 @@ namespace Evergreen.Widgets
             return this;
         }
 
-        public bool Render(TreeChanges changes, string commitId, string path)
+        public bool Render(DiffPaneModel diff, string commitId, string path)
         {
-            Debug.Assert(changes is {});
-
             if (currentCommitId == commitId && currentPath == path)
+            {
+                return false;
+            }
+
+            if (diff is null)
             {
                 return false;
             }
@@ -83,36 +77,29 @@ namespace Evergreen.Widgets
             currentCommitId = commitId;
             currentPath = path;
 
-            View.Buffer = CreateBuffer();
-
-            var diff = Git.GetCommitDiff(commitId, path);
-
-            if (diff is null)
-            {
-                return false;
-            }
+            _view.Buffer = CreateBuffer();
 
             var buffer = diff.Lines.Aggregate(new StringBuilder(), (b, l) => b.AppendLine(l.Text));
 
-            View.IsMapped = true;
-            View.Buffer.Language = GetLanguage(path);
-            View.Buffer.Text = buffer.ToString();
+            _view.IsMapped = true;
+            _view.Buffer.Language = GetLanguage(path);
+            _view.Buffer.Text = buffer.ToString();
 
             Mark firstMark = null;
 
             for (var i = 0; i < diff.Lines.Count; i++)
             {
                 var line = diff.Lines[i];
-                var lineIter = View.Buffer.GetIterAtLine(i);
+                var lineIter = _view.Buffer.GetIterAtLine(i);
 
                 var mark = line.Type switch
                 {
                     ChangeType.Inserted =>
-                        View.Buffer.CreateSourceMark($"{i}", "Inserted", lineIter),
+                        _view.Buffer.CreateSourceMark($"{i}", "Inserted", lineIter),
                     ChangeType.Deleted =>
-                        View.Buffer.CreateSourceMark($"{i}", "Deleted", lineIter),
+                        _view.Buffer.CreateSourceMark($"{i}", "Deleted", lineIter),
                     ChangeType.Modified =>
-                        View.Buffer.CreateSourceMark($"{i}", "Modified", lineIter),
+                        _view.Buffer.CreateSourceMark($"{i}", "Modified", lineIter),
                     _ => null,
                 };
 
@@ -134,7 +121,7 @@ namespace Evergreen.Widgets
 
         public bool Clear()
         {
-            View.Buffer = CreateBuffer();
+            _view.Buffer = CreateBuffer();
 
             return true;
         }

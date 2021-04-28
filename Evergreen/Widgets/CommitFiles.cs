@@ -6,37 +6,33 @@ using Evergreen.Lib.Git;
 using Gtk;
 using System.IO;
 using LibGit2Sharp;
+using Evergreen.Widgets.Common;
 
 namespace Evergreen.Widgets
 {
-    public class CommitFiles : IDisposable
+    public class CommitFiles : TreeWidget, IDisposable
     {
-        private GitService Git { get; }
-        private TreeView View { get; }
-        private TreeStore store;
+        private TreeStore _store;
+        private string _commitId;
+        private TreeChanges _commitChanges;
 
         public event EventHandler<CommitFileSelectedEventArgs> CommitFileSelected;
 
-        private string commitId;
-        private TreeChanges commitChanges;
-
-        public CommitFiles(TreeView view, GitService git)
+        public CommitFiles(TreeView view, GitService git) : base(view, git)
         {
-            View = view;
-            Git = git;
         }
 
         public CommitFiles Build()
         {
-            View.CursorChanged += CommitFilesCursorChanged;
+            _view.CursorChanged += CommitFilesCursorChanged;
 
-            if (View.Columns.Length == 0)
+            if (_view.Columns.Length == 0)
             {
                 var nameColumn = Columns.Create("Filename", 0);
                 var pathColumn = Columns.Create("Path", 0, null, true);
 
-                View.AppendColumn(nameColumn);
-                View.AppendColumn(pathColumn);
+                _view.AppendColumn(nameColumn);
+                _view.AppendColumn(pathColumn);
             }
 
             return this;
@@ -44,42 +40,42 @@ namespace Evergreen.Widgets
 
         public bool Update(string commitId)
         {
-            if (this.commitId == commitId)
+            if (_commitId == commitId)
             {
                 return false;
             }
 
-            commitChanges = Git.GetCommitFiles(commitId);
+            _commitChanges = _git.GetCommitFiles(commitId);
 
-            store = new TreeStore(
+            _store = new TreeStore(
                 typeof(string),
                 typeof(string)
             );
 
-            foreach (var change in commitChanges)
+            foreach (var change in _commitChanges)
             {
-                store.AppendValues(
+                _store.AppendValues(
                     GetFileLabel(change),
                     change.Path
                 );
             }
 
-            View.Model = store;
-            this.commitId = commitId;
+            _view.Model = _store;
+            _commitId = commitId;
 
             return true;
         }
 
         public bool Clear()
         {
-           View.Model = null;
+           _view.Model = null;
 
             return true;
         }
 
         private void CommitFilesCursorChanged(object sender, EventArgs args)
         {
-            View.Selection.SelectedForeach((model, _, iter) =>
+            _view.Selection.SelectedForeach((model, _, iter) =>
             {
                 var selectedPath = (string)model.GetValue(iter, 1);
 
@@ -88,16 +84,16 @@ namespace Evergreen.Widgets
                     return;
                 }
 
-                if (commitId is null)
+                if (_commitId is null)
                 {
                     return;
                 }
 
                 OnCommitFileSelected(new CommitFileSelectedEventArgs
                 {
-                    CommitId = commitId,
+                    CommitId = _commitId,
                     Path = selectedPath,
-                    CommitChanges = commitChanges,
+                    CommitChanges = _commitChanges,
                 });
             });
         }
@@ -138,7 +134,7 @@ namespace Evergreen.Widgets
 
         public void Dispose()
         {
-            View.CursorChanged -= CommitFilesCursorChanged;
+            _view.CursorChanged -= CommitFilesCursorChanged;
         }
     }
 

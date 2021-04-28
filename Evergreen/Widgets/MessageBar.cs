@@ -7,34 +7,34 @@ namespace Evergreen.Widgets
 {
     public class MessageBar : IDisposable
     {
-        private InfoBar View { get; }
-        private Label MessageLabel { get; }
+        private InfoBar _view { get; }
+        private Label _messageLabel { get; }
 
         public MessageBar(InfoBar view, Label label)
         {
-            View = view;
-            MessageLabel = label;
+            _view = view;
+            _messageLabel = label;
         }
 
         public MessageBar Build()
         {
-            View.Respond += OnRespond;
+            _view.Respond += OnRespond;
 
             return this;
         }
 
         public Task Open(string msg, MessageType type = MessageType.Info)
         {
-            MessageLabel.Text = msg;
-            View.MessageType = type;
+            _messageLabel.Text = msg;
+            _view.MessageType = type;
 
             return Task.Run(Reveal);
         }
 
         public Task Error(string msg)
         {
-            MessageLabel.Text = msg;
-            View.MessageType = MessageType.Error;
+            _messageLabel.Text = msg;
+            _view.MessageType = MessageType.Error;
 
             return Task.Run(Reveal);
         }
@@ -55,17 +55,17 @@ namespace Evergreen.Widgets
 
         private void Show()
         {
-            View.SetProperty("revealed", new GLib.Value(true));
+            _view.SetProperty("revealed", new GLib.Value(true));
         }
 
         private void Hide()
         {
-            View.SetProperty("revealed", new GLib.Value(false));
+            _view.SetProperty("revealed", new GLib.Value(false));
         }
 
         public void Dispose()
         {
-            View.Respond -= OnRespond;
+            _view.Respond -= OnRespond;
         }
     }
 }

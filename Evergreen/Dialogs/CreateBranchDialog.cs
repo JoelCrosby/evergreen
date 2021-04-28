@@ -23,9 +23,9 @@ namespace Evergreen.Dialogs
 
         #pragma warning restore 064
 
-        public event EventHandler<CreateBranchEventArgs> BranchCreated;
+        private GitService _git { get; set; }
 
-        private GitService Git { get; set; }
+        public event EventHandler<CreateBranchEventArgs> BranchCreated;
 
         public CreateBranchDialog() : this(new Builder("create-branch.ui")) { }
 
@@ -39,14 +39,14 @@ namespace Evergreen.Dialogs
 
         public CreateBranchDialog Build(GitService git)
         {
-            Git = git;
+            _git = git;
 
             return this;
         }
 
         public new Result<CreateBranchResult> Show()
         {
-            headerBar.Subtitle = $"Base - {Git.GetHeadFriendlyName()}";
+            headerBar.Subtitle = $"Base - {_git.GetHeadFriendlyName()}";
             checkCheckout.Active = true;
 
             base.Show();
