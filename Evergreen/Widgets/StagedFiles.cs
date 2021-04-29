@@ -1,14 +1,15 @@
 using System;
+using System.Collections.Generic;
+using System.IO;
 
-using Evergreen.Utils;
+using Evergreen.Lib.Events;
 using Evergreen.Lib.Git;
+using Evergreen.Utils;
+using Evergreen.Widgets.Common;
 
 using Gtk;
-using System.IO;
+
 using LibGit2Sharp;
-using System.Collections.Generic;
-using Evergreen.Lib.Events;
-using Evergreen.Widgets.Common;
 
 namespace Evergreen.Widgets
 {
@@ -22,22 +23,13 @@ namespace Evergreen.Widgets
 
         public StagedFiles(TreeView view, GitService git) : base(view, git)
         {
-        }
-
-        public StagedFiles Build()
-        {
             _view.CursorChanged += OnCursorChanged;
 
-            if (_view.Columns.Length == 0)
-            {
-                var nameColumn = Columns.Create("Staged", 0);
-                var pathColumn = Columns.Create("Path", 0, null, true);
+            var nameColumn = Columns.Create("Staged", 0);
+            var pathColumn = Columns.Create("Path", 0, null, true);
 
-                _view.AppendColumn(nameColumn);
-                _view.AppendColumn(pathColumn);
-            }
-
-            return this;
+            _view.AppendColumn(nameColumn);
+            _view.AppendColumn(pathColumn);
         }
 
         public bool Update()
@@ -64,7 +56,7 @@ namespace Evergreen.Widgets
 
         public bool Clear()
         {
-           _view.Model = null;
+            _view.Model = null;
 
             return true;
         }

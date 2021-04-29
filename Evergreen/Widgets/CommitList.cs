@@ -1,10 +1,10 @@
 using System;
 
-using Evergreen.Utils;
 using Evergreen.Lib.Git;
+using Evergreen.Utils;
+using Evergreen.Widgets.Common;
 
 using Gtk;
-using Evergreen.Widgets.Common;
 
 namespace Evergreen.Widgets
 {
@@ -16,35 +16,26 @@ namespace Evergreen.Widgets
 
         public CommitList(TreeView view, GitService git) : base(view, git)
         {
-        }
-
-        public CommitList Build()
-        {
             _view.CursorChanged += CommitListCursorChanged;
 
-            if (_view.Columns.Length == 0)
-            {
-                var messageColumn = Columns.Create("Message", 0, 800);
-                var authorColumn = Columns.Create("Author", 1);
-                var shaColumn = Columns.Create("Sha", 2);
-                var dateColumn = Columns.Create("Date", 3, 20);
-                var idColumn = Columns.Create("ID", 3, 20);
+            var messageColumn = Columns.Create("Message", 0, 800);
+            var authorColumn = Columns.Create("Author", 1);
+            var shaColumn = Columns.Create("Sha", 2);
+            var dateColumn = Columns.Create("Date", 3, 20);
+            var idColumn = Columns.Create("ID", 3, 20);
 
-                messageColumn.Resizable = true;
-                authorColumn.Resizable = true;
-                shaColumn.Resizable = true;
-                dateColumn.Resizable = true;
+            messageColumn.Resizable = true;
+            authorColumn.Resizable = true;
+            shaColumn.Resizable = true;
+            dateColumn.Resizable = true;
 
-                idColumn.Visible = false;
+            idColumn.Visible = false;
 
-                _view.AppendColumn(messageColumn);
-                _view.AppendColumn(authorColumn);
-                _view.AppendColumn(shaColumn);
-                _view.AppendColumn(dateColumn);
-                _view.AppendColumn(idColumn);
-            }
-
-            return this;
+            _view.AppendColumn(messageColumn);
+            _view.AppendColumn(authorColumn);
+            _view.AppendColumn(shaColumn);
+            _view.AppendColumn(dateColumn);
+            _view.AppendColumn(idColumn);
         }
 
         public void Refresh()

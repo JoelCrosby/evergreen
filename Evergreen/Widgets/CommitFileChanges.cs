@@ -1,11 +1,12 @@
-using System.Linq;
 using System.IO;
-
-using GtkSource;
+using System.Linq;
+using System.Text;
 
 using DiffPlex.DiffBuilder.Model;
-using System.Text;
+
 using Gdk;
+
+using GtkSource;
 
 namespace Evergreen.Widgets
 {
@@ -16,18 +17,17 @@ namespace Evergreen.Widgets
         private string currentCommitId;
         private string currentPath;
 
-        public CommitFileChanges(SourceView view) => _view = view;
-
-        public CommitFileChanges Build()
+        public CommitFileChanges(SourceView view)
         {
-            Clear();
-
+            _view = view;
             _view.Visible = true;
+
+            Clear();
 
             _view.SetMarkAttributes("Inserted", new MarkAttributes
             {
                 IconName = "list-add",
-                Background =  new RGBA
+                Background = new RGBA
                 {
                     Alpha = 0.1,
                     Green = 1,
@@ -39,7 +39,7 @@ namespace Evergreen.Widgets
             _view.SetMarkAttributes("Deleted", new MarkAttributes
             {
                 IconName = "list-remove",
-                Background =  new RGBA
+                Background = new RGBA
                 {
                     Alpha = 0.1,
                     Green = 0,
@@ -50,7 +50,7 @@ namespace Evergreen.Widgets
 
             _view.SetMarkAttributes("Modified", new MarkAttributes
             {
-                Background =  new RGBA
+                Background = new RGBA
                 {
                     Alpha = 0.1,
                     Green = 0,
@@ -58,8 +58,6 @@ namespace Evergreen.Widgets
                     Blue = 1,
                 }
             }, 10);
-
-            return this;
         }
 
         public bool Render(DiffPaneModel diff, string commitId, string path)
@@ -103,7 +101,7 @@ namespace Evergreen.Widgets
                     _ => null,
                 };
 
-                if (mark is {} && firstMark is null)
+                if (mark is { } && firstMark is null)
                 {
                     firstMark = mark;
                 }

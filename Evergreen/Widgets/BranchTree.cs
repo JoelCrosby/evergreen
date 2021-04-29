@@ -23,40 +23,28 @@ namespace Evergreen.Widgets
 
         public BranchTree(TreeView view, GitService git) : base(view, git)
         {
-        }
-
-        public BranchTree Build()
-        {
             _view.HeadersVisible = false;
             _view.ButtonPressEvent += BranchTreeOnButtonPress;
             _view.CursorChanged += BranchTreeCursorChanged;
 
-            // Init cells
+            var labelColumn = new TreeViewColumn();
+            var cellName = new CellRendererText();
 
-            if (_view.Columns.Length == 0)
+            labelColumn.PackStart(cellName, true);
+            labelColumn.AddAttribute(cellName, "text", 0);
+            labelColumn.AddAttribute(cellName, "weight", 2);
+
+            _view.AppendColumn(labelColumn);
+
+            var nameColumn = new TreeViewColumn
             {
-                // Init columns
-                var labelColumn = new TreeViewColumn();
-                var cellName = new CellRendererText();
+                Title = "CanonicalName",
+                Visible = false,
+            };
 
-                labelColumn.PackStart(cellName, true);
-                labelColumn.AddAttribute(cellName, "text", 0);
-                labelColumn.AddAttribute(cellName, "weight", 2);
-
-                _view.AppendColumn(labelColumn);
-
-                var nameColumn = new TreeViewColumn
-                {
-                    Title = "CanonicalName",
-                    Visible = false,
-                };
-
-                _view.AppendColumn(nameColumn);
-            }
+            _view.AppendColumn(nameColumn);
 
             _view.EnableSearch = true;
-
-            return this;
         }
 
         public void Refresh()

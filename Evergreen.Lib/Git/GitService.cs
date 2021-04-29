@@ -1,9 +1,10 @@
-using System.Threading.Tasks;
-using System.Diagnostics;
+using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Text;
+using System.Threading.Tasks;
 
 using DiffPlex;
 using DiffPlex.DiffBuilder;
@@ -11,12 +12,11 @@ using DiffPlex.DiffBuilder.Model;
 
 using Evergreen.Lib.Git.Models;
 using Evergreen.Lib.Helpers;
+using Evergreen.Lib.Models;
+using Evergreen.Lib.Models.Common;
 using Evergreen.Lib.Session;
 
 using LibGit2Sharp;
-using System;
-using Evergreen.Lib.Models;
-using Evergreen.Lib.Models.Common;
 
 namespace Evergreen.Lib.Git
 {
@@ -89,7 +89,7 @@ namespace Evergreen.Lib.Git
 
                         var branchLevel = new BranchTreeItem
                         {
-                            Name  = branch.CanonicalName,
+                            Name = branch.CanonicalName,
                             Label = label,
                             Parent = branchLevels.ElementAtOrDefault(i - 1) ?? root,
                             Ahead = ahead,

@@ -14,13 +14,7 @@ namespace Evergreen.Widgets
         {
             _view = view;
             _messageLabel = label;
-        }
-
-        public MessageBar Build()
-        {
             _view.Respond += OnRespond;
-
-            return this;
         }
 
         public Task Open(string msg, MessageType type = MessageType.Info)

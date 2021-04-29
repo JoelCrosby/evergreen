@@ -1,5 +1,5 @@
-using System.IO;
 using System;
+using System.IO;
 
 using Evergreen.Lib.Helpers;
 using Evergreen.Windows;
@@ -37,7 +37,7 @@ namespace Evergreen
             {
                 var stacktrace = (e.ExceptionObject as Exception)?.StackTrace;
 
-                if (stacktrace is {})
+                if (stacktrace is { })
                 {
                     Directory.CreateDirectory(logDir);
 

@@ -4,7 +4,7 @@ namespace Evergreen.Utils
 {
     public static class FileChooser
     {
-        public static (ResponseType, FileChooserNative) Open(Window parent,string title, FileChooserAction action)
+        public static (ResponseType, FileChooserNative) Open(Window parent, string title, FileChooserAction action)
         {
             var dialog = new FileChooserNative(
                 title,

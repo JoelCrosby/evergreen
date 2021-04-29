@@ -1,25 +1,26 @@
-using System.Linq;
 using System;
+using System.Linq;
 
-using Evergreen.Utils;
-using Evergreen.Widgets;
+using Evergreen.Dialogs;
 using Evergreen.Lib.Configuration;
+using Evergreen.Lib.Events;
 using Evergreen.Lib.Git;
 using Evergreen.Lib.Session;
+using Evergreen.Utils;
+using Evergreen.Widgets;
 
 using Gtk;
+
 using GtkSource;
 
 using UI = Gtk.Builder.ObjectAttribute;
 using Window = Gtk.Window;
-using Evergreen.Dialogs;
-using Evergreen.Lib.Events;
 
 namespace Evergreen.Windows
 {
     public class MainWindow : Window
     {
-        #pragma warning disable 0649
+#pragma warning disable 0649
 
         [UI] private readonly TreeView branchTree;
         [UI] private readonly TreeView commitList;
@@ -45,7 +46,7 @@ namespace Evergreen.Windows
         [UI] private readonly Spinner spinner;
         [UI] private readonly Stack changesViewStack;
 
-        #pragma warning restore 064
+#pragma warning restore 064
 
         private RepositorySession Session { get; set; }
         private GitService Git { get; set; }
@@ -118,15 +119,15 @@ namespace Evergreen.Windows
             aboutDialog?.Dispose();
 
             // Evergreen widgets
-            branchTreeWidget = new BranchTree(branchTree, Git).Build();
-            commitListWidget = new CommitList(commitList, Git).Build();
-            stagedFilesWidget = new StagedFiles(stagedList, Git).Build();
-            changedFilesWidget = new ChangedFiles(changedList, Git).Build();
-            commitFilesWidget = new CommitFiles(commitFiles, Git).Build();
-            commitFileChangesWidget = new CommitFileChanges(commitFileSourceView).Build();
-            changesFileChangesWidget = new CommitFileChanges(changesFileSourceView).Build();
-            messageBarWidget = new MessageBar(infoBar, infoMessage).Build();
-            createBranchDialog = new CreateBranchDialog().Build(Git);
+            branchTreeWidget = new BranchTree(branchTree, Git);
+            commitListWidget = new CommitList(commitList, Git);
+            stagedFilesWidget = new StagedFiles(stagedList, Git);
+            changedFilesWidget = new ChangedFiles(changedList, Git);
+            commitFilesWidget = new CommitFiles(commitFiles, Git);
+            commitFileChangesWidget = new CommitFileChanges(commitFileSourceView);
+            changesFileChangesWidget = new CommitFileChanges(changesFileSourceView);
+            messageBarWidget = new MessageBar(infoBar, infoMessage);
+            createBranchDialog = new CreateBranchDialog(Git);
             aboutDialog = new Dialogs.AboutDialog();
 
             // Evergreen widget events

@@ -1,14 +1,16 @@
 using System;
+using System.Collections.Generic;
+using System.IO;
 
-using Evergreen.Utils;
+using Evergreen.Lib.Common;
+using Evergreen.Lib.Events;
 using Evergreen.Lib.Git;
+using Evergreen.Utils;
+using Evergreen.Widgets.Common;
 
 using Gtk;
-using System.IO;
+
 using LibGit2Sharp;
-using System.Collections.Generic;
-using Evergreen.Lib.Events;
-using Evergreen.Widgets.Common;
 
 namespace Evergreen.Widgets
 {
@@ -17,30 +19,29 @@ namespace Evergreen.Widgets
         private TreeStore _store;
         private TreeChanges _changes;
 
-        public event EventHandler<FilesSelectedEventArgs> FilesSelected;
+        public TreeMode Mode { get; private set; }
 
+        public event EventHandler<FilesSelectedEventArgs> FilesSelected;
 
         public ChangedFiles(TreeView view, GitService git) : base(view, git)
         {
-        }
-
-        public ChangedFiles Build()
-        {
             _view.CursorChanged += OnCursorChanged;
 
-            if (_view.Columns.Length == 0)
-            {
-                var nameColumn = Columns.Create("Changes", 0);
-                var pathColumn = Columns.Create("Path", 0, null, true);
+            var nameColumn = Columns.Create("Changes", 0);
+            var pathColumn = Columns.Create("Path", 0, null, true);
 
-                _view.AppendColumn(nameColumn);
-                _view.AppendColumn(pathColumn);
-            }
-
-            return this;
+            _view.AppendColumn(nameColumn);
+            _view.AppendColumn(pathColumn);
         }
 
         public bool Update()
+        {
+            UpdateList();
+
+            return true;
+        }
+
+        private void UpdateList()
         {
             _changes = _git.GetChangedFiles();
 
@@ -58,13 +59,31 @@ namespace Evergreen.Widgets
             }
 
             _view.Model = _store;
+        }
 
-            return true;
+        private void UpdateTree()
+        {
+            _changes = _git.GetChangedFiles();
+
+            _store = new TreeStore(
+                typeof(string),
+                typeof(string)
+            );
+
+            foreach (var change in _changes)
+            {
+                _store.AppendValues(
+                    GetFileLabel(change),
+                    change.Path
+                );
+            }
+
+            _view.Model = _store;
         }
 
         public bool Clear()
         {
-           _view.Model = null;
+            _view.Model = null;
 
             return true;
         }

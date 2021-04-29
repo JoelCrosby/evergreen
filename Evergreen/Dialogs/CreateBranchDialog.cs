@@ -1,18 +1,19 @@
-using System.Threading.Tasks;
 using System;
+using System.Threading.Tasks;
 
 using Evergreen.Lib.Git;
 using Evergreen.Lib.Models;
 using Evergreen.Lib.Models.Common;
 
 using Gtk;
+
 using UI = Gtk.Builder.ObjectAttribute;
 
 namespace Evergreen.Dialogs
 {
     public class CreateBranchDialog : Dialog, IDisposable
     {
-        #pragma warning disable 0649
+#pragma warning disable 0649
 
         [UI] private readonly Button btnCancel;
         [UI] private readonly Button btnCreate;
@@ -21,27 +22,22 @@ namespace Evergreen.Dialogs
         [UI] private readonly Label labelErrorText;
         [UI] private readonly Entry entryBranchName;
 
-        #pragma warning restore 064
+#pragma warning restore 064
 
         private GitService _git { get; set; }
 
         public event EventHandler<CreateBranchEventArgs> BranchCreated;
 
-        public CreateBranchDialog() : this(new Builder("create-branch.ui")) { }
+        public CreateBranchDialog(GitService git) : this(git, new Builder("create-branch.ui")) { }
 
-        private CreateBranchDialog(Builder builder) : base(builder.GetObject("create-branch").Handle)
+        private CreateBranchDialog(GitService git, Builder builder) : base(builder.GetObject("create-branch").Handle)
         {
+            _git = git;
+
             builder.Autoconnect(this);
 
             btnCancel.Clicked += CancelClicked;
             btnCreate.Clicked += CreateClicked;
-        }
-
-        public CreateBranchDialog Build(GitService git)
-        {
-            _git = git;
-
-            return this;
         }
 
         public new Result<CreateBranchResult> Show()

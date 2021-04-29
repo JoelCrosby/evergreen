@@ -10,7 +10,8 @@ namespace Evergreen.Lib.Helpers
             this IEnumerable<T> collection,
             Func<T, TK> idSelector,
             Func<T, TK> parentIdSelector,
-            TK rootId = default) {
+            TK rootId = default)
+        {
             var tree = collection.Where(c => parentIdSelector(c).Equals(rootId)).Select(c => new TreeItem<T>
             {
                 Item = c,
