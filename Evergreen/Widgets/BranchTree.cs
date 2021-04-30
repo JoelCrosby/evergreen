@@ -3,6 +3,7 @@ using System;
 using Evergreen.Lib.Git;
 using Evergreen.Lib.Git.Models;
 using Evergreen.Lib.Helpers;
+using Evergreen.Utils;
 using Evergreen.Widgets.Common;
 
 using Gtk;
@@ -134,25 +135,12 @@ namespace Evergreen.Widgets
                 return;
             }
 
-            var menu = new Menu();
-
-            var checkoutMenuItem = new MenuItem("Checkout");
-            checkoutMenuItem.Activated += CheckoutActivated;
-            menu.Add(checkoutMenuItem);
-
-            var fastforwardMenuItem = new MenuItem("Fast-forward");
-            fastforwardMenuItem.Activated += FastForwardActivated;
-            menu.Add(fastforwardMenuItem);
-
-            var deleteMenuItem = new MenuItem("Delete");
-            deleteMenuItem.Activated += DeleteActivated;
-            menu.Add(deleteMenuItem);
-
-            var renameMenuItem = new MenuItem("Rename");
-            menu.Add(renameMenuItem);
-
-            menu.ShowAll();
-            menu.Popup();
+            Menus.Open(
+                ("Checkout", CheckoutActivated),
+                ("Fast-forward", FastForwardActivated),
+                ("Delete", DeleteActivated),
+                ("Rename", null)
+            );
         }
 
         private void CheckoutActivated(object sender, EventArgs args)
@@ -204,7 +192,6 @@ namespace Evergreen.Widgets
         {
             CheckoutClicked?.Invoke(this, e);
         }
-
 
         protected virtual void OnFastForwardClicked(BranchSelectedEventArgs e)
         {
