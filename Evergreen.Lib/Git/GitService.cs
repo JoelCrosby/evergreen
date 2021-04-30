@@ -220,6 +220,22 @@ namespace Evergreen.Lib.Git
             return diffBuilder.BuildDiffModel(prevContent ?? string.Empty, content ?? string.Empty);
         }
 
+        public void Stage(IEnumerable<string> paths)
+        {
+            foreach (var path in paths)
+            {
+                Commands.Stage(repository, path);
+            }
+        }
+
+        public void UnStage(IEnumerable<string> paths)
+        {
+            foreach (var path in paths)
+            {
+                Commands.Unstage(repository, path);
+            }
+        }
+
         public void Checkout(string branch)
         {
             Commands.Checkout(repository, branch);

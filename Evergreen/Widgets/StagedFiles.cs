@@ -20,10 +20,12 @@ namespace Evergreen.Widgets
         private IEnumerable<StatusEntry> changes;
 
         public event EventHandler<FilesSelectedEventArgs> FilesSelected;
+        public event EventHandler<FilesSelectedEventArgs> FilesUnStaged;
 
         public StagedFiles(TreeView view, GitService git) : base(view, git)
         {
             _view.CursorChanged += OnCursorChanged;
+            _view.RowActivated += OnRowActivated;
 
             var nameColumn = Columns.Create("Staged", 0);
             var pathColumn = Columns.Create("Path", 0, null, true);
@@ -68,13 +70,39 @@ namespace Evergreen.Widgets
             OnFilesSelected(new FilesSelectedEventArgs
             {
                 Paths = selectedFiles,
-                CommitChanges = _git.GetChangedFiles(),
+            });
+        }
+
+        private void OnRowActivated(object sender, RowActivatedArgs args)
+        {
+            var selectedFiles = GetAllSelected<string>(1);
+
+            if (selectedFiles.Count == 0)
+            {
+                return;
+            }
+
+            OnFilesUnStaged(new FilesSelectedEventArgs
+            {
+                Paths = selectedFiles,
             });
         }
 
         protected virtual void OnFilesSelected(FilesSelectedEventArgs e)
         {
             var handler = FilesSelected;
+
+            if (handler is null)
+            {
+                return;
+            }
+
+            handler(this, e);
+        }
+
+        protected virtual void OnFilesUnStaged(FilesSelectedEventArgs e)
+        {
+            var handler = FilesUnStaged;
 
             if (handler is null)
             {
@@ -108,6 +136,7 @@ namespace Evergreen.Widgets
         public void Dispose()
         {
             _view.CursorChanged -= OnCursorChanged;
+            _view.RowActivated -= OnRowActivated;
         }
     }
 }

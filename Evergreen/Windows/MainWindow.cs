@@ -143,6 +143,8 @@ namespace Evergreen.Windows
             commitFilesWidget.CommitFileSelected += CommitFileSelected;
             createBranchDialog.BranchCreated += BranchCreated;
             changedFilesWidget.FilesSelected += ChangedFileSelected;
+            changedFilesWidget.FilesStaged += ChangedFilesStaged;
+            stagedFilesWidget.FilesUnStaged += FilesUnStaged;
 
             // Update titles
             Title = $"{session.RepositoryFriendlyName} - Evergreen";
@@ -359,6 +361,22 @@ namespace Evergreen.Windows
             var diff = Git.GetChangesDiff(e.Paths.FirstOrDefault());
 
             changesFileChangesWidget.Render(diff, headCommit, e.Paths.FirstOrDefault());
+        }
+
+        private void ChangedFilesStaged(object sender, FilesSelectedEventArgs e)
+        {
+            Git.Stage(e.Paths);
+
+            changedFilesWidget.Update();
+            stagedFilesWidget.Update();
+        }
+
+        private void FilesUnStaged(object sender, FilesSelectedEventArgs e)
+        {
+            Git.UnStage(e.Paths);
+
+            changedFilesWidget.Update();
+            stagedFilesWidget.Update();
         }
 
         private async void BranchCreated(object sender, CreateBranchEventArgs e)

@@ -21,10 +21,12 @@ namespace Evergreen.Widgets
         public TreeMode Mode { get; }
 
         public event EventHandler<FilesSelectedEventArgs> FilesSelected;
+        public event EventHandler<FilesSelectedEventArgs> FilesStaged;
 
         public ChangedFiles(TreeView view, GitService git) : base(view, git)
         {
             _view.CursorChanged += OnCursorChanged;
+            _view.RowActivated += OnRowActivated;
 
             var nameColumn = Columns.Create("Changes", 0);
             var pathColumn = Columns.Create("Path", 0, null, true);
@@ -97,13 +99,39 @@ namespace Evergreen.Widgets
             OnFilesSelected(new FilesSelectedEventArgs
             {
                 Paths = selectedFiles,
-                CommitChanges = _changes,
+            });
+        }
+
+        private void OnRowActivated(object sender, RowActivatedArgs args)
+        {
+            var selectedFiles = GetAllSelected<string>(1);
+
+            if (selectedFiles.Count == 0)
+            {
+                return;
+            }
+
+            OnFilesStaged(new FilesSelectedEventArgs
+            {
+                Paths = selectedFiles,
             });
         }
 
         protected virtual void OnFilesSelected(FilesSelectedEventArgs e)
         {
             var handler = FilesSelected;
+
+            if (handler is null)
+            {
+                return;
+            }
+
+            handler(this, e);
+        }
+
+        protected virtual void OnFilesStaged(FilesSelectedEventArgs e)
+        {
+            var handler = FilesStaged;
 
             if (handler is null)
             {
@@ -138,6 +166,7 @@ namespace Evergreen.Widgets
         public void Dispose()
         {
             _view.CursorChanged -= OnCursorChanged;
+            _view.RowActivated -= OnRowActivated;
         }
     }
 }
