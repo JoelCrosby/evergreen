@@ -357,10 +357,10 @@ namespace Evergreen.Windows
             }
         }
 
-        private void ChangedFileSelected(object sender, FilesSelectedEventArgs e)
+        private async void ChangedFileSelected(object sender, FilesSelectedEventArgs e)
         {
             var headCommit = Git.GetHeadCommit().Sha;
-            var diff = Git.GetChangesDiff(e.Paths.FirstOrDefault());
+            var diff = await Git.GetChangesDiff(e.Paths.FirstOrDefault());
 
             changesFileChangesWidget.Render(diff, headCommit, e.Paths.FirstOrDefault());
         }

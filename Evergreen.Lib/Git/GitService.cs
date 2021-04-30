@@ -197,7 +197,7 @@ namespace Evergreen.Lib.Git
             return diffBuilder.BuildDiffModel(prevContent ?? string.Empty, content ?? string.Empty);
         }
 
-        public DiffPaneModel GetChangesDiff(string path)
+        public async Task<DiffPaneModel> GetChangesDiff(string path)
         {
             var commit = GetHeadCommit();
 
@@ -208,7 +208,7 @@ namespace Evergreen.Lib.Git
 
             var absPath = Path.Join(repository.Info.WorkingDirectory, path);
             var prevCommit = GetHeadCommit();
-            var content = FileUtils.ReadToString(absPath);
+            var content = await FileUtils.ReadToString(absPath);
             var diffBuilder = new InlineDiffBuilder(new Differ());
 
             if (prevCommit is null)
