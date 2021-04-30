@@ -170,18 +170,6 @@ namespace Evergreen.Widgets
             });
         }
 
-        protected virtual void OnCheckoutClicked(BranchSelectedEventArgs e)
-        {
-            var handler = CheckoutClicked;
-
-            if (handler is null)
-            {
-                return;
-            }
-
-            handler(this, e);
-        }
-
         private void FastForwardActivated(object sender, EventArgs args)
         {
             var branch = GetSelected<string>(1);
@@ -195,18 +183,6 @@ namespace Evergreen.Widgets
             {
                 Branch = branch,
             });
-        }
-
-        protected virtual void OnFastForwardClicked(BranchSelectedEventArgs e)
-        {
-            var handler = FastForwardClicked;
-
-            if (handler is null)
-            {
-                return;
-            }
-
-            handler(this, e);
         }
 
         private void DeleteActivated(object sender, EventArgs args)
@@ -224,40 +200,30 @@ namespace Evergreen.Widgets
             });
         }
 
+        protected virtual void OnCheckoutClicked(BranchSelectedEventArgs e)
+        {
+            CheckoutClicked?.Invoke(this, e);
+        }
+
+
+        protected virtual void OnFastForwardClicked(BranchSelectedEventArgs e)
+        {
+            FastForwardClicked?.Invoke(this, e);
+        }
+
         protected virtual void OnDeleteClicked(BranchSelectedEventArgs e)
         {
-            var handler = DeleteClicked;
-
-            if (handler is null)
-            {
-                return;
-            }
-
-            handler(this, e);
+            DeleteClicked?.Invoke(this, e);
         }
 
         protected virtual void OnBranchSelectedChanged(BranchSelectedEventArgs e)
         {
-            var handler = BranchSelected;
-
-            if (handler is null)
-            {
-                return;
-            }
-
-            handler(this, e);
+            BranchSelected?.Invoke(this, e);
         }
 
         protected virtual void OnChangesSelected()
         {
-            var handler = ChangesSelected;
-
-            if (handler is null)
-            {
-                return;
-            }
-
-            handler(this, EventArgs.Empty);
+            ChangesSelected?.Invoke(this, EventArgs.Empty);
         }
 
         public void Dispose()

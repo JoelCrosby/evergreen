@@ -89,14 +89,7 @@ namespace Evergreen.Widgets
 
         protected virtual void OnCommitFileSelected(CommitFileSelectedEventArgs e)
         {
-            var handler = CommitFileSelected;
-
-            if (handler is null)
-            {
-                return;
-            }
-
-            handler(this, e);
+            CommitFileSelected?.Invoke(this, e);
         }
 
         private static string GetFileLabel(TreeEntryChanges change)

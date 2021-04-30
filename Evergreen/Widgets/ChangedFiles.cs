@@ -119,26 +119,12 @@ namespace Evergreen.Widgets
 
         protected virtual void OnFilesSelected(FilesSelectedEventArgs e)
         {
-            var handler = FilesSelected;
-
-            if (handler is null)
-            {
-                return;
-            }
-
-            handler(this, e);
+            FilesSelected?.Invoke(this, e);
         }
 
         protected virtual void OnFilesStaged(FilesSelectedEventArgs e)
         {
-            var handler = FilesStaged;
-
-            if (handler is null)
-            {
-                return;
-            }
-
-            handler(this, e);
+            FilesStaged?.Invoke(this, e);
         }
 
         private static string GetFileLabel(TreeEntryChanges change)

@@ -87,14 +87,7 @@ namespace Evergreen.Widgets
 
         protected virtual void OnCommitSelected(CommitSelectedEventArgs e)
         {
-            var handler = CommitSelected;
-
-            if (handler is null)
-            {
-                return;
-            }
-
-            handler(this, e);
+            CommitSelected?.Invoke(this, e);
         }
 
         public void Dispose()

@@ -90,26 +90,12 @@ namespace Evergreen.Widgets
 
         protected virtual void OnFilesSelected(FilesSelectedEventArgs e)
         {
-            var handler = FilesSelected;
-
-            if (handler is null)
-            {
-                return;
-            }
-
-            handler(this, e);
+            FilesSelected?.Invoke(this, e);
         }
 
         protected virtual void OnFilesUnStaged(FilesSelectedEventArgs e)
         {
-            var handler = FilesUnStaged;
-
-            if (handler is null)
-            {
-                return;
-            }
-
-            handler(this, e);
+            FilesUnStaged?.Invoke(this, e);
         }
 
         private static string GetFileLabel(StatusEntry change)
