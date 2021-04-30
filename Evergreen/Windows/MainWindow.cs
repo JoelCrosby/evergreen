@@ -43,6 +43,7 @@ namespace Evergreen.Windows
         [UI] private readonly SearchBar searchBar;
         [UI] private readonly Paned commitFilesDiffPanned;
         [UI] private readonly Paned commitsListView;
+        [UI] private readonly Paned changesListView;
         [UI] private readonly Box changesSourceBox;
         [UI] private readonly Spinner spinner;
         [UI] private readonly Stack changesViewStack;
@@ -160,14 +161,15 @@ namespace Evergreen.Windows
             commitFileChangesWidget.Clear();
             changesFileChangesWidget.Clear();
 
-            SetCommitListPanedPosition();
+            SetPanedPosition(commitsListView, 3);
+            SetPanedPosition(changesListView, 6);
         }
 
-        private void SetCommitListPanedPosition()
+        private void SetPanedPosition(Paned paned, int ratio)
         {
             GetSize(out var _, out var height);
 
-            commitsListView.Position = height - (height / 3);
+            paned.Position = height - (height / ratio);
         }
 
         private static SourceView BuildDiffView(Widget parent)
