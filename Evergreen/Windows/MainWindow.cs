@@ -42,6 +42,7 @@ namespace Evergreen.Windows
         [UI] private readonly Label infoMessage;
         [UI] private readonly SearchBar searchBar;
         [UI] private readonly Paned commitFilesDiffPanned;
+        [UI] private readonly Paned commitsListView;
         [UI] private readonly Box changesSourceBox;
         [UI] private readonly Spinner spinner;
         [UI] private readonly Stack changesViewStack;
@@ -104,6 +105,8 @@ namespace Evergreen.Windows
 
         private void RenderSession(RepositorySession session)
         {
+            RestoreSession.SaveSession(session);
+
             Session = session;
 
             Git = new GitService(session);
@@ -155,7 +158,14 @@ namespace Evergreen.Windows
             commitFileChangesWidget.Clear();
             changesFileChangesWidget.Clear();
 
-            RestoreSession.SaveSession(Session);
+            SetCommitListPanedPosition();
+        }
+
+        private void SetCommitListPanedPosition()
+        {
+            GetSize(out var _, out var height);
+
+            commitsListView.Position = height - (height / 3);
         }
 
         private static SourceView BuildDiffView(Widget parent)
