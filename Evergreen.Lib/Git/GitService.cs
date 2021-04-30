@@ -206,8 +206,9 @@ namespace Evergreen.Lib.Git
                 return null;
             }
 
+            var absPath = Path.Join(repository.Info.WorkingDirectory, path);
             var prevCommit = GetHeadCommit();
-            var content = FileUtils.ReadToString(path);
+            var content = FileUtils.ReadToString(absPath);
             var diffBuilder = new InlineDiffBuilder(new Differ());
 
             if (prevCommit is null)
@@ -305,7 +306,7 @@ namespace Evergreen.Lib.Git
             return $"{commit.Author.Name} {commit.Author.Email}";
         }
 
-        public string GetFileContent(string path, string commitId)
+        public string GetFileContent(string relPath, string commitId)
         {
             var commit = repository.Lookup<Commit>(commitId);
 
@@ -314,7 +315,7 @@ namespace Evergreen.Lib.Git
                 return null;
             }
 
-            var treeEntry = commit[path];
+            var treeEntry = commit[relPath];
 
             if (treeEntry is null)
             {

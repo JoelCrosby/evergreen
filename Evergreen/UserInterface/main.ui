@@ -348,9 +348,6 @@
                           <object class="GtkTreeView" id="stagedList">
                             <property name="visible">True</property>
                             <property name="can-focus">True</property>
-                            <child internal-child="selection">
-                              <object class="GtkTreeSelection"/>
-                            </child>
                           </object>
                           <packing>
                             <property name="expand">True</property>
@@ -373,9 +370,6 @@
                           <object class="GtkTreeView" id="changedList">
                             <property name="visible">True</property>
                             <property name="can-focus">True</property>
-                            <child internal-child="selection">
-                              <object class="GtkTreeSelection"/>
-                            </child>
                           </object>
                           <packing>
                             <property name="expand">True</property>
@@ -390,35 +384,51 @@
                       </packing>
                     </child>
                     <child>
-                      <object class="GtkBox" id="changesSourceBox">
+                      <object class="GtkPaned">
                         <property name="visible">True</property>
-                        <property name="can-focus">False</property>
+                        <property name="can-focus">True</property>
                         <property name="orientation">vertical</property>
+                        <property name="position">180</property>
+                        <property name="position-set">True</property>
                         <child>
-                          <object class="GtkBox">
-                            <property name="height-request">42</property>
+                          <object class="GtkBox" id="changesSourceBox">
                             <property name="visible">True</property>
                             <property name="can-focus">False</property>
+                            <property name="orientation">vertical</property>
                             <child>
-                              <placeholder/>
-                            </child>
-                            <child>
-                              <placeholder/>
-                            </child>
-                            <child>
-                              <placeholder/>
-                            </child>
-                            <child>
-                              <placeholder/>
+                              <object class="GtkBox">
+                                <property name="height-request">42</property>
+                                <property name="visible">True</property>
+                                <property name="can-focus">False</property>
+                                <child>
+                                  <placeholder/>
+                                </child>
+                                <child>
+                                  <placeholder/>
+                                </child>
+                                <child>
+                                  <placeholder/>
+                                </child>
+                                <child>
+                                  <placeholder/>
+                                </child>
+                                <child>
+                                  <placeholder/>
+                                </child>
+                              </object>
+                              <packing>
+                                <property name="expand">False</property>
+                                <property name="fill">True</property>
+                                <property name="position">0</property>
+                              </packing>
                             </child>
                             <child>
                               <placeholder/>
                             </child>
                           </object>
                           <packing>
-                            <property name="expand">False</property>
-                            <property name="fill">True</property>
-                            <property name="position">0</property>
+                            <property name="resize">False</property>
+                            <property name="shrink">True</property>
                           </packing>
                         </child>
                         <child>
