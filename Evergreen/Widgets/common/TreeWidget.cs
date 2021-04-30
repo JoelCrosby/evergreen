@@ -1,3 +1,5 @@
+using System.Collections.Generic;
+
 using Evergreen.Lib.Git;
 
 using Gtk;
@@ -15,11 +17,25 @@ namespace Evergreen.Widgets.Common
             _git = git;
         }
 
-        protected T GetSelected<T>(int index)
+        protected T GetSelected<T>(int index = 0)
         {
             _view.Selection.GetSelected(out var model, out var iter);
 
-            return (T)model.GetValue(iter, index);
+            return (T)model?.GetValue(iter, index);
+        }
+
+        protected List<T> GetAllSelected<T>(int index = 0)
+        {
+            var selectedList = new List<T>();
+
+            _view.Selection.SelectedForeach((model, _, iter) =>
+            {
+                var selected = (T)model.GetValue(iter, index);
+
+                selectedList.Add(selected);
+            });
+
+            return selectedList;
         }
     }
 }

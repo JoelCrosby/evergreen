@@ -67,26 +67,23 @@ namespace Evergreen.Widgets
 
         private void CommitFilesCursorChanged(object sender, EventArgs args)
         {
-            _view.Selection.SelectedForeach((model, _, iter) =>
+            if (_commitId is null)
             {
-                var selectedPath = (string)model.GetValue(iter, 1);
+                return;
+            }
 
-                if (string.IsNullOrEmpty(selectedPath))
-                {
-                    return;
-                }
+            var selectedPath = GetSelected<string>(1);
 
-                if (_commitId is null)
-                {
-                    return;
-                }
+            if (string.IsNullOrEmpty(selectedPath))
+            {
+                return;
+            }
 
-                OnCommitFileSelected(new CommitFileSelectedEventArgs
-                {
-                    CommitId = _commitId,
-                    Path = selectedPath,
-                    CommitChanges = _commitChanges,
-                });
+            OnCommitFileSelected(new CommitFileSelectedEventArgs
+            {
+                CommitId = _commitId,
+                Path = selectedPath,
+                CommitChanges = _commitChanges,
             });
         }
 

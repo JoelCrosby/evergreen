@@ -1,5 +1,4 @@
 using System;
-using System.Collections.Generic;
 using System.IO;
 
 using Evergreen.Lib.Common;
@@ -19,7 +18,7 @@ namespace Evergreen.Widgets
         private TreeStore _store;
         private TreeChanges _changes;
 
-        public TreeMode Mode { get; private set; }
+        public TreeMode Mode { get; }
 
         public event EventHandler<FilesSelectedEventArgs> FilesSelected;
 
@@ -37,6 +36,7 @@ namespace Evergreen.Widgets
         public bool Update()
         {
             UpdateList();
+            SelectFirst();
 
             return true;
         }
@@ -63,22 +63,19 @@ namespace Evergreen.Widgets
 
         private void UpdateTree()
         {
-            _changes = _git.GetChangedFiles();
+            // TODO: Implement a tree view for files
+        }
 
-            _store = new TreeStore(
-                typeof(string),
-                typeof(string)
-            );
+        private void SelectFirst()
+        {
+            _store.GetIterFirst(out var iter);
 
-            foreach (var change in _changes)
+            var selected = GetSelected<string>();
+
+            if (selected is null && iter is { })
             {
-                _store.AppendValues(
-                    GetFileLabel(change),
-                    change.Path
-                );
+                _view.Selection.SelectIter(iter);
             }
-
-            _view.Model = _store;
         }
 
         public bool Clear()
@@ -90,19 +87,7 @@ namespace Evergreen.Widgets
 
         private void OnCursorChanged(object sender, EventArgs args)
         {
-            var selectedFiles = new List<string>();
-
-            _view.Selection.SelectedForeach((model, _, iter) =>
-            {
-                var selectedPath = (string)model.GetValue(iter, 1);
-
-                if (string.IsNullOrEmpty(selectedPath))
-                {
-                    return;
-                }
-
-                selectedFiles.Add(selectedPath);
-            });
+            var selectedFiles = GetAllSelected<string>(1);
 
             if (selectedFiles.Count == 0)
             {

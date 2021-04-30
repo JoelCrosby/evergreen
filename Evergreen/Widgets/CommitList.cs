@@ -72,19 +72,16 @@ namespace Evergreen.Widgets
 
         private void CommitListCursorChanged(object sender, EventArgs args)
         {
-            _view.Selection.SelectedForeach((model, _, iter) =>
+            var selectedId = GetSelected<string>(4);
+
+            if (string.IsNullOrEmpty(selectedId))
             {
-                var selectedId = (string)model.GetValue(iter, 4);
+                return;
+            }
 
-                if (string.IsNullOrEmpty(selectedId))
-                {
-                    return;
-                }
-
-                OnCommitSelected(new CommitSelectedEventArgs
-                {
-                    CommitId = selectedId,
-                });
+            OnCommitSelected(new CommitSelectedEventArgs
+            {
+                CommitId = selectedId,
             });
         }
 

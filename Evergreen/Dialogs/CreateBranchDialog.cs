@@ -24,7 +24,7 @@ namespace Evergreen.Dialogs
 
 #pragma warning restore 064
 
-        private GitService _git { get; set; }
+        private readonly GitService _git;
 
         public event EventHandler<CreateBranchEventArgs> BranchCreated;
 

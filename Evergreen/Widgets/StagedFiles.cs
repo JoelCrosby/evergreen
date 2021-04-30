@@ -63,19 +63,7 @@ namespace Evergreen.Widgets
 
         private void OnCursorChanged(object sender, EventArgs args)
         {
-            var selectedFiles = new List<string>();
-
-            _view.Selection.SelectedForeach((model, _, iter) =>
-            {
-                var selectedPath = (string)model.GetValue(iter, 1);
-
-                if (string.IsNullOrEmpty(selectedPath))
-                {
-                    return;
-                }
-
-                selectedFiles.Add(selectedPath);
-            });
+            var selectedFiles = GetAllSelected<string>(1);
 
             OnFilesSelected(new FilesSelectedEventArgs
             {

@@ -26,10 +26,10 @@ namespace Evergreen.Lib.Configuration
             var sessionCachePath = GetSessionCachePath();
             var sessionJson = JsonSerializer.Serialize(session, JsonSerializerOptions);
 
-            EnsureDirectoryExists(sessionCachePath);
-
             try
             {
+                EnsureDirectoryExists(sessionCachePath);
+
                 File.WriteAllText(sessionCachePath, sessionJson);
             }
             catch
