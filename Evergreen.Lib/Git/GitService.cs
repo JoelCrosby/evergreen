@@ -152,7 +152,8 @@ namespace Evergreen.Lib.Git
 
         public TreeChanges GetChangedFiles()
         {
-            return repository.Diff.Compare<TreeChanges>();
+            var paths = new [] { repository.Info.WorkingDirectory };
+            return repository.Diff.Compare<TreeChanges>(paths, true);
         }
 
         public Patch GetCommitPatch(string commitId)
