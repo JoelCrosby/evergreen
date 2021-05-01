@@ -314,6 +314,8 @@ namespace Evergreen.Windows
 
             Git.Commit(message);
 
+            commitMessage.Text = string.Empty;
+
             stagedFilesWidget.Update();
             changedFilesWidget.Update();
 
