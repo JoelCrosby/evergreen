@@ -242,6 +242,17 @@ namespace Evergreen.Lib.Git
             Commands.Checkout(repository, branch);
         }
 
+        public void Commit(string message)
+        {
+            var config = repository.Config.ToList();
+            var sig = new Signature("Joel Crosby", "joelcrosby@live.co.uk", DateTimeOffset.UtcNow);
+
+            repository.Commit(message, sig, sig, new CommitOptions
+            {
+                PrettifyMessage = true,
+            });
+        }
+
         public Task<Result<ExecResult>> FastForwad(string branch)
         {
             var repoBranch = repository
