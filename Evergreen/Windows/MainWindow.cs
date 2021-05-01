@@ -1,5 +1,6 @@
 using System;
 using System.Linq;
+using System.Threading.Tasks;
 
 using Evergreen.Dialogs;
 using Evergreen.Lib.Configuration;
@@ -33,6 +34,8 @@ namespace Evergreen.Windows
         [UI] private readonly Button btnCreateBranch;
         [UI] private readonly Button search;
         [UI] private readonly Button about;
+        [UI] private readonly Button commit;
+        [UI] private readonly Entry commitMessage;
         [UI] private readonly TreeView commitFiles;
         [UI] private readonly Label commitShaLabel;
         [UI] private readonly Label commitFileLabel;
@@ -86,6 +89,7 @@ namespace Evergreen.Windows
             search.Clicked += SearchClicked;
             about.Clicked += AboutClicked;
             btnCreateBranch.Clicked += CreateBranchClicked;
+            commit.Clicked += CommitClicked;
 
             // Set the clientside headerbar
             Titlebar = headerBar;
@@ -104,7 +108,7 @@ namespace Evergreen.Windows
             Console.WriteLine("Focused");
         }
 
-        private void RenderSession(RepositorySession session)
+        private async void RenderSession(RepositorySession session)
         {
             RestoreSession.SaveSession(session);
 
@@ -155,14 +159,15 @@ namespace Evergreen.Windows
             commitShaLabel.Text = string.Empty;
             commitFileLabel.Text = string.Empty;
 
-            branchTreeWidget.Refresh();
-            commitListWidget.Refresh();
             commitFilesWidget.Clear();
             commitFileChangesWidget.Clear();
             changesFileChangesWidget.Clear();
 
             SetPanedPosition(commitsListView, 3);
             SetPanedPosition(changesListView, 6);
+
+            await RefreshBranchTree();
+            await RefreshCommitList();
         }
 
         private void SetPanedPosition(Paned paned, int ratio)
@@ -217,8 +222,8 @@ namespace Evergreen.Windows
             }
             else
             {
-                RefreshBranchTree();
-                RefreshCommitList();
+                await RefreshBranchTree();
+                await RefreshCommitList();
 
                 await messageBarWidget.Open("Fetch complete.");
             }
@@ -238,8 +243,8 @@ namespace Evergreen.Windows
             }
             else
             {
-                RefreshBranchTree();
-                RefreshCommitList();
+                await RefreshBranchTree();
+                await RefreshCommitList();
 
                 await messageBarWidget.Open("Pull complete.");
             }
@@ -264,8 +269,8 @@ namespace Evergreen.Windows
             }
             else
             {
-                RefreshBranchTree();
-                RefreshCommitList();
+                await RefreshBranchTree();
+                await RefreshCommitList();
 
                 await messageBarWidget.Open("Push complete.");
             }
@@ -281,6 +286,24 @@ namespace Evergreen.Windows
         private void CreateBranchClicked(object sender, EventArgs _)
         {
             createBranchDialog.Show();
+        }
+
+        private async void CommitClicked(object sender, EventArgs _)
+        {
+            var message = commitMessage.Text;
+
+            if (string.IsNullOrWhiteSpace(message))
+            {
+                return;
+            }
+
+            Git.Commit(message);
+
+            stagedFilesWidget.Update();
+            changedFilesWidget.Update();
+
+            await RefreshBranchTree();
+            await RefreshCommitList();
         }
 
         private void CheckoutClicked(object sender, BranchSelectedEventArgs e)
@@ -301,8 +324,8 @@ namespace Evergreen.Windows
             }
             else
             {
-                RefreshBranchTree();
-                RefreshCommitList();
+                await RefreshBranchTree();
+                await RefreshCommitList();
             }
 
             HideSpinner();
@@ -318,8 +341,8 @@ namespace Evergreen.Windows
             }
             else
             {
-                RefreshBranchTree();
-                RefreshCommitList();
+                await RefreshBranchTree();
+                await RefreshCommitList();
 
                 await messageBarWidget.Open($"Branch {e.Branch} deleted.");
             }
@@ -391,21 +414,21 @@ namespace Evergreen.Windows
             }
             else
             {
-                RefreshBranchTree();
-                RefreshCommitList();
+                await RefreshBranchTree();
+                await RefreshCommitList();
 
                 await messageBarWidget.Open("Branch created.");
             }
         }
 
-        private void RefreshBranchTree()
+        private Task RefreshBranchTree()
         {
-            branchTreeWidget.Refresh();
+            return Task.Run(branchTreeWidget.Refresh);
         }
 
-        private void RefreshCommitList()
+        private Task RefreshCommitList()
         {
-            commitListWidget.Refresh();
+            return Task.Run(commitListWidget.Refresh);
         }
 
         private void ShowSpinner()

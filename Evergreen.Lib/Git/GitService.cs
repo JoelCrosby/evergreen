@@ -244,8 +244,17 @@ namespace Evergreen.Lib.Git
 
         public void Commit(string message)
         {
-            var config = repository.Config.ToList();
-            var sig = new Signature("Joel Crosby", "joelcrosby@live.co.uk", DateTimeOffset.UtcNow);
+            var config = repository.Config;
+
+            var name = config.FirstOrDefault(v => v.Key == "user.name")?.Value;
+            var email = config.FirstOrDefault(v => v.Key == "user.email")?.Value;
+
+            if (name is null || email is null)
+            {
+                throw new Exception("user.name or user.email is not configured.");
+            }
+
+            var sig = new Signature(name, email, DateTimeOffset.UtcNow);
 
             repository.Commit(message, sig, sig, new CommitOptions
             {

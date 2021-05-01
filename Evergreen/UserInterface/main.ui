@@ -354,6 +354,9 @@
                               <object class="GtkTreeView" id="stagedList">
                                 <property name="visible">True</property>
                                 <property name="can-focus">True</property>
+                                <child internal-child="selection">
+                                  <object class="GtkTreeSelection"/>
+                                </child>
                               </object>
                               <packing>
                                 <property name="expand">True</property>
@@ -376,6 +379,9 @@
                               <object class="GtkTreeView" id="changedList">
                                 <property name="visible">True</property>
                                 <property name="can-focus">True</property>
+                                <child internal-child="selection">
+                                  <object class="GtkTreeSelection"/>
+                                </child>
                               </object>
                               <packing>
                                 <property name="expand">True</property>
@@ -449,7 +455,7 @@
                         <property name="vexpand">True</property>
                         <property name="spacing">8</property>
                         <child>
-                          <object class="GtkButton">
+                          <object class="GtkButton" id="commit">
                             <property name="label" translatable="yes">Commit</property>
                             <property name="visible">True</property>
                             <property name="can-focus">True</property>
@@ -462,7 +468,7 @@
                           </packing>
                         </child>
                         <child>
-                          <object class="GtkEntry">
+                          <object class="GtkEntry" id="commitMessage">
                             <property name="visible">True</property>
                             <property name="can-focus">True</property>
                             <property name="placeholder-text" translatable="yes">Enter commit message</property>
