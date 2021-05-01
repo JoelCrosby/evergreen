@@ -269,7 +269,7 @@ namespace Evergreen.Windows
 
         private void SearchClicked(object sender, EventArgs _)
         {
-            searchBar.SearchModeEnabled = true;
+            searchBar.SearchModeEnabled = !searchBar.SearchModeEnabled;
         }
 
         private async void PushClicked(object sender, EventArgs _)
