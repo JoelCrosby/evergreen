@@ -112,7 +112,7 @@ namespace Evergreen.Windows
             changedFilesWidget.Update();
         }
 
-        private async void RenderSession(RepositorySession session)
+        private void RenderSession(RepositorySession session)
         {
             RestoreSession.SaveSession(session);
 
