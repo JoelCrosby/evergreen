@@ -16,7 +16,7 @@ namespace Evergreen.Lib.Helpers
             await using var fs = File.Open(path, FileMode.Open, FileAccess.Read, FileShare.ReadWrite);
             using var sr = new StreamReader(fs);
 
-            return await  sr.ReadToEndAsync();
+            return await sr.ReadToEndAsync();
         }
     }
 }
