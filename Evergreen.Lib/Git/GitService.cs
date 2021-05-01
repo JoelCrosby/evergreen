@@ -147,7 +147,7 @@ namespace Evergreen.Lib.Git
         {
             var status = repository.RetrieveStatus();
 
-            return status.Staged;
+            return status.Staged.Concat(status.Added);
         }
 
         public TreeChanges GetChangedFiles()
