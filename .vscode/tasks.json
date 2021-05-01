@@ -25,8 +25,8 @@
         "echo": true,
         "reveal": "silent",
         "focus": false,
-        "panel": "shared",
-        "showReuseMessage": true,
+        "panel": "dedicated",
+        "showReuseMessage": false,
         "clear": false
       },
       "problemMatcher": "$msCompile"
@@ -42,8 +42,8 @@
         "echo": true,
         "reveal": "always",
         "focus": false,
-        "panel": "shared",
-        "showReuseMessage": true,
+        "panel": "dedicated",
+        "showReuseMessage": false,
         "clear": true
       },
     }
