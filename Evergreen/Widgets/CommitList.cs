@@ -1,4 +1,7 @@
 using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Transactions;
 
 using Evergreen.Lib.Git;
 using Evergreen.Utils;
@@ -46,6 +49,21 @@ namespace Evergreen.Widgets
         public void Refresh()
         {
             var commits = _git.GetCommits();
+            var heads = _git.GetBranchHeadCommits();
+
+            var headDict = heads.Aggregate(new Dictionary<string, List<string>>(), (a, c) =>
+            {
+                if (a.TryGetValue(c.sha, out var item))
+                {
+                    item.Add(c.label);
+                }
+                else
+                {
+                    a.Add(c.sha, new List<string> { c.label });
+                }
+
+                return a;
+            });
 
             _store = new TreeStore(
                 typeof(string),
@@ -57,9 +75,12 @@ namespace Evergreen.Widgets
 
             foreach (var commit in commits)
             {
+                var hasValue = headDict.TryGetValue(commit.Sha, out var branches);
+                var branchLabel = hasValue ? string.Join(' ', branches) : null;
+
                 var commitDate = $"{commit.Author.When:dd MMM yyyy HH:mm}";
                 var author = commit.Author.Name;
-                var message = commit.MessageShort;
+                var message = branchLabel is { } ? $"{commit.MessageShort} ({branchLabel})" : commit.MessageShort;
                 var sha = commit.Sha.Substring(0, 7);
                 var id = commit.Id.Sha;
 

@@ -1,4 +1,5 @@
 using System;
+using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -70,6 +71,8 @@ namespace Evergreen.Windows
         private readonly SourceView commitFileSourceView;
         private readonly SourceView changesFileSourceView;
 
+        private Stopwatch focusedTimer;
+
         public MainWindow() : this(new Builder("main.ui")) { }
 
         private MainWindow(Builder builder) : base(builder.GetObject("main").Handle)
@@ -105,6 +108,17 @@ namespace Evergreen.Windows
 
         private async void WindowFocusGrabbed(object sender, FocusInEventArgs a)
         {
+            if (focusedTimer?.ElapsedMilliseconds < (30 * 1000))
+            {
+                focusedTimer.Restart();
+
+                return;
+            }
+            else
+            {
+                focusedTimer = new Stopwatch();
+            }
+
             await RefreshBranchTree();
             await RefreshCommitList();
 

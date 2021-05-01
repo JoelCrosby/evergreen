@@ -52,6 +52,11 @@ namespace Evergreen.Lib.Git
             return repository.Head.Commits.FirstOrDefault();
         }
 
+        public IEnumerable<(string sha, string label)> GetBranchHeadCommits()
+        {
+            return repository.Branches.Select(b => (b.Commits.FirstOrDefault()?.Sha, b.FriendlyName));
+        }
+
         public BranchTree GetBranchTree()
         {
             var branches = repository.Branches.ToList();
@@ -152,7 +157,7 @@ namespace Evergreen.Lib.Git
 
         public TreeChanges GetChangedFiles()
         {
-            var paths = new [] { repository.Info.WorkingDirectory };
+            var paths = new[] { repository.Info.WorkingDirectory };
             return repository.Diff.Compare<TreeChanges>(paths, true);
         }
 
