@@ -103,9 +103,13 @@ namespace Evergreen.Windows
             Application.Quit();
         }
 
-        private void WindowFocusGrabbed(object sender, FocusInEventArgs a)
+        private async void WindowFocusGrabbed(object sender, FocusInEventArgs a)
         {
-            Console.WriteLine("Focused");
+            await RefreshBranchTree();
+            await RefreshCommitList();
+
+            stagedFilesWidget.Update();
+            changedFilesWidget.Update();
         }
 
         private async void RenderSession(RepositorySession session)
@@ -165,9 +169,6 @@ namespace Evergreen.Windows
 
             SetPanedPosition(commitsListView, 3);
             SetPanedPosition(changesListView, 6);
-
-            await RefreshBranchTree();
-            await RefreshCommitList();
         }
 
         private void SetPanedPosition(Paned paned, int ratio)
