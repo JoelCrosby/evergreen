@@ -65,7 +65,7 @@ namespace Evergreen.Widgets
 
         private void OnCursorChanged(object sender, EventArgs args)
         {
-            var selectedFiles = GetAllSelected<string>(1);
+            var selectedFiles = _view.GetAllSelected<string>(1);
 
             OnFilesSelected(new FilesSelectedEventArgs
             {
@@ -75,7 +75,7 @@ namespace Evergreen.Widgets
 
         private void OnRowActivated(object sender, RowActivatedArgs args)
         {
-            var selectedFiles = GetAllSelected<string>(1);
+            var selectedFiles = _view.GetAllSelected<string>(1);
 
             if (selectedFiles.Count == 0)
             {

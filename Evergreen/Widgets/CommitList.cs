@@ -31,6 +31,11 @@ namespace Evergreen.Widgets
 
             idColumn.Visible = false;
 
+            foreach (var column in _view.Columns)
+            {
+                _view.RemoveColumn(column);
+            }
+
             _view.AppendColumn(messageColumn);
             _view.AppendColumn(authorColumn);
             _view.AppendColumn(shaColumn);
@@ -72,7 +77,7 @@ namespace Evergreen.Widgets
 
         private void CommitListCursorChanged(object sender, EventArgs args)
         {
-            var selectedId = GetSelected<string>(4);
+            var selectedId = _view.GetSelected<string>(4);
 
             if (string.IsNullOrEmpty(selectedId))
             {

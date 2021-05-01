@@ -72,7 +72,7 @@ namespace Evergreen.Widgets
         {
             _store.GetIterFirst(out var iter);
 
-            var selected = GetSelected<string>();
+            var selected = _view.GetSelected<string>();
 
             if (selected is null && iter is { })
             {
@@ -89,7 +89,7 @@ namespace Evergreen.Widgets
 
         private void OnCursorChanged(object sender, EventArgs args)
         {
-            var selectedFiles = GetAllSelected<string>(1);
+            var selectedFiles = _view.GetAllSelected<string>(1);
 
             if (selectedFiles.Count == 0)
             {
@@ -104,7 +104,7 @@ namespace Evergreen.Widgets
 
         private void OnRowActivated(object sender, RowActivatedArgs args)
         {
-            var selectedFiles = GetAllSelected<string>(1);
+            var selectedFiles = _view.GetAllSelected<string>(1);
 
             if (selectedFiles.Count == 0)
             {

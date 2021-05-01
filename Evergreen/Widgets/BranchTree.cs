@@ -107,7 +107,7 @@ namespace Evergreen.Widgets
 
         private void BranchTreeCursorChanged(object sender, EventArgs args)
         {
-            var selected = GetSelected<string>(1);
+            var selected = _view.GetSelected<string>(1);
 
             if (string.IsNullOrEmpty(selected))
             {
@@ -145,7 +145,7 @@ namespace Evergreen.Widgets
 
         private void CheckoutActivated(object sender, EventArgs args)
         {
-            var branch = GetSelected<string>(1);
+            var branch = _view.GetSelected<string>(1);
 
             if (string.IsNullOrEmpty(branch))
             {
@@ -160,7 +160,7 @@ namespace Evergreen.Widgets
 
         private void FastForwardActivated(object sender, EventArgs args)
         {
-            var branch = GetSelected<string>(1);
+            var branch = _view.GetSelected<string>(1);
 
             if (string.IsNullOrEmpty(branch))
             {
@@ -175,7 +175,7 @@ namespace Evergreen.Widgets
 
         private void DeleteActivated(object sender, EventArgs args)
         {
-            var branch = GetSelected<string>(1);
+            var branch = _view.GetSelected<string>(1);
 
             if (string.IsNullOrEmpty(branch))
             {

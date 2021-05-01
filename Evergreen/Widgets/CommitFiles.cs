@@ -72,7 +72,7 @@ namespace Evergreen.Widgets
                 return;
             }
 
-            var selectedPath = GetSelected<string>(1);
+            var selectedPath = _view.GetSelected<string>(1);
 
             if (string.IsNullOrEmpty(selectedPath))
             {
