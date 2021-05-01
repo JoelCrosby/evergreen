@@ -378,7 +378,9 @@ namespace Evergreen.Lib.Git
 
                 if (proc.ExitCode != 0)
                 {
-                    var stdOut = await proc.StandardOutput.ReadToEndAsync();
+                    var stdOut = await proc.StandardOutput
+                        .ReadToEndAsync()
+                        .ConfigureAwait(false);
 
                     Debug.WriteLine(stdOut);
 
