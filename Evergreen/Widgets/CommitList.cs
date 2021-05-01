@@ -76,11 +76,11 @@ namespace Evergreen.Widgets
             foreach (var commit in commits)
             {
                 var hasValue = headDict.TryGetValue(commit.Sha, out var branches);
-                var branchLabel = hasValue ? string.Join(' ', branches) : null;
+                var branchLabel = hasValue ? string.Join(' ', branches.Select(b => $"({b})")) : null;
 
                 var commitDate = $"{commit.Author.When:dd MMM yyyy HH:mm}";
                 var author = commit.Author.Name;
-                var message = branchLabel is { } ? $"{commit.MessageShort} ({branchLabel})" : commit.MessageShort;
+                var message = branchLabel is { } ? $"{commit.MessageShort} {branchLabel}" : commit.MessageShort;
                 var sha = commit.Sha.Substring(0, 7);
                 var id = commit.Id.Sha;
 
