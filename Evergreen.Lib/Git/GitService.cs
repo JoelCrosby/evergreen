@@ -19,7 +19,7 @@ using LibGit2Sharp;
 
 namespace Evergreen.Lib.Git
 {
-    public class GitService
+    public class GitService : IDisposable
     {
         private readonly Repository repository;
 
@@ -398,6 +398,11 @@ namespace Evergreen.Lib.Git
             {
                 return Result<ExecResult>.Failed($"Git exec failed. {ex.Message}");
             }
+        }
+
+        public void Dispose()
+        {
+            repository.Dispose();
         }
     }
 }

@@ -40,6 +40,7 @@ namespace Evergreen.Widgets
 
 #pragma warning restore 064
 
+        public new string Path { get; }
         public GitService Git { get; set; }
 
         private BranchTree branchTreeWidget;
@@ -62,6 +63,8 @@ namespace Evergreen.Widgets
         private Repository(string path, Builder builder) : base(builder.GetObject("repository").Handle)
         {
             builder.Autoconnect(this);
+
+            Path = path;
 
             commitFileSourceView = BuildDiffView(commitFilesDiffPanned);
             changesFileSourceView = BuildDiffView(changesSourceBox);
@@ -198,6 +201,18 @@ namespace Evergreen.Widgets
 
         public async void DeleteBranchClicked(object sender, BranchSelectedEventArgs e)
         {
+            var confirm = ConfirmationDialog.Open(
+                Program.Window,
+                "Delete branch",
+                $"Are you sure you want to delete the branch {e.Branch}",
+                "Delete"
+            );
+
+            if (!confirm)
+            {
+                return;
+            }
+
             var result = await Git.DeleteBranch(e.Branch);
 
             if (!result.IsSuccess)

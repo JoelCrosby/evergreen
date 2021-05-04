@@ -6,12 +6,16 @@ using Evergreen.Windows;
 
 using GLib;
 
+using Gtk;
+
 using Application = Gtk.Application;
 
 namespace Evergreen
 {
     public static class Program
     {
+        public static Window Window;
+
         [STAThread]
         public static void Main()
         {
@@ -24,6 +28,8 @@ namespace Evergreen
             app.AddWindow(win);
 
             AppDomain.CurrentDomain.UnhandledException += ApplicationExceptionHandler;
+
+            Window = win;
 
             win.Show();
             Application.Run();

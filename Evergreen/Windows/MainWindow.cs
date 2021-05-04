@@ -26,6 +26,7 @@ namespace Evergreen.Windows
         [UI] private readonly Button btnCreateBranch;
         [UI] private readonly Button search;
         [UI] private readonly Button about;
+        [UI] private readonly Button closeRepo;
         [UI] private readonly HeaderBar headerBar;
         [UI] private readonly SearchBar searchBar;
         [UI] private readonly Spinner spinner;
@@ -49,6 +50,7 @@ namespace Evergreen.Windows
             DeleteEvent += WindowDeleteEvent;
             FocusInEvent += WindowFocusGrabbed;
             openRepo.Clicked += OpenRepoClicked;
+            closeRepo.Clicked += CloseRepoClicked;
             fetch.Clicked += FetchClicked;
             pull.Clicked += PullClicked;
             push.Clicked += PushClicked;
@@ -86,14 +88,30 @@ namespace Evergreen.Windows
 
             ToggleRepositoryButtons(true);
 
+            var paths = _repositories.Select(r => r.Path).ToHashSet();
+
             foreach (var path in Session.Paths)
             {
+                if (paths.Contains(path))
+                {
+                    continue;
+                }
+
+                if (!GitService.IsRepository(path))
+                {
+                    continue;
+                }
+
                 var repo = new Repository(path);
                 var tabLabel = repo.Git.GetRepositoryFriendlyName();
 
                 _repositories.Add(repo);
 
-                repoNotebook.AppendPage(repo, new Label(tabLabel) { WidthRequest = 160 });
+                repoNotebook.AppendPage(repo, new Label
+                {
+                    Text = tabLabel,
+                    WidthRequest = 160
+                });
 
                 SetPanedPositions(repo);
             }
@@ -127,8 +145,8 @@ namespace Evergreen.Windows
         {
             var repoName = _repository.Git.GetRepositoryFriendlyName();
 
-            Title = $"{repoName} - Evergreen";
-            headerBar.Title = $"{repoName} - Evergreen";
+            Title = repoName;
+            headerBar.Title = repoName;
             headerBar.Subtitle = _repository.Git.GetFreindlyPath();
         }
 
@@ -160,6 +178,23 @@ namespace Evergreen.Windows
             }
 
             dialog.Dispose();
+        }
+
+        private void CloseRepoClicked(object sender, EventArgs _)
+        {
+            if (_repositories.Count == 0)
+            {
+                return;
+            }
+
+            _repository.Dispose();
+            _repositories.RemoveAt(_selectedRepoIndex);
+
+            repoNotebook.RemovePage(_selectedRepoIndex);
+
+            Session.Paths.RemoveAt(_selectedRepoIndex);
+
+            Sessions.SaveSession(Session);
         }
 
         private void FetchClicked(object sender, EventArgs e)
