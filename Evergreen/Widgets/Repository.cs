@@ -339,7 +339,7 @@ namespace Evergreen.Widgets
 
         public Task Refresh()
         {
-            return Task.WhenAll(new []
+            return Task.WhenAll(new[]
             {
                 RefreshBranchTree(),
                 RefreshCommitList()

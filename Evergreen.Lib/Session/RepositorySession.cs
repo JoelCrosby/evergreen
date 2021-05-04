@@ -6,6 +6,6 @@ namespace Evergreen.Lib.Session
     {
         public bool UseNativeTitleBar { get; set; }
 
-        public List<string> Paths { get; init; } = new ();
+        public List<string> Paths { get; init; } = new();
     }
 }

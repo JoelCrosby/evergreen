@@ -1,8 +1,9 @@
-using System.Linq;
-using System.Collections.Generic;
 using System;
+using System.Collections.Generic;
+using System.Linq;
 
 using Evergreen.Lib.Configuration;
+using Evergreen.Lib.Git;
 using Evergreen.Lib.Session;
 using Evergreen.Utils;
 using Evergreen.Widgets;
@@ -11,7 +12,6 @@ using Gtk;
 
 using UI = Gtk.Builder.ObjectAttribute;
 using Window = Gtk.Window;
-using Evergreen.Lib.Git;
 
 namespace Evergreen.Windows
 {
@@ -34,10 +34,10 @@ namespace Evergreen.Windows
 #pragma warning restore 064
 
         private int _selectedRepoIndex;
-        private readonly List<Repository> _repositories = new ();
+        private readonly List<Repository> _repositories = new();
         private Repository _repository => _repositories.ElementAtOrDefault(_selectedRepoIndex);
         private readonly RepositorySession Session;
-        private readonly Dialogs.AboutDialog aboutDialog = new ();
+        private readonly Dialogs.AboutDialog aboutDialog = new();
 
         public MainWindow() : this(new Builder("main.ui")) { }
 
