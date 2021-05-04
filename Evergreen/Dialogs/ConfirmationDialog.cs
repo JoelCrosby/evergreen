@@ -1,3 +1,4 @@
+using System.Linq;
 using Gtk;
 
 namespace Evergreen.Dialogs
@@ -16,6 +17,13 @@ namespace Evergreen.Dialogs
             {
                 SecondaryText = message,
             };
+
+            var box = dialog.Children.FirstOrDefault() as Box;
+            var innerBox = box.Children.LastOrDefault() as Box;
+            var btnBox = innerBox.Children.LastOrDefault() as ButtonBox;
+            var okBtn = btnBox.Children.LastOrDefault() as Button;
+
+            okBtn.Label = confirmLabel;
 
             var res = (ResponseType)dialog.Run();
 
