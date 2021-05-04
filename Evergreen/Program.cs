@@ -14,7 +14,7 @@ namespace Evergreen
 {
     public static class Program
     {
-        public static Window Window;
+        public static Window Window { get; private set; }
 
         [STAThread]
         public static void Main()
