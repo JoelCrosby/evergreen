@@ -14,7 +14,6 @@ using Evergreen.Lib.Git.Models;
 using Evergreen.Lib.Helpers;
 using Evergreen.Lib.Models;
 using Evergreen.Lib.Models.Common;
-using Evergreen.Lib.Session;
 
 using LibGit2Sharp;
 
@@ -24,20 +23,20 @@ namespace Evergreen.Lib.Git
     {
         private readonly Repository repository;
 
-        public RepositorySession Session { get; }
-
-        public GitService(RepositorySession repo)
-        {
-            Session = repo;
-
-            repository = new Repository(repo.Path);
-        }
+        public GitService(string path) => repository = new Repository(path);
 
         public string GetHeadCanonicalName() => repository.Head.CanonicalName;
         public string GetHeadFriendlyName() => repository.Head.FriendlyName;
 
         public string GetPath() => repository.Info.WorkingDirectory;
         public string GetFreindlyPath() => repository.Info.WorkingDirectory.SubHomePath();
+        public static bool IsRepository(string path) => Repository.IsValid(path);
+
+        public string GetRepositoryFriendlyName()
+        {
+            var dirInfo = new DirectoryInfo(repository.Info.WorkingDirectory);
+            return dirInfo.Name.ToTitleCase();
+        }
 
         public IEnumerable<Commit> GetCommits()
         {

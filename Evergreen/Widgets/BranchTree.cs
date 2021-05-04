@@ -74,7 +74,7 @@ namespace Evergreen.Widgets
                 }
             }
 
-            var headIter = store.AppendValues(_git.Session.RepositoryFriendlyName, "head", Pango.Weight.Bold);
+            var headIter = store.AppendValues(_git.GetRepositoryFriendlyName(), "head", Pango.Weight.Bold);
 
             var changeCount = _git.GetHeadDiffCount();
 
@@ -102,7 +102,7 @@ namespace Evergreen.Widgets
             _view.ExpandAll();
             _view.EnableSearch = true;
 
-            _view.Columns[0].Title = _git.Session.RepositoryFriendlyName;
+            _view.Columns[0].Title = _git.GetRepositoryFriendlyName();
         }
 
         private void BranchTreeCursorChanged(object sender, EventArgs args)

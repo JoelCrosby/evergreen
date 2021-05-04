@@ -1,6 +1,4 @@
-using System.Linq;
-
-using Evergreen.Lib.Helpers;
+using System.Collections.Generic;
 
 namespace Evergreen.Lib.Session
 {
@@ -8,8 +6,6 @@ namespace Evergreen.Lib.Session
     {
         public bool UseNativeTitleBar { get; set; }
 
-        public string Path { get; init; }
-
-        public string RepositoryFriendlyName => Path.Split('/').LastOrDefault()?.ToTitleCase();
+        public List<string> Paths { get; init; } = new ();
     }
 }

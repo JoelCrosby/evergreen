@@ -1,22 +1,17 @@
-using System;
-using System.Diagnostics;
 using System.Linq;
-using System.Threading.Tasks;
+using System.Collections.Generic;
+using System;
 
-using Evergreen.Dialogs;
 using Evergreen.Lib.Configuration;
-using Evergreen.Lib.Events;
-using Evergreen.Lib.Git;
 using Evergreen.Lib.Session;
 using Evergreen.Utils;
 using Evergreen.Widgets;
 
 using Gtk;
 
-using GtkSource;
-
 using UI = Gtk.Builder.ObjectAttribute;
 using Window = Gtk.Window;
+using Evergreen.Lib.Git;
 
 namespace Evergreen.Windows
 {
@@ -24,10 +19,6 @@ namespace Evergreen.Windows
     {
 #pragma warning disable 0649
 
-        [UI] private readonly TreeView branchTree;
-        [UI] private readonly TreeView commitList;
-        [UI] private readonly TreeView stagedList;
-        [UI] private readonly TreeView changedList;
         [UI] private readonly Button openRepo;
         [UI] private readonly Button fetch;
         [UI] private readonly Button pull;
@@ -35,52 +26,24 @@ namespace Evergreen.Windows
         [UI] private readonly Button btnCreateBranch;
         [UI] private readonly Button search;
         [UI] private readonly Button about;
-        [UI] private readonly Button commit;
-        [UI] private readonly Entry commitMessage;
-        [UI] private readonly TreeView commitFiles;
-        [UI] private readonly Label commitShaLabel;
-        [UI] private readonly Label commitFileLabel;
-        [UI] private readonly Label commitAuthorLabel;
         [UI] private readonly HeaderBar headerBar;
-        [UI] private readonly InfoBar infoBar;
-        [UI] private readonly Label infoMessage;
         [UI] private readonly SearchBar searchBar;
-        [UI] private readonly Paned commitFilesDiffPanned;
-        [UI] private readonly Paned commitsListView;
-        [UI] private readonly Paned changesListView;
-        [UI] private readonly Box changesSourceBox;
         [UI] private readonly Spinner spinner;
-        [UI] private readonly Stack changesViewStack;
+        [UI] private readonly Notebook repoNotebook;
 
 #pragma warning restore 064
 
-        private RepositorySession Session { get; set; }
-        private GitService Git { get; set; }
-
-        private BranchTree branchTreeWidget;
-        private StagedFiles stagedFilesWidget;
-        private ChangedFiles changedFilesWidget;
-        private CommitList commitListWidget;
-        private CommitFiles commitFilesWidget;
-        private CommitFileChanges commitFileChangesWidget;
-        private CommitFileChanges changesFileChangesWidget;
-        private MessageBar messageBarWidget;
-        private CreateBranchDialog createBranchDialog;
-        private Dialogs.AboutDialog aboutDialog;
-
-        private readonly SourceView commitFileSourceView;
-        private readonly SourceView changesFileSourceView;
-
-        private Stopwatch focusedTimer;
+        private int _selectedRepoIndex;
+        private readonly List<Repository> _repositories = new ();
+        private Repository _repository => _repositories.ElementAtOrDefault(_selectedRepoIndex);
+        private readonly RepositorySession Session;
+        private readonly Dialogs.AboutDialog aboutDialog = new ();
 
         public MainWindow() : this(new Builder("main.ui")) { }
 
         private MainWindow(Builder builder) : base(builder.GetObject("main").Handle)
         {
             builder.Autoconnect(this);
-
-            commitFileSourceView = BuildDiffView(commitFilesDiffPanned);
-            changesFileSourceView = BuildDiffView(changesSourceBox);
 
             // Gtk widget events
             DeleteEvent += WindowDeleteEvent;
@@ -92,120 +55,90 @@ namespace Evergreen.Windows
             search.Clicked += SearchClicked;
             about.Clicked += AboutClicked;
             btnCreateBranch.Clicked += CreateBranchClicked;
-            commit.Clicked += CommitClicked;
+            repoNotebook.SwitchPage += RepoTabChanged;
 
             // Set the clientside headerbar
             Titlebar = headerBar;
 
-            RenderSession(RestoreSession.LoadSession());
+            Session = Sessions.LoadSession();
+
+            OpenRepository();
         }
 
         private void WindowDeleteEvent(object sender, DeleteEventArgs a)
         {
-            RestoreSession.SaveSession(Session);
+            Sessions.SaveSession(Session);
             Application.Quit();
         }
 
-        private async void WindowFocusGrabbed(object sender, FocusInEventArgs a)
+        private void WindowFocusGrabbed(object sender, FocusInEventArgs a)
         {
-            if (focusedTimer?.ElapsedMilliseconds < (30 * 1000))
-            {
-                focusedTimer.Restart();
+            _repository?.OnFocus();
+        }
 
+        private void OpenRepository()
+        {
+            if (Session.Paths.Count == 0)
+            {
+                ToggleRepositoryButtons(false);
                 return;
             }
-            else
+
+            ToggleRepositoryButtons(true);
+
+            foreach (var path in Session.Paths)
             {
-                focusedTimer = new Stopwatch();
+                var repo = new Repository(path);
+                var tabLabel = repo.Git.GetRepositoryFriendlyName();
+
+                _repositories.Add(repo);
+
+                repoNotebook.AppendPage(repo, new Label(tabLabel) { WidthRequest = 160 });
+
+                SetPanedPositions(repo);
             }
 
-            await RefreshBranchTree();
-            await RefreshCommitList();
+            _selectedRepoIndex = _repositories.Count - 1;
+            repoNotebook.Page = _selectedRepoIndex;
 
-            stagedFilesWidget.Update();
-            changedFilesWidget.Update();
+            UpdateHeaderBar();
+
+            Sessions.SaveSession(Session);
         }
 
-        private void RenderSession(RepositorySession session)
+        private void ToggleRepositoryButtons(bool isEnabled)
         {
-            RestoreSession.SaveSession(session);
-
-            Session = session;
-
-            Git = new GitService(session);
-
-            // Cleanup widgets
-            commitFilesWidget?.Dispose();
-            branchTreeWidget?.Dispose();
-            stagedFilesWidget?.Dispose();
-            changedFilesWidget?.Dispose();
-            commitListWidget?.Dispose();
-            messageBarWidget?.Dispose();
-            createBranchDialog?.Dispose();
-            aboutDialog?.Dispose();
-
-            // Evergreen widgets
-            branchTreeWidget = new BranchTree(branchTree, Git);
-            commitListWidget = new CommitList(commitList, Git);
-            stagedFilesWidget = new StagedFiles(stagedList, Git);
-            changedFilesWidget = new ChangedFiles(changedList, Git);
-            commitFilesWidget = new CommitFiles(commitFiles, Git);
-            commitFileChangesWidget = new CommitFileChanges(commitFileSourceView);
-            changesFileChangesWidget = new CommitFileChanges(changesFileSourceView);
-            messageBarWidget = new MessageBar(infoBar, infoMessage);
-            createBranchDialog = new CreateBranchDialog(Git);
-            aboutDialog = new Dialogs.AboutDialog();
-
-            // Evergreen widget events
-            commitListWidget.CommitSelected += CommitSelected;
-            branchTreeWidget.CheckoutClicked += CheckoutClicked;
-            branchTreeWidget.FastForwardClicked += FastforwardClicked;
-            branchTreeWidget.DeleteClicked += DeleteBranchClicked;
-            branchTreeWidget.ChangesSelected += ChangesSelected;
-            branchTreeWidget.BranchSelected += BranchSelected;
-            commitFilesWidget.CommitFileSelected += CommitFileSelected;
-            createBranchDialog.BranchCreated += BranchCreated;
-            changedFilesWidget.FilesSelected += ChangedFileSelected;
-            changedFilesWidget.FilesStaged += ChangedFilesStaged;
-            stagedFilesWidget.FilesUnStaged += FilesUnStaged;
-
-            // Update titles
-            Title = $"{session.RepositoryFriendlyName} - Evergreen";
-            headerBar.Title = $"{session.RepositoryFriendlyName} - Evergreen";
-            headerBar.Subtitle = Git.GetFreindlyPath();
-
-            commitShaLabel.Text = string.Empty;
-            commitFileLabel.Text = string.Empty;
-
-            commitFilesWidget.Clear();
-            commitFileChangesWidget.Clear();
-            changesFileChangesWidget.Clear();
-
-            SetPanedPosition(commitsListView, 3);
-            SetPanedPosition(changesListView, 6);
+            fetch.Sensitive = isEnabled;
+            pull.Sensitive = isEnabled;
+            push.Sensitive = isEnabled;
+            btnCreateBranch.Sensitive = isEnabled;
+            search.Sensitive = isEnabled;
+            about.Sensitive = isEnabled;
         }
 
-        private void SetPanedPosition(Paned paned, int ratio)
+        private void SetPanedPositions(Repository repo)
         {
             GetSize(out var _, out var height);
 
-            paned.Position = height - (height / ratio);
+            repo.SetPanedPosition(height);
         }
 
-        private static SourceView BuildDiffView(Widget parent)
+        private void UpdateHeaderBar()
         {
-            var (sourceView, scroller) = SourceViews.Create();
+            var repoName = _repository.Git.GetRepositoryFriendlyName();
 
-            if (parent is Paned panned)
-            {
-                panned.Pack2(scroller, true, true);
-            }
-            else if (parent is Box box)
-            {
-                box.PackStart(scroller, true, true, 0);
-            }
+            Title = $"{repoName} - Evergreen";
+            headerBar.Title = $"{repoName} - Evergreen";
+            headerBar.Subtitle = _repository.Git.GetFreindlyPath();
+        }
 
-            return sourceView;
+        private void RepoTabChanged(object o, SwitchPageArgs args)
+        {
+            _selectedRepoIndex = (int)args.PageNum;
+
+            UpdateHeaderBar();
+
+            _repository?.OnFocus();
         }
 
         private void OpenRepoClicked(object sender, EventArgs _)
@@ -214,57 +147,29 @@ namespace Evergreen.Windows
 
             if (response == ResponseType.Accept)
             {
-                var session = new RepositorySession
-                {
-                    Path = dialog.Filename,
-                };
+                var path = dialog.Filename;
 
-                RenderSession(session);
+                if (!GitService.IsRepository(path))
+                {
+                    return;
+                }
+
+                Session.Paths.Add(path);
+
+                OpenRepository();
             }
 
             dialog.Dispose();
         }
 
-        private async void FetchClicked(object sender, EventArgs _)
+        private void FetchClicked(object sender, EventArgs e)
         {
-            ShowSpinner();
-
-            var result = await Git.Fetch();
-
-            if (!result.IsSuccess)
-            {
-                await messageBarWidget.Open(result.Message);
-            }
-            else
-            {
-                await RefreshBranchTree();
-                await RefreshCommitList();
-
-                await messageBarWidget.Open("Fetch complete.");
-            }
-
-            HideSpinner();
+            ShowProgress(() => _repository?.FetchClicked(sender, e));
         }
 
-        private async void PullClicked(object sender, EventArgs _)
+        private void PullClicked(object sender, EventArgs e)
         {
-            ShowSpinner();
-
-            var result = await Git.Pull();
-
-            if (!result.IsSuccess)
-            {
-                await messageBarWidget.Error($"Pull failed. {result.Message}");
-            }
-            else
-            {
-                await RefreshBranchTree();
-                await RefreshCommitList();
-
-                await messageBarWidget.Open("Pull complete.");
-            }
-
-            HideSpinner();
+            ShowProgress(() => _repository?.PullClicked(sender, e));
         }
 
         private void SearchClicked(object sender, EventArgs _)
@@ -272,25 +177,9 @@ namespace Evergreen.Windows
             searchBar.SearchModeEnabled = !searchBar.SearchModeEnabled;
         }
 
-        private async void PushClicked(object sender, EventArgs _)
+        private void PushClicked(object sender, EventArgs e)
         {
-            ShowSpinner();
-
-            var result = await Git.Push();
-
-            if (!result.IsSuccess)
-            {
-                await messageBarWidget.Error($"Push failed. {result.Message}");
-            }
-            else
-            {
-                await RefreshBranchTree();
-                await RefreshCommitList();
-
-                await messageBarWidget.Open("Push complete.");
-            }
-
-            HideSpinner();
+            ShowProgress(() => _repository?.PushClicked(sender, e));
         }
 
         private void AboutClicked(object sender, EventArgs _)
@@ -298,186 +187,19 @@ namespace Evergreen.Windows
             aboutDialog.Show();
         }
 
-        private void CreateBranchClicked(object sender, EventArgs _)
+        private void CreateBranchClicked(object sender, EventArgs e)
         {
-            createBranchDialog.Show();
+            _repository?.CreateBranchClicked(sender, e);
         }
 
-        private async void CommitClicked(object sender, EventArgs _)
-        {
-            var message = commitMessage.Text;
-
-            if (string.IsNullOrWhiteSpace(message))
-            {
-                return;
-            }
-
-            Git.Commit(message);
-
-            commitMessage.Text = string.Empty;
-
-            stagedFilesWidget.Update();
-            changedFilesWidget.Update();
-
-            await RefreshBranchTree();
-            await RefreshCommitList();
-        }
-
-        private void CheckoutClicked(object sender, BranchSelectedEventArgs e)
-        {
-            Git.Checkout(e.Branch);
-            RefreshBranchTree();
-        }
-
-        private async void FastforwardClicked(object sender, BranchSelectedEventArgs e)
-        {
-            ShowSpinner();
-
-            var result = await Git.FastForwad(e.Branch);
-
-            if (!result.IsSuccess)
-            {
-                await messageBarWidget.Error("Failed to delete branch.");
-            }
-            else
-            {
-                await RefreshBranchTree();
-                await RefreshCommitList();
-            }
-
-            HideSpinner();
-        }
-
-        private async void DeleteBranchClicked(object sender, BranchSelectedEventArgs e)
-        {
-            var result = await Git.DeleteBranch(e.Branch);
-
-            if (!result.IsSuccess)
-            {
-                await messageBarWidget.Error($"Failed to delete branch {e.Branch}.");
-            }
-            else
-            {
-                await RefreshBranchTree();
-                await RefreshCommitList();
-
-                await messageBarWidget.Open($"Branch {e.Branch} deleted.");
-            }
-        }
-
-        private void ChangesSelected(object sender, EventArgs e)
-        {
-            ChangeView(ChangesView.ChangesList);
-        }
-
-        private void BranchSelected(object sender, EventArgs e)
-        {
-            ChangeView(ChangesView.CommitList);
-        }
-
-        private void CommitSelected(object sender, CommitSelectedEventArgs e)
-        {
-            if (commitFilesWidget.Update(e.CommitId))
-            {
-                commitShaLabel.Text = $"CommitId: {e.CommitId}";
-                commitFileLabel.Text = string.Empty;
-                commitAuthorLabel.Text = Git.GetCommitAuthor(e.CommitId);
-            }
-        }
-
-        private void CommitFileSelected(object sender, CommitFileSelectedEventArgs e)
-        {
-            var diff = Git.GetCommitDiff(e.CommitId, e.Path);
-
-            if (commitFileChangesWidget.Render(diff, e.CommitId, e.Path))
-            {
-                commitShaLabel.Text = $"CommitId: {e.CommitId}";
-                commitFileLabel.Text = $"File: {System.IO.Path.GetFileName(e.Path)}";
-                commitAuthorLabel.Text = Git.GetCommitAuthor(e.CommitId);
-            }
-        }
-
-        private async void ChangedFileSelected(object sender, FilesSelectedEventArgs e)
-        {
-            var headCommit = Git.GetHeadCommit().Sha;
-            var diff = await Git.GetChangesDiff(e.Paths.FirstOrDefault());
-
-            changesFileChangesWidget.Render(diff, headCommit, e.Paths.FirstOrDefault());
-        }
-
-        private void ChangedFilesStaged(object sender, FilesSelectedEventArgs e)
-        {
-            Git.Stage(e.Paths);
-
-            changedFilesWidget.Update();
-            stagedFilesWidget.Update();
-        }
-
-        private void FilesUnStaged(object sender, FilesSelectedEventArgs e)
-        {
-            Git.UnStage(e.Paths);
-
-            changedFilesWidget.Update();
-            stagedFilesWidget.Update();
-        }
-
-        private async void BranchCreated(object sender, CreateBranchEventArgs e)
-        {
-            var result = Git.CreateBranch(e.Name, e.Checkout);
-
-            if (!result.IsSuccess)
-            {
-                await messageBarWidget.Error("Failed to create new branch.");
-            }
-            else
-            {
-                await RefreshBranchTree();
-                await RefreshCommitList();
-
-                await messageBarWidget.Open("Branch created.");
-            }
-        }
-
-        private Task RefreshBranchTree()
-        {
-            return Task.Run(branchTreeWidget.Refresh);
-        }
-
-        private Task RefreshCommitList()
-        {
-            return Task.Run(commitListWidget.Refresh);
-        }
-
-        private void ShowSpinner()
+        private void ShowProgress(System.Action action)
         {
             spinner.Active = true;
             spinner.Show();
-        }
 
-        private void HideSpinner()
-        {
+            action();
+
             spinner.Hide();
         }
-
-        public void ChangeView(ChangesView view)
-        {
-            if (view == ChangesView.ChangesList)
-            {
-                stagedFilesWidget.Update();
-                changedFilesWidget.Update();
-
-                changesViewStack.SetVisibleChildFull("changesViewContainer", StackTransitionType.OverRight);
-
-                return;
-            }
-
-            changesViewStack.SetVisibleChildFull("commitsViewContainer", StackTransitionType.OverLeft);
-        }
-    }
-
-    public enum ChangesView
-    {
-        CommitList = 0,
-        ChangesList = 1,
     }
 }

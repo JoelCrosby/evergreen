@@ -7,7 +7,7 @@ using Evergreen.Lib.Session;
 
 namespace Evergreen.Lib.Configuration
 {
-    public static class RestoreSession
+    public static class Sessions
     {
         private static readonly JsonSerializerOptions JsonSerializerOptions = new()
         {
@@ -44,7 +44,7 @@ namespace Evergreen.Lib.Configuration
 
             if (!File.Exists(sessionCachePath))
             {
-                return null;
+                return new RepositorySession();
             }
 
             try
@@ -57,7 +57,7 @@ namespace Evergreen.Lib.Configuration
             {
                 Debug.WriteLine("[Config] Save session failed. ");
 
-                return null;
+                return new RepositorySession();
             }
         }
 

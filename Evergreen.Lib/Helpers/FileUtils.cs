@@ -13,10 +13,17 @@ namespace Evergreen.Lib.Helpers
                 throw new ArgumentNullException(nameof(path));
             }
 
-            await using var fs = File.Open(path, FileMode.Open, FileAccess.Read, FileShare.ReadWrite);
-            using var sr = new StreamReader(fs);
+            try
+            {
+                await using var fs = File.Open(path, FileMode.Open, FileAccess.Read, FileShare.ReadWrite);
+                using var sr = new StreamReader(fs);
 
-            return await sr.ReadToEndAsync();
+                return await sr.ReadToEndAsync();
+            }
+            catch (FileNotFoundException)
+            {
+                return null;
+            }
         }
     }
 }
