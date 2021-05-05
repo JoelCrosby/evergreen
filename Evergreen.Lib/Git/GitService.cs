@@ -38,12 +38,13 @@ namespace Evergreen.Lib.Git
             return dirInfo.Name.ToTitleCase();
         }
 
-        public IEnumerable<Commit> GetCommits()
+        public IEnumerable<CommitModel> GetCommits()
         {
             return repository.Commits.QueryBy(new CommitFilter
             {
                 IncludeReachableFrom = repository.Refs,
-            });
+            })
+                .Select(c => new CommitModel(c));
         }
 
         public Commit GetHeadCommit()
