@@ -32,23 +32,23 @@ namespace  Evergreen.Lib.Git.Models
             new ushort[] { 136, 138, 133 },
             new ushort[] { 173, 127, 168 },
             new ushort[] { 233, 185, 110 },
-            new ushort[] { 239, 41,  41  }
+            new ushort[] { 239, 41,  41  },
         };
 
         private static uint currentIndex;
 
-        public uint Idx;
+        private uint idx;
 
         public static void Reset()
         {
             currentIndex = 0;
         }
 
-        public double R => Palette[Idx].R / 255.0;
+        public double R => Palette[idx].R / 255.0;
 
-        public double G => Palette[Idx].G / 255.0;
+        public double G => Palette[idx].G / 255.0;
 
-        public double B => Palette[Idx].B / 255.0;
+        public double B => Palette[idx].B / 255.0;
 
         public void Components(out double r, out double g, out double b)
         {
@@ -73,13 +73,13 @@ namespace  Evergreen.Lib.Git.Models
         {
             return new Color
             {
-                Idx = IncIndex()
+                idx = IncIndex(),
             };
         }
 
         public Color NextIndex()
         {
-            Idx = IncIndex();
+            idx = IncIndex();
             return this;
         }
 
@@ -87,7 +87,7 @@ namespace  Evergreen.Lib.Git.Models
         {
             return new Color
             {
-                Idx = Idx
+                idx = idx,
             };
         }
     }

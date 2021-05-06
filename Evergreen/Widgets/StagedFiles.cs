@@ -15,7 +15,7 @@ namespace Evergreen.Widgets
 {
     public class StagedFiles : TreeWidget, IDisposable
     {
-        private TreeStore _store;
+        private TreeStore store;
 
         private IEnumerable<StatusEntry> changes;
 
@@ -24,48 +24,48 @@ namespace Evergreen.Widgets
 
         public StagedFiles(TreeView view, GitService git) : base(view, git)
         {
-            _view.CursorChanged += OnCursorChanged;
-            _view.RowActivated += OnRowActivated;
+            View.CursorChanged += OnCursorChanged;
+            View.RowActivated += OnRowActivated;
 
             var nameColumn = Columns.Create("Staged", 0);
             var pathColumn = Columns.Create("Path", 0, null, true);
 
-            _view.AppendColumn(nameColumn);
-            _view.AppendColumn(pathColumn);
+            View.AppendColumn(nameColumn);
+            View.AppendColumn(pathColumn);
         }
 
         public bool Update()
         {
-            changes = _git.GetStagedFiles();
+            changes = Git.GetStagedFiles();
 
-            _store = new TreeStore(
+            store = new TreeStore(
                 typeof(string),
                 typeof(string)
             );
 
             foreach (var change in changes)
             {
-                _store.AppendValues(
+                store.AppendValues(
                     GetFileLabel(change),
                     change.FilePath
                 );
             }
 
-            _view.Model = _store;
+            View.Model = store;
 
             return true;
         }
 
         public bool Clear()
         {
-            _view.Model = null;
+            View.Model = null;
 
             return true;
         }
 
         private void OnCursorChanged(object sender, EventArgs args)
         {
-            var selectedFiles = _view.GetAllSelected<string>(1);
+            var selectedFiles = View.GetAllSelected<string>(1);
 
             OnFilesSelected(new FilesSelectedEventArgs
             {
@@ -75,7 +75,7 @@ namespace Evergreen.Widgets
 
         private void OnRowActivated(object sender, RowActivatedArgs args)
         {
-            var selectedFiles = _view.GetAllSelected<string>(1);
+            var selectedFiles = View.GetAllSelected<string>(1);
 
             if (selectedFiles.Count == 0)
             {
@@ -121,8 +121,8 @@ namespace Evergreen.Widgets
 
         public void Dispose()
         {
-            _view.CursorChanged -= OnCursorChanged;
-            _view.RowActivated -= OnRowActivated;
+            View.CursorChanged -= OnCursorChanged;
+            View.RowActivated -= OnRowActivated;
         }
     }
 }

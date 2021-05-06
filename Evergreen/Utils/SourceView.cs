@@ -10,7 +10,7 @@ namespace Evergreen.Utils
         {
             var scroller = new ScrolledWindow
             {
-                Visible = true
+                Visible = true,
             };
 
             var sourceView = new SourceView
@@ -20,7 +20,7 @@ namespace Evergreen.Utils
                 TabWidth = 4,
                 Editable = false,
                 Visible = true,
-                Monospace = true
+                Monospace = true,
             };
 
             scroller.Add(sourceView);

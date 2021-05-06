@@ -24,7 +24,7 @@ namespace Evergreen.Dialogs
 
 #pragma warning restore 064
 
-        private readonly GitService _git;
+        private readonly GitService git;
 
         public event EventHandler<CreateBranchEventArgs> BranchCreated;
 
@@ -32,7 +32,7 @@ namespace Evergreen.Dialogs
 
         private CreateBranchDialog(GitService git, Builder builder) : base(builder.GetObject("create-branch").Handle)
         {
-            _git = git;
+            this.git = git;
 
             builder.Autoconnect(this);
 
@@ -42,7 +42,7 @@ namespace Evergreen.Dialogs
 
         public new Result<CreateBranchResult> Show()
         {
-            headerBar.Subtitle = $"Base - {_git.GetHeadFriendlyName()}";
+            headerBar.Subtitle = $"Base - {git.GetHeadFriendlyName()}";
             checkCheckout.Active = true;
 
             base.Show();
@@ -107,12 +107,7 @@ namespace Evergreen.Dialogs
         {
             var handler = BranchCreated;
 
-            if (handler is null)
-            {
-                return;
-            }
-
-            handler(this, e);
+            handler?.Invoke(this, e);
         }
 
         public new void Dispose()

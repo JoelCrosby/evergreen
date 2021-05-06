@@ -6,7 +6,7 @@ namespace Evergreen.Lib.Helpers
 {
     public static class FileUtils
     {
-        public async static Task<string> ReadToString(string path)
+        public static async Task<string> ReadToString(string path)
         {
             if (string.IsNullOrEmpty(path))
             {

@@ -15,8 +15,8 @@ namespace Evergreen.Widgets
 {
     public class ChangedFiles : TreeWidget, IDisposable
     {
-        private TreeStore _store;
-        private TreeChanges _changes;
+        private TreeStore store;
+        private TreeChanges changes;
 
         public TreeMode Mode { get; }
 
@@ -25,14 +25,14 @@ namespace Evergreen.Widgets
 
         public ChangedFiles(TreeView view, GitService git) : base(view, git)
         {
-            _view.CursorChanged += OnCursorChanged;
-            _view.RowActivated += OnRowActivated;
+            View.CursorChanged += OnCursorChanged;
+            View.RowActivated += OnRowActivated;
 
             var nameColumn = Columns.Create("Changes", 0);
             var pathColumn = Columns.Create("Path", 0, null, true);
 
-            _view.AppendColumn(nameColumn);
-            _view.AppendColumn(pathColumn);
+            View.AppendColumn(nameColumn);
+            View.AppendColumn(pathColumn);
         }
 
         public bool Update()
@@ -45,22 +45,22 @@ namespace Evergreen.Widgets
 
         private void UpdateList()
         {
-            _changes = _git.GetChangedFiles();
+            changes = Git.GetChangedFiles();
 
-            _store = new TreeStore(
+            store = new TreeStore(
                 typeof(string),
                 typeof(string)
             );
 
-            foreach (var change in _changes)
+            foreach (var change in changes)
             {
-                _store.AppendValues(
+                store.AppendValues(
                     GetFileLabel(change),
                     change.Path
                 );
             }
 
-            _view.Model = _store;
+            View.Model = store;
         }
 
         private void UpdateTree()
@@ -70,26 +70,26 @@ namespace Evergreen.Widgets
 
         private void SelectFirst()
         {
-            _store.GetIterFirst(out var iter);
+            store.GetIterFirst(out var iter);
 
-            var selected = _view.GetSelected<string>();
+            var selected = View.GetSelected<string>();
 
             if (selected is null && iter is { })
             {
-                _view.Selection.SelectIter(iter);
+                View.Selection.SelectIter(iter);
             }
         }
 
         public bool Clear()
         {
-            _view.Model = null;
+            View.Model = null;
 
             return true;
         }
 
         private void OnCursorChanged(object sender, EventArgs args)
         {
-            var selectedFiles = _view.GetAllSelected<string>(1);
+            var selectedFiles = View.GetAllSelected<string>(1);
 
             if (selectedFiles.Count == 0)
             {
@@ -104,7 +104,7 @@ namespace Evergreen.Widgets
 
         private void OnRowActivated(object sender, RowActivatedArgs args)
         {
-            var selectedFiles = _view.GetAllSelected<string>(1);
+            var selectedFiles = View.GetAllSelected<string>(1);
 
             if (selectedFiles.Count == 0)
             {
@@ -151,8 +151,8 @@ namespace Evergreen.Widgets
 
         public void Dispose()
         {
-            _view.CursorChanged -= OnCursorChanged;
-            _view.RowActivated -= OnRowActivated;
+            View.CursorChanged -= OnCursorChanged;
+            View.RowActivated -= OnRowActivated;
         }
     }
 }

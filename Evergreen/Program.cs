@@ -43,15 +43,17 @@ namespace Evergreen
             {
                 var stacktrace = (e.ExceptionObject as Exception)?.StackTrace;
 
-                if (stacktrace is { })
+                if (stacktrace is null)
                 {
-                    Directory.CreateDirectory(logDir);
-
-                    using var fs = File.OpenWrite(Path.Join(logDir, "error.log"));
-                    using var sw = new StreamWriter(fs);
-
-                    sw.Write(stacktrace);
+                    return;
                 }
+
+                Directory.CreateDirectory(logDir);
+
+                using var fs = File.OpenWrite(Path.Join(logDir, "error.log"));
+                using var sw = new StreamWriter(fs);
+
+                sw.Write(stacktrace);
             }
             catch
             {

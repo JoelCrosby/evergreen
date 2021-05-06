@@ -14,7 +14,7 @@ namespace Evergreen.Widgets
     {
         private TreeStore store;
 
-        private const string _changesItemId = "evergreen:changes";
+        private const string ChangesItemId = "evergreen:changes";
 
         public event EventHandler<BranchSelectedEventArgs> CheckoutClicked;
         public event EventHandler<BranchSelectedEventArgs> DeleteClicked;
@@ -24,9 +24,9 @@ namespace Evergreen.Widgets
 
         public BranchTree(TreeView view, GitService git) : base(view, git)
         {
-            _view.HeadersVisible = false;
-            _view.ButtonPressEvent += BranchTreeOnButtonPress;
-            _view.CursorChanged += BranchTreeCursorChanged;
+            View.HeadersVisible = false;
+            View.ButtonPressEvent += BranchTreeOnButtonPress;
+            View.CursorChanged += BranchTreeCursorChanged;
 
             var labelColumn = new TreeViewColumn();
             var cellName = new CellRendererText();
@@ -35,7 +35,7 @@ namespace Evergreen.Widgets
             labelColumn.AddAttribute(cellName, "text", 0);
             labelColumn.AddAttribute(cellName, "weight", 2);
 
-            _view.AppendColumn(labelColumn);
+            View.AppendColumn(labelColumn);
 
             var nameColumn = new TreeViewColumn
             {
@@ -43,19 +43,19 @@ namespace Evergreen.Widgets
                 Visible = false,
             };
 
-            _view.AppendColumn(nameColumn);
+            View.AppendColumn(nameColumn);
 
-            _view.EnableSearch = true;
+            View.EnableSearch = true;
         }
 
         public void Refresh()
         {
-            var tree = _git.GetBranchTree();
+            var tree = Git.GetBranchTree();
 
             store = new TreeStore(typeof(string), typeof(string), typeof(int));
-            _view.Model = store;
+            View.Model = store;
 
-            var activeBranch = _git.GetHeadCanonicalName();
+            var activeBranch = Git.GetHeadCanonicalName();
 
             void AddTreeItems(TreeIter parentIter, TreeItem<BranchTreeItem> item)
             {
@@ -74,14 +74,14 @@ namespace Evergreen.Widgets
                 }
             }
 
-            var headIter = store.AppendValues(_git.GetRepositoryFriendlyName(), "head", Pango.Weight.Bold);
+            var headIter = store.AppendValues(Git.GetRepositoryFriendlyName(), "head", Pango.Weight.Bold);
 
-            var changeCount = _git.GetHeadDiffCount();
+            var changeCount = Git.GetHeadDiffCount();
 
-            var treeIter = store.AppendValues(
+            store.AppendValues(
                 headIter,
                 $"Changes ({changeCount})",
-                _changesItemId,
+                ChangesItemId,
                 Pango.Weight.Normal
             );
 
@@ -99,22 +99,22 @@ namespace Evergreen.Widgets
                 AddTreeItems(remoteIter, b);
             }
 
-            _view.ExpandAll();
-            _view.EnableSearch = true;
+            View.ExpandAll();
+            View.EnableSearch = true;
 
-            _view.Columns[0].Title = _git.GetRepositoryFriendlyName();
+            View.Columns[0].Title = Git.GetRepositoryFriendlyName();
         }
 
         private void BranchTreeCursorChanged(object sender, EventArgs args)
         {
-            var selected = _view.GetSelected<string>(1);
+            var selected = View.GetSelected<string>(1);
 
             if (string.IsNullOrEmpty(selected))
             {
                 return;
             }
 
-            if (selected == _changesItemId)
+            if (selected == ChangesItemId)
             {
                 OnChangesSelected();
                 return;
@@ -145,7 +145,7 @@ namespace Evergreen.Widgets
 
         private void CheckoutActivated(object sender, EventArgs args)
         {
-            var branch = _view.GetSelected<string>(1);
+            var branch = View.GetSelected<string>(1);
 
             if (string.IsNullOrEmpty(branch))
             {
@@ -160,7 +160,7 @@ namespace Evergreen.Widgets
 
         private void FastForwardActivated(object sender, EventArgs args)
         {
-            var branch = _view.GetSelected<string>(1);
+            var branch = View.GetSelected<string>(1);
 
             if (string.IsNullOrEmpty(branch))
             {
@@ -175,7 +175,7 @@ namespace Evergreen.Widgets
 
         private void DeleteActivated(object sender, EventArgs args)
         {
-            var branch = _view.GetSelected<string>(1);
+            var branch = View.GetSelected<string>(1);
 
             if (string.IsNullOrEmpty(branch))
             {
@@ -215,8 +215,8 @@ namespace Evergreen.Widgets
 
         public void Dispose()
         {
-            _view.ButtonPressEvent -= BranchTreeOnButtonPress;
-            _view.CursorChanged -= BranchTreeCursorChanged;
+            View.ButtonPressEvent -= BranchTreeOnButtonPress;
+            View.CursorChanged -= BranchTreeCursorChanged;
         }
     }
 

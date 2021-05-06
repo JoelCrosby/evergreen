@@ -40,7 +40,7 @@ namespace Evergreen.Widgets
 
 #pragma warning restore 064
 
-        public new string Path { get; }
+        public string Path { get; }
         public GitService Git { get; set; }
 
         private BranchTree branchTreeWidget;
@@ -76,7 +76,7 @@ namespace Evergreen.Widgets
 
         public async void OnFocus()
         {
-            if (focusedTimer?.ElapsedMilliseconds < (30 * 1000))
+            if (focusedTimer?.ElapsedMilliseconds < 30 * 1000)
             {
                 focusedTimer.Restart();
 
@@ -357,7 +357,7 @@ namespace Evergreen.Widgets
             return Task.WhenAll(new[]
             {
                 RefreshBranchTree(),
-                RefreshCommitList()
+                RefreshCommitList(),
             });
         }
 

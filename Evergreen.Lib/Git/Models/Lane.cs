@@ -14,7 +14,7 @@ namespace Evergreen.Lib.Git.Models
         SIGN_STASH = 1 << 2,
         SIGN_STAGED = 1 << 3,
         SIGN_UNSTAGED = 1 << 4,
-        HIDDEN = 1 << 5
+        HIDDEN = 1 << 5,
     }
 
     public class Lane

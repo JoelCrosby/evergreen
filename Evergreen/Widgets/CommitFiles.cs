@@ -13,66 +13,66 @@ namespace Evergreen.Widgets
 {
     public class CommitFiles : TreeWidget, IDisposable
     {
-        private TreeStore _store;
-        private string _commitId;
-        private TreeChanges _commitChanges;
+        private TreeStore store;
+        private string commitId;
+        private TreeChanges commitChanges;
 
         public event EventHandler<CommitFileSelectedEventArgs> CommitFileSelected;
 
         public CommitFiles(TreeView view, GitService git) : base(view, git)
         {
-            _view.CursorChanged += CommitFilesCursorChanged;
+            View.CursorChanged += CommitFilesCursorChanged;
 
             var nameColumn = Columns.Create("Filename", 0);
             var pathColumn = Columns.Create("Path", 0, null, true);
 
-            _view.AppendColumn(nameColumn);
-            _view.AppendColumn(pathColumn);
+            View.AppendColumn(nameColumn);
+            View.AppendColumn(pathColumn);
         }
 
-        public bool Update(string commitId)
+        public bool Update(string commitOid)
         {
-            if (_commitId == commitId)
+            if (commitId == commitOid)
             {
                 return false;
             }
 
-            _commitChanges = _git.GetCommitFiles(commitId);
+            commitChanges = Git.GetCommitFiles(commitOid);
 
-            _store = new TreeStore(
+            store = new TreeStore(
                 typeof(string),
                 typeof(string)
             );
 
-            foreach (var change in _commitChanges)
+            foreach (var change in commitChanges)
             {
-                _store.AppendValues(
+                store.AppendValues(
                     GetFileLabel(change),
                     change.Path
                 );
             }
 
-            _view.Model = _store;
-            _commitId = commitId;
+            View.Model = store;
+            commitId = commitOid;
 
             return true;
         }
 
         public bool Clear()
         {
-            _view.Model = null;
+            View.Model = null;
 
             return true;
         }
 
         private void CommitFilesCursorChanged(object sender, EventArgs args)
         {
-            if (_commitId is null)
+            if (commitId is null)
             {
                 return;
             }
 
-            var selectedPath = _view.GetSelected<string>(1);
+            var selectedPath = View.GetSelected<string>(1);
 
             if (string.IsNullOrEmpty(selectedPath))
             {
@@ -81,9 +81,9 @@ namespace Evergreen.Widgets
 
             OnCommitFileSelected(new CommitFileSelectedEventArgs
             {
-                CommitId = _commitId,
+                CommitId = commitId,
                 Path = selectedPath,
-                CommitChanges = _commitChanges,
+                CommitChanges = commitChanges,
             });
         }
 
@@ -116,7 +116,7 @@ namespace Evergreen.Widgets
 
         public void Dispose()
         {
-            _view.CursorChanged -= CommitFilesCursorChanged;
+            View.CursorChanged -= CommitFilesCursorChanged;
         }
     }
 

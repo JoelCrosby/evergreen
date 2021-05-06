@@ -61,7 +61,7 @@ namespace Evergreen.Lib.Git
         {
             var branches = repository.Branches.ToList();
 
-            static string getBranchLabel(string name, int ahead, int behind)
+            static string GetBranchLabel(string name, int ahead, int behind)
             {
                 if (ahead == 0 && behind == 0)
                 {
@@ -70,14 +70,14 @@ namespace Evergreen.Lib.Git
 
                 return (ahead, behind) switch
                 {
-                    (int, int) when ahead != 0 && behind == 0 => $"{name} ↑{ahead}",
-                    (int, int) when ahead == 0 && behind != 0 => $"{name} ↓{behind}",
-                    (int, int) when ahead != 0 && behind != 0 => $"{name} ↑{ahead} ↓{behind}",
+                    (_, _) when ahead != 0 && behind == 0 => $"{name} ↑{ahead}",
+                    (_, _) when behind != 0 => $"{name} ↓{behind}",
+                    (_, _) when ahead != 0 => $"{name} ↑{ahead} ↓{behind}",
                     _ => name,
                 };
             }
 
-            static IEnumerable<TreeItem<BranchTreeItem>> getBranchTree(List<Branch> branches, bool isLocal)
+            static IEnumerable<TreeItem<BranchTreeItem>> Tree(IEnumerable<Branch> branches, bool isLocal)
             {
                 var items = new List<BranchTreeItem>();
                 var root = isLocal ? "Branches" : "Remotes";
@@ -90,7 +90,7 @@ namespace Evergreen.Lib.Git
 
                     for (var i = 0; i < branchLevels.Count; i++)
                     {
-                        var label = getBranchLabel(branchLevels.ElementAtOrDefault(i), ahead, behind);
+                        var label = GetBranchLabel(branchLevels.ElementAtOrDefault(i), ahead, behind);
 
                         var branchLevel = new BranchTreeItem
                         {
@@ -119,8 +119,8 @@ namespace Evergreen.Lib.Git
                 return items.GenerateTree(c => c.Label, c => c.Parent, root);
             }
 
-            var local = getBranchTree(branches, true);
-            var remote = getBranchTree(branches, false);
+            var local = Tree(branches, true);
+            var remote = Tree(branches, false);
 
             return new BranchTree
             {

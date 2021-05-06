@@ -12,10 +12,10 @@ namespace Evergreen.Renderers
 {
 	public static class LabelRenderer
 	{
-		private const int margin = 2;
-		private const int padding = 6;
+		private const int Margin = 2;
+		private const int Padding = 6;
 
-		private static string label_text(Reference r)
+		private static string LabelText(Reference r)
 		{
 			var escaped = GLib.Markup.EscapeText(r.CanonicalName);
 			return $"<span size='smaller'>{escaped}</span>";
@@ -23,12 +23,12 @@ namespace Evergreen.Renderers
 
 		private static int GetLabelWidth(Pango.Layout layout, Reference r)
 		{
-			var smaller = label_text(r);
+			var smaller = LabelText(r);
 
             layout.SetMarkup(smaller);
             layout.GetPixelSize(out var w, out var _);
 
-			return w + (padding * 2);
+			return w + (Padding * 2);
 		}
 
 		public static int Width(Widget  widget, FontDescription font, List<Reference> labels)
@@ -43,15 +43,15 @@ namespace Evergreen.Renderers
 			var ctx = widget.PangoContext;
             var layout = new Pango.Layout(ctx)
             {
-                FontDescription = font
+                FontDescription = font,
             };
 
             foreach (var r in labels)
 			{
-				ret += GetLabelWidth(layout, r) + margin;
+				ret += GetLabelWidth(layout, r) + Margin;
 			}
 
-			return ret + margin;
+			return ret + Margin;
 		}
 
 		private static string ClassFromRef(Reference reference)
@@ -84,7 +84,7 @@ namespace Evergreen.Renderers
             Reference r, double x, double y, int height)
 		{
 			var context = widget.StyleContext;
-			var smaller = label_text(r);
+			var smaller = LabelText(r);
 
 			layout.SetMarkup(smaller);
             layout.GetPixelSize(out var w, out var h);
@@ -98,32 +98,32 @@ namespace Evergreen.Renderers
 				context.AddClass(style_class);
 			}
 
-			var rtl = (widget.StyleContext.State & Gtk.StateFlags.DirRtl) != 0;
+			var rtl = (widget.StyleContext.State & StateFlags.DirRtl) != 0;
 
 			if (rtl)
 			{
-				x -= w + (padding * 2);
+				x -= w + (Padding * 2);
 			}
 
 			context.RenderBackground(
                 cr,
                 x,
-                y + margin,
-                w + (padding * 2),
-                height - (margin * 2)
+                y + Margin,
+                w + (Padding * 2),
+                height - (Margin * 2)
             );
 
 			context.RenderFrame(
                 cr,
 			    x,
-			    y + margin,
-			    w + (padding * 2),
-			    height - (margin * 2)
+			    y + Margin,
+			    w + (Padding * 2),
+			    height - (Margin * 2)
             );
 
 			context.RenderLayout(
                 cr,
-			    x + padding,
+			    x + Padding,
 			    y + ((height - h) / 2.0) - 1,
 			    layout
             );
@@ -132,21 +132,21 @@ namespace Evergreen.Renderers
 			return w;
 		}
 
-		public static void draw(
+		public static void Draw(
             Widget widget, FontDescription font, Cairo.Context context,
             List<Reference> labels, Gdk.Rectangle area)
 		{
 			double pos;
 
-			var rtl = (widget.StyleContext.State & Gtk.StateFlags.DirRtl) != 0;
+			var rtl = (widget.StyleContext.State & StateFlags.DirRtl) != 0;
 
 			if (!rtl)
 			{
-				pos = area.X + margin + 0.5;
+				pos = area.X + Margin + 0.5;
 			}
 			else
 			{
-				pos = area.X + area.Width - margin - 0.5;
+				pos = area.X + area.Width - Margin - 0.5;
 			}
 
 			context.Save();
@@ -155,7 +155,7 @@ namespace Evergreen.Renderers
 			var ctx = widget.PangoContext;
             var layout = new Pango.Layout(ctx)
             {
-                FontDescription = font
+                FontDescription = font,
             };
 
             foreach (var r in labels)
@@ -170,7 +170,7 @@ namespace Evergreen.Renderers
 				    area.Height
                 );
 
-				var o = w + (padding * 2) + margin;
+				var o = w + (Padding * 2) + Margin;
 				pos += rtl ? -o : o;
 			}
 
@@ -179,9 +179,9 @@ namespace Evergreen.Renderers
 
 		public static Reference GetRefAtPos(
             Widget widget, FontDescription font, List<Reference> labels,
-            int x, out int hot_x)
+            int x, out int hotX)
 		{
-			hot_x = 0;
+			hotX = 0;
 
 			if (labels == null)
 			{
@@ -191,10 +191,10 @@ namespace Evergreen.Renderers
 			var ctx = widget.PangoContext;
             var layout = new Pango.Layout(ctx)
             {
-                FontDescription = font
+                FontDescription = font,
             };
 
-            var start = margin;
+            var start = Margin;
 			Reference ret = null;
 
 			foreach (var r in labels)
@@ -204,12 +204,12 @@ namespace Evergreen.Renderers
 				if (x >= start && x <= start + width)
 				{
 					ret = r;
-					hot_x = x - start;
+					hotX = x - start;
 
 					break;
 				}
 
-				start += width + margin;
+				start += width + Margin;
 			}
 
 			return ret;
@@ -217,10 +217,10 @@ namespace Evergreen.Renderers
 
 		private static byte ConvertColorChannel(byte color, byte alpha)
 		{
-			return (byte)((alpha != 0) ? (color / (alpha / 255.0)) : 0);
+			return (byte)(alpha != 0 ? color / (alpha / 255.0) : 0);
 		}
 
-		private static void ConvertBgraToRgba(byte[] src, byte[] dst, int width, int height)
+		private static void ConvertBgraToRgba(IReadOnlyList<byte> src, IList<byte> dst, int width, int height)
 		{
 			var i = 0;
 
@@ -244,7 +244,7 @@ namespace Evergreen.Renderers
 			var ctx = widget.PangoContext;
             var layout = new Pango.Layout(ctx)
             {
-                FontDescription = font
+                FontDescription = font,
             };
 
             var width = Math.Max(GetLabelWidth(layout, r), minwidth);
@@ -257,7 +257,7 @@ namespace Evergreen.Renderers
 
             var context = new Cairo.Context(surface)
             {
-                LineWidth = 1
+                LineWidth = 1,
             };
 
             RenderLabel(widget, context, layout, r, 1, 1, height);
@@ -271,13 +271,11 @@ namespace Evergreen.Renderers
                 height + 2
             );
 
-			var pixdata = new byte[] { Marshal.ReadByte(ret.Pixels) };
+			var pixData = new[] { Marshal.ReadByte(ret.Pixels) };
 
-			ConvertBgraToRgba(data, pixdata, width + 2, height + 2);
+			ConvertBgraToRgba(data, pixData, width + 2, height + 2);
 
 			return ret;
 		}
 	}
 }
-
-// ex:ts=4 noet
