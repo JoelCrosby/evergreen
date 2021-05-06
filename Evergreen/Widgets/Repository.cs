@@ -202,20 +202,6 @@ namespace Evergreen.Widgets
 
         private async void MergeClicked(object sender, BranchSelectedEventArgs e)
         {
-            var result = await Git.FastForwad(e.Branch);
-
-            if (!result.IsSuccess)
-            {
-                await messageBarWidget.Error("Failed to delete branch.");
-            }
-            else
-            {
-                await Refresh();
-            }
-        }
-
-        private async void DeleteBranchClicked(object sender, BranchSelectedEventArgs e)
-        {
             var confirm = ConfirmationDialog.Open(
                 Program.Window,
                 "Merge branch",
@@ -229,6 +215,32 @@ namespace Evergreen.Widgets
             }
 
             var result = Git.MergeBranch(e.Branch);
+
+            if (!result.IsSuccess)
+            {
+                await messageBarWidget.Error("Failed to merge branch.");
+            }
+            else
+            {
+                await Refresh();
+            }
+        }
+
+        private async void DeleteBranchClicked(object sender, BranchSelectedEventArgs e)
+        {
+            var confirm = ConfirmationDialog.Open(
+                Program.Window,
+                "Delete branch",
+                $"Are you sure you want to delete the branch {e.Branch}",
+                "Delete"
+            );
+
+            if (!confirm)
+            {
+                return;
+            }
+
+            var result = await Git.DeleteBranch(e.Branch);
 
             if (!result.IsSuccess)
             {
