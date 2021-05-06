@@ -70,9 +70,9 @@ namespace Evergreen.Lib.Git
 
                 return (ahead, behind) switch
                 {
-                    (_, _) when ahead != 0 && behind == 0 => $"{name} ↑{ahead}",
-                    (_, _) when behind != 0 => $"{name} ↓{behind}",
-                    (_, _) when ahead != 0 => $"{name} ↑{ahead} ↓{behind}",
+                    (int, int) when ahead != 0 && behind == 0 => $"{name} ↑{ahead}",
+                    (int, int) when ahead == 0 && behind != 0 => $"{name} ↓{behind}",
+                    (int, int) when ahead != 0 && behind != 0 => $"{name} ↑{ahead} ↓{behind}",
                     _ => name,
                 };
             }
