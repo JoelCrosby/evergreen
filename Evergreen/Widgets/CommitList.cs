@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 
 using Evergreen.Lib.Git;
-using Evergreen.Lib.Git.Models;
 using Evergreen.Utils;
 using Evergreen.Widgets.Common;
 
@@ -11,8 +10,6 @@ using Gtk;
 
 namespace Evergreen.Widgets
 {
-    using LibGit2Sharp;
-
     public class CommitList : TreeWidget, IDisposable
     {
         private TreeStore store;
