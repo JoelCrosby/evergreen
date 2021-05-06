@@ -109,6 +109,7 @@ namespace Evergreen.Widgets
                 FileStatus.Ignored => "[I]",
                 FileStatus.ModifiedInIndex => "[M]",
                 FileStatus.RenamedInIndex => "[R]",
+                FileStatus.DeletedFromIndex => "[D]",
                 FileStatus.TypeChangeInIndex => "[TC]",
                 FileStatus.Unaltered => "[UA]",
                 FileStatus.Unreadable => "[UR]",

@@ -38,13 +38,12 @@ namespace Evergreen.Lib.Git
             return dirInfo.Name.ToTitleCase();
         }
 
-        public IEnumerable<CommitModel> GetCommits()
+        public IEnumerable<Commit> GetCommits()
         {
             return repository.Commits.QueryBy(new CommitFilter
             {
                 IncludeReachableFrom = repository.Refs,
-            })
-                .Select(c => new CommitModel(c));
+            });
         }
 
         public Commit GetHeadCommit()
@@ -152,13 +151,14 @@ namespace Evergreen.Lib.Git
         {
             var status = repository.RetrieveStatus();
 
-            return status.Staged.Concat(status.Added);
+            return status.Staged
+                .Concat(status.Removed);
         }
 
         public TreeChanges GetChangedFiles()
         {
             var paths = new[] { repository.Info.WorkingDirectory };
-            return repository.Diff.Compare<TreeChanges>(paths, true);
+            return repository.Diff.Compare<TreeChanges>(paths);
         }
 
         public Patch GetCommitPatch(string commitId)

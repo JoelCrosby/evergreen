@@ -11,6 +11,8 @@ using Gtk;
 
 namespace Evergreen.Widgets
 {
+    using LibGit2Sharp;
+
     public class CommitList : TreeWidget, IDisposable
     {
         private TreeStore store;
@@ -21,11 +23,11 @@ namespace Evergreen.Widgets
         {
             View.CursorChanged += CommitListCursorChanged;
 
-            var messageColumn = Columns.CreateLane("Message", 0, 800);
-            var authorColumn = Columns.Create("Author", 2);
-            var shaColumn = Columns.Create("Sha", 3);
-            var dateColumn = Columns.Create("Date", 4, 20);
-            var idColumn = Columns.Create("ID", 5, 20);
+            var messageColumn = Columns.Create("Message", 0, 800);
+            var authorColumn = Columns.Create("Author", 1);
+            var shaColumn = Columns.Create("Sha", 2);
+            var dateColumn = Columns.Create("Date", 3, 20);
+            var idColumn = Columns.Create("ID", 4, 20);
 
             messageColumn.Resizable = true;
             authorColumn.Resizable = true;
@@ -67,7 +69,6 @@ namespace Evergreen.Widgets
 
             store = new TreeStore(
                 typeof(string),
-                typeof(CommitModel),
                 typeof(string),
                 typeof(string),
                 typeof(string),
@@ -76,18 +77,17 @@ namespace Evergreen.Widgets
 
             foreach (var commit in commits)
             {
-                var hasValue = headDict.TryGetValue(commit.Data.Sha, out var branches);
+                var hasValue = headDict.TryGetValue(commit.Sha, out var branches);
                 var branchLabel = hasValue ? string.Join(' ', branches.Select(b => $"({b})")) : null;
 
-                var commitDate = $"{commit.Data.Author.When:dd MMM yyyy HH:mm}";
-                var author = commit.Data.Author.Name;
-                var message = branchLabel is { } ? $"{commit.Data.MessageShort} {branchLabel}" : commit.Data.MessageShort;
-                var sha = commit.Data.Sha[..7];
-                var id = commit.Data.Id.Sha;
+                var commitDate = $"{commit.Author.When:dd MMM yyyy HH:mm}";
+                var author = commit.Author.Name;
+                var message = branchLabel is { } ? $"{commit.MessageShort} {branchLabel}" : commit.MessageShort;
+                var sha = commit.Sha[..7];
+                var id = commit.Id.Sha;
 
                 store.AppendValues(
                     message,
-                    commit,
                     author,
                     sha,
                     commitDate,
@@ -100,7 +100,7 @@ namespace Evergreen.Widgets
 
         private void CommitListCursorChanged(object sender, EventArgs args)
         {
-            var selectedId = View.GetSelected<string>(5);
+            var selectedId = View.GetSelected<string>(4);
 
             if (string.IsNullOrEmpty(selectedId))
             {
