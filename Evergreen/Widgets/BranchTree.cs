@@ -19,6 +19,7 @@ namespace Evergreen.Widgets
         public event EventHandler<BranchSelectedEventArgs> CheckoutClicked;
         public event EventHandler<BranchSelectedEventArgs> DeleteClicked;
         public event EventHandler<BranchSelectedEventArgs> FastForwardClicked;
+        public event EventHandler<BranchSelectedEventArgs> MergeClicked;
         public event EventHandler<EventArgs> ChangesSelected;
         public event EventHandler<BranchSelectedEventArgs> BranchSelected;
 
@@ -135,11 +136,14 @@ namespace Evergreen.Widgets
                 return;
             }
 
+            var current = Git.GetHeadFriendlyName();
+
             Menus.Open(
                 ("Checkout", CheckoutActivated),
                 ("Fast-forward", FastForwardActivated),
-                ("Delete", DeleteActivated),
-                ("Rename", null)
+                ($"Merge into {current}", MergeActivated),
+                ("Rename", null),
+                ("Delete", DeleteActivated)
             );
         }
 
@@ -173,6 +177,21 @@ namespace Evergreen.Widgets
             });
         }
 
+        private void MergeActivated(object sender, EventArgs args)
+        {
+            var branch = View.GetSelected<string>(1);
+
+            if (string.IsNullOrEmpty(branch))
+            {
+                return;
+            }
+
+            OnMergeClicked(new BranchSelectedEventArgs
+            {
+                Branch = branch,
+            });
+        }
+
         private void DeleteActivated(object sender, EventArgs args)
         {
             var branch = View.GetSelected<string>(1);
@@ -196,6 +215,11 @@ namespace Evergreen.Widgets
         protected virtual void OnFastForwardClicked(BranchSelectedEventArgs e)
         {
             FastForwardClicked?.Invoke(this, e);
+        }
+
+        protected virtual void OnMergeClicked(BranchSelectedEventArgs e)
+        {
+            MergeClicked?.Invoke(this, e);
         }
 
         protected virtual void OnDeleteClicked(BranchSelectedEventArgs e)

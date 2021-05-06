@@ -125,6 +125,7 @@ namespace Evergreen.Widgets
             branchTreeWidget.DeleteClicked += DeleteBranchClicked;
             branchTreeWidget.ChangesSelected += ChangesSelected;
             branchTreeWidget.BranchSelected += BranchSelected;
+            branchTreeWidget.MergeClicked += MergeClicked;
             commitFilesWidget.CommitFileSelected += CommitFileSelected;
             changedFilesWidget.FilesSelected += ChangedFileSelected;
             changedFilesWidget.FilesStaged += ChangedFilesStaged;
@@ -160,7 +161,7 @@ namespace Evergreen.Widgets
             return sourceView;
         }
 
-        public async void CommitClicked(object sender, EventArgs _)
+        private async void CommitClicked(object sender, EventArgs _)
         {
             var message = commitMessage.Text;
 
@@ -179,13 +180,13 @@ namespace Evergreen.Widgets
             await Refresh();
         }
 
-        public void CheckoutClicked(object sender, BranchSelectedEventArgs e)
+        private void CheckoutClicked(object sender, BranchSelectedEventArgs e)
         {
             Git.Checkout(e.Branch);
             RefreshBranchTree();
         }
 
-        public async void FastforwardClicked(object sender, BranchSelectedEventArgs e)
+        private async void FastforwardClicked(object sender, BranchSelectedEventArgs e)
         {
             var result = await Git.FastForwad(e.Branch);
 
@@ -199,13 +200,27 @@ namespace Evergreen.Widgets
             }
         }
 
-        public async void DeleteBranchClicked(object sender, BranchSelectedEventArgs e)
+        private async void MergeClicked(object sender, BranchSelectedEventArgs e)
+        {
+            var result = await Git.FastForwad(e.Branch);
+
+            if (!result.IsSuccess)
+            {
+                await messageBarWidget.Error("Failed to delete branch.");
+            }
+            else
+            {
+                await Refresh();
+            }
+        }
+
+        private async void DeleteBranchClicked(object sender, BranchSelectedEventArgs e)
         {
             var confirm = ConfirmationDialog.Open(
                 Program.Window,
-                "Delete branch",
-                $"Are you sure you want to delete the branch {e.Branch}",
-                "Delete"
+                "Merge branch",
+                $"Are you sure you want to merge the branch {e.Branch}",
+                "Merge"
             );
 
             if (!confirm)
@@ -213,7 +228,7 @@ namespace Evergreen.Widgets
                 return;
             }
 
-            var result = await Git.DeleteBranch(e.Branch);
+            var result = Git.MergeBranch(e.Branch);
 
             if (!result.IsSuccess)
             {
@@ -352,26 +367,11 @@ namespace Evergreen.Widgets
             createBranchDialog.Show();
         }
 
-        public Task Refresh()
-        {
-            return Task.WhenAll(new[]
-            {
-                RefreshBranchTree(),
-                RefreshCommitList(),
-            });
-        }
+        private Task Refresh() => Task.WhenAll(RefreshBranchTree(), RefreshCommitList());
+        private Task RefreshBranchTree() => Task.Run(branchTreeWidget.Refresh);
+        private Task RefreshCommitList() => Task.Run(commitListWidget.Refresh);
 
-        public Task RefreshBranchTree()
-        {
-            return Task.Run(branchTreeWidget.Refresh);
-        }
-
-        public Task RefreshCommitList()
-        {
-            return Task.Run(commitListWidget.Refresh);
-        }
-
-        public void ChangeView(ChangesView view)
+        private void ChangeView(ChangesView view)
         {
             if (view == ChangesView.ChangesList)
             {

@@ -38,6 +38,21 @@ namespace Evergreen.Lib.Git
             return dirInfo.Name.ToTitleCase();
         }
 
+        public Signature GetSignature()
+        {
+            var config = repository.Config;
+
+            var name = config.FirstOrDefault(v => v.Key == "user.name")?.Value;
+            var email = config.FirstOrDefault(v => v.Key == "user.email")?.Value;
+
+            if (name is null || email is null)
+            {
+                throw new Exception("user.name or user.email is not configured.");
+            }
+
+            return new Signature(name, email, DateTimeOffset.UtcNow);
+        }
+
         public IEnumerable<Commit> GetCommits()
         {
             return repository.Commits.QueryBy(new CommitFilter
@@ -250,17 +265,7 @@ namespace Evergreen.Lib.Git
 
         public void Commit(string message)
         {
-            var config = repository.Config;
-
-            var name = config.FirstOrDefault(v => v.Key == "user.name")?.Value;
-            var email = config.FirstOrDefault(v => v.Key == "user.email")?.Value;
-
-            if (name is null || email is null)
-            {
-                throw new Exception("user.name or user.email is not configured.");
-            }
-
-            var sig = new Signature(name, email, DateTimeOffset.UtcNow);
+            var sig = GetSignature();
 
             repository.Commit(message, sig, sig, new CommitOptions
             {
@@ -278,6 +283,28 @@ namespace Evergreen.Lib.Git
             var shortBranchName = branch[(branch.LastIndexOf('/') + 1)..];
 
             return ExecAsync($"fetch {remote} {shortBranchName}:{shortBranchName}");
+        }
+
+        public Result MergeBranch(string branch)
+        {
+            var repoBranch = repository
+                .Branches
+                .FirstOrDefault(b => !b.IsRemote && b.CanonicalName == branch);
+
+            var sig = GetSignature();
+            var options = new MergeOptions
+            {
+                FileConflictStrategy = CheckoutFileConflictStrategy.Merge
+            };
+
+            repository.Merge(repoBranch, sig, options);
+
+            if (repository.Index.Conflicts.Any())
+            {
+                return Result.Failed("Merge resulted in conflicts.");
+            }
+
+            return Result.Success();
         }
 
         public Task<Result<ExecResult>> Fetch()
