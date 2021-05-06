@@ -82,7 +82,7 @@ namespace Evergreen.Widgets
                 var commitDate = $"{commit.Data.Author.When:dd MMM yyyy HH:mm}";
                 var author = commit.Data.Author.Name;
                 var message = branchLabel is { } ? $"{commit.Data.MessageShort} {branchLabel}" : commit.Data.MessageShort;
-                var sha = commit.Data.Sha.Substring(0, 7);
+                var sha = commit.Data.Sha[..7];
                 var id = commit.Data.Id.Sha;
 
                 store.AppendValues(
@@ -126,6 +126,6 @@ namespace Evergreen.Widgets
 
     public class CommitSelectedEventArgs : EventArgs
     {
-        public string CommitId { get; set; }
+        public string CommitId { get; init; }
     }
 }

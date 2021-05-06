@@ -222,6 +222,6 @@ namespace Evergreen.Widgets
 
     public class BranchSelectedEventArgs : EventArgs
     {
-        public string Branch { get; set; }
+        public string Branch { get; init; }
     }
 }

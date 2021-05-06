@@ -122,11 +122,11 @@ namespace Evergreen.Widgets
 
     public class CommitFileSelectedEventArgs : EventArgs
     {
-        public string CommitId { get; set; }
+        public string CommitId { get; init; }
 
-        public TreeChanges CommitChanges { get; set; }
+        public TreeChanges CommitChanges { get; init; }
 
-        public string Path { get; set; }
+        public string Path { get; init; }
     }
 }
 

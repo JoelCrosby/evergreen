@@ -29,7 +29,7 @@ namespace Evergreen.Lib.Git
         public string GetHeadFriendlyName() => repository.Head.FriendlyName;
 
         public string GetPath() => repository.Info.WorkingDirectory;
-        public string GetFreindlyPath() => repository.Info.WorkingDirectory.SubHomePath();
+        public string GetFriendlyPath() => repository.Info.WorkingDirectory.SubHomePath();
         public static bool IsRepository(string path) => Repository.IsValid(path);
 
         public string GetRepositoryFriendlyName()
@@ -306,6 +306,11 @@ namespace Evergreen.Lib.Git
                 .Branches
                 .FirstOrDefault(b => !b.IsRemote && b.CanonicalName == name);
 
+            if (repoBranch is null)
+            {
+                return Task.FromResult(Result<ExecResult>.Failed("Branch not found."));
+            }
+
             return ExecAsync($"branch -d {repoBranch.FriendlyName}");
         }
 
@@ -336,12 +341,7 @@ namespace Evergreen.Lib.Git
         {
             var commit = repository.Lookup<Commit>(commitId);
 
-            if (commit is null)
-            {
-                return null;
-            }
-
-            var treeEntry = commit[relPath];
+            var treeEntry = commit?[relPath];
 
             if (treeEntry is null)
             {

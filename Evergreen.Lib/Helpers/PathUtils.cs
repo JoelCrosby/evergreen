@@ -28,7 +28,7 @@ namespace Evergreen.Lib.Helpers
             {
                 Platform.Linux => Environment.GetEnvironmentVariable("HOME"),
                 Platform.OSX => Environment.GetEnvironmentVariable("HOME"),
-                Platform.FREE_BSD => Environment.GetEnvironmentVariable("HOME"),
+                Platform.FreeBsd => Environment.GetEnvironmentVariable("HOME"),
                 Platform.Windows => GetHomePathWindows(),
                 _ => throw new Exception("Unsupported Platform"),
             };
@@ -48,7 +48,7 @@ namespace Evergreen.Lib.Helpers
 
             if (RuntimeInformation.IsOSPlatform(OSPlatform.FreeBSD))
             {
-                return Platform.FREE_BSD;
+                return Platform.FreeBsd;
             }
 
             return Platform.Linux;

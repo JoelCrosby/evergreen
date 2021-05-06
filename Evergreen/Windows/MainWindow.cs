@@ -147,7 +147,7 @@ namespace Evergreen.Windows
 
             Title = repoName;
             headerBar.Title = repoName;
-            headerBar.Subtitle = Repository.Git.GetFreindlyPath();
+            headerBar.Subtitle = Repository.Git.GetFriendlyPath();
         }
 
         private void RepoTabChanged(object o, SwitchPageArgs args)

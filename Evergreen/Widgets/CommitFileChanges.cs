@@ -126,7 +126,7 @@ namespace Evergreen.Widgets
 
         private static Buffer CreateBuffer()
         {
-            return new Buffer
+            return new()
             {
                 HighlightSyntax = true,
             };
