@@ -15,13 +15,8 @@ namespace Evergreen.Widgets
 {
     public class ChangedFiles : TreeWidget, IDisposable
     {
-        private TreeStore store;
         private TreeChanges changes;
-
-        public TreeMode Mode { get; }
-
-        public event EventHandler<FilesSelectedEventArgs> FilesSelected;
-        public event EventHandler<FilesSelectedEventArgs> FilesStaged;
+        private TreeStore store;
 
         public ChangedFiles(TreeView view, GitService git) : base(view, git)
         {
@@ -34,6 +29,17 @@ namespace Evergreen.Widgets
             View.AppendColumn(nameColumn);
             View.AppendColumn(pathColumn);
         }
+
+        public TreeMode Mode { get; }
+
+        public void Dispose()
+        {
+            View.CursorChanged -= OnCursorChanged;
+            View.RowActivated -= OnRowActivated;
+        }
+
+        public event EventHandler<FilesSelectedEventArgs> FilesSelected;
+        public event EventHandler<FilesSelectedEventArgs> FilesStaged;
 
         public bool Update()
         {
@@ -96,10 +102,12 @@ namespace Evergreen.Widgets
                 return;
             }
 
-            OnFilesSelected(new FilesSelectedEventArgs
-            {
-                Paths = selectedFiles,
-            });
+            OnFilesSelected(
+                new FilesSelectedEventArgs
+                {
+                    Paths = selectedFiles,
+                }
+            );
         }
 
         private void OnRowActivated(object sender, RowActivatedArgs args)
@@ -111,25 +119,22 @@ namespace Evergreen.Widgets
                 return;
             }
 
-            OnFilesStaged(new FilesSelectedEventArgs
-            {
-                Paths = selectedFiles,
-            });
+            OnFilesStaged(
+                new FilesSelectedEventArgs
+                {
+                    Paths = selectedFiles,
+                }
+            );
         }
 
-        protected virtual void OnFilesSelected(FilesSelectedEventArgs e)
-        {
-            FilesSelected?.Invoke(this, e);
-        }
+        protected virtual void OnFilesSelected(FilesSelectedEventArgs e) => FilesSelected?.Invoke(this, e);
 
-        protected virtual void OnFilesStaged(FilesSelectedEventArgs e)
-        {
-            FilesStaged?.Invoke(this, e);
-        }
+        protected virtual void OnFilesStaged(FilesSelectedEventArgs e) => FilesStaged?.Invoke(this, e);
 
         private static string GetFileLabel(TreeEntryChanges change)
         {
             var name = Path.GetFileName(change.Path);
+
             var prefix = change.Status switch
             {
                 ChangeKind.Added => "[A]",
@@ -148,12 +153,5 @@ namespace Evergreen.Widgets
 
             return $"{prefix} {name}";
         }
-
-        public void Dispose()
-        {
-            View.CursorChanged -= OnCursorChanged;
-            View.RowActivated -= OnRowActivated;
-        }
     }
 }
-

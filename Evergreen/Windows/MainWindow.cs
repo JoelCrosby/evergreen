@@ -10,8 +10,9 @@ using Evergreen.Widgets;
 
 using Gtk;
 
+using AboutDialog = Evergreen.Dialogs.AboutDialog;
+using Action = System.Action;
 using UI = Gtk.Builder.ObjectAttribute;
-using Window = Gtk.Window;
 
 namespace Evergreen.Windows
 {
@@ -38,7 +39,7 @@ namespace Evergreen.Windows
         private readonly List<Repository> repositories = new();
         private Repository Repository => repositories.ElementAtOrDefault(selectedRepoIndex);
         private readonly RepositorySession session;
-        private readonly Dialogs.AboutDialog aboutDialog = new();
+        private readonly AboutDialog aboutDialog = new();
 
         public MainWindow() : this(new Builder("main.ui")) { }
 
@@ -73,10 +74,7 @@ namespace Evergreen.Windows
             Application.Quit();
         }
 
-        private void WindowFocusGrabbed(object sender, FocusInEventArgs a)
-        {
-            Repository?.OnFocus();
-        }
+        private void WindowFocusGrabbed(object sender, FocusInEventArgs a) => Repository?.OnFocus();
 
         private void OpenRepository()
         {
@@ -107,11 +105,13 @@ namespace Evergreen.Windows
 
                 repositories.Add(repo);
 
-                repoNotebook.AppendPage(repo, new Label
-                {
-                    Text = tabLabel,
-                    WidthRequest = 160,
-                });
+                repoNotebook.AppendPage(
+                    repo, new Label
+                    {
+                        Text = tabLabel,
+                        WidthRequest = 160,
+                    }
+                );
 
                 SetPanedPositions(repo);
             }
@@ -197,37 +197,21 @@ namespace Evergreen.Windows
             Sessions.SaveSession(session);
         }
 
-        private void FetchClicked(object sender, EventArgs e)
-        {
+        private void FetchClicked(object sender, EventArgs e) =>
             ShowProgress(() => Repository?.FetchClicked(sender, e));
-        }
 
-        private void PullClicked(object sender, EventArgs e)
-        {
-            ShowProgress(() => Repository?.PullClicked(sender, e));
-        }
+        private void PullClicked(object sender, EventArgs e) => ShowProgress(() => Repository?.PullClicked(sender, e));
 
-        private void SearchClicked(object sender, EventArgs _)
-        {
+        private void SearchClicked(object sender, EventArgs _) =>
             searchBar.SearchModeEnabled = !searchBar.SearchModeEnabled;
-        }
 
-        private void PushClicked(object sender, EventArgs e)
-        {
-            ShowProgress(() => Repository?.PushClicked(sender, e));
-        }
+        private void PushClicked(object sender, EventArgs e) => ShowProgress(() => Repository?.PushClicked(sender, e));
 
-        private void AboutClicked(object sender, EventArgs _)
-        {
-            aboutDialog.Show();
-        }
+        private void AboutClicked(object sender, EventArgs _) => aboutDialog.Show();
 
-        private void CreateBranchClicked(object sender, EventArgs e)
-        {
-            Repository?.CreateBranchClicked(sender, e);
-        }
+        private void CreateBranchClicked(object sender, EventArgs e) => Repository?.CreateBranchClicked(sender, e);
 
-        private void ShowProgress(System.Action action)
+        private void ShowProgress(Action action)
         {
             spinner.Active = true;
             spinner.Show();

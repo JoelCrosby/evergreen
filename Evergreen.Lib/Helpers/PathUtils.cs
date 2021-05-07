@@ -1,3 +1,4 @@
+using System.Globalization;
 using System;
 using System.IO;
 using System.Runtime.InteropServices;
@@ -22,17 +23,14 @@ namespace Evergreen.Lib.Helpers
             return Path.Join(home, configFolder, "evergreen");
         }
 
-        public static string GetHomeFolder()
+        public static string GetHomeFolder() => GetPlatform() switch
         {
-            return GetPlatform() switch
-            {
-                Platform.Linux => Environment.GetEnvironmentVariable("HOME"),
-                Platform.OSX => Environment.GetEnvironmentVariable("HOME"),
-                Platform.FreeBsd => Environment.GetEnvironmentVariable("HOME"),
-                Platform.Windows => GetHomePathWindows(),
-                _ => throw new Exception("Unsupported Platform"),
-            };
-        }
+            Platform.Linux => Environment.GetEnvironmentVariable("HOME"),
+            Platform.OSX => Environment.GetEnvironmentVariable("HOME"),
+            Platform.FreeBsd => Environment.GetEnvironmentVariable("HOME"),
+            Platform.Windows => GetHomePathWindows(),
+            _ => throw new Exception("Unsupported Platform"),
+        };
 
         public static Platform GetPlatform()
         {
@@ -66,7 +64,7 @@ namespace Evergreen.Lib.Helpers
         {
             var home = GetHomeFolder();
 
-            if (path.StartsWith(home))
+            if (path.StartsWith(home, false, CultureInfo.InvariantCulture))
             {
                 return $"~{path[home.Length..]}";
             }

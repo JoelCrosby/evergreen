@@ -6,8 +6,8 @@ namespace Evergreen.Widgets.Common
 {
     public abstract class TreeWidget
     {
-        protected readonly TreeView View;
-        protected readonly GitService Git;
+        protected GitService Git { get; init; }
+        protected TreeView View { get; init; }
 
         protected TreeWidget(TreeView view, GitService git)
         {

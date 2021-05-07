@@ -1,11 +1,17 @@
 using System.Linq;
+
 using Gtk;
 
 namespace Evergreen.Dialogs
 {
     public static class ConfirmationDialog
     {
-        public static bool Open(Window parent, string title, string message, string confirmLabel, MessageType type = MessageType.Info)
+        public static bool Open(
+            Window parent,
+            string title,
+            string message,
+            string confirmLabel,
+            MessageType type = MessageType.Info)
         {
             var dialog = new MessageDialog(
                 parent,

@@ -24,40 +24,46 @@ namespace Evergreen.Widgets
 
             Clear();
 
-            this.view.SetMarkAttributes("Inserted", new MarkAttributes
-            {
-                IconName = "list-add",
-                Background = new RGBA
+            this.view.SetMarkAttributes(
+                "Inserted", new MarkAttributes
                 {
-                    Alpha = 0.1,
-                    Green = 1,
-                    Red = 0,
-                    Blue = 0,
-                },
-            }, 10);
+                    IconName = "list-add",
+                    Background = new RGBA
+                    {
+                        Alpha = 0.1,
+                        Green = 1,
+                        Red = 0,
+                        Blue = 0,
+                    },
+                }, 10
+            );
 
-            this.view.SetMarkAttributes("Deleted", new MarkAttributes
-            {
-                IconName = "list-remove",
-                Background = new RGBA
+            this.view.SetMarkAttributes(
+                "Deleted", new MarkAttributes
                 {
-                    Alpha = 0.1,
-                    Green = 0,
-                    Red = 1,
-                    Blue = 0,
-                },
-            }, 10);
+                    IconName = "list-remove",
+                    Background = new RGBA
+                    {
+                        Alpha = 0.1,
+                        Green = 0,
+                        Red = 1,
+                        Blue = 0,
+                    },
+                }, 10
+            );
 
-            this.view.SetMarkAttributes("Modified", new MarkAttributes
-            {
-                Background = new RGBA
+            this.view.SetMarkAttributes(
+                "Modified", new MarkAttributes
                 {
-                    Alpha = 0.1,
-                    Green = 0,
-                    Red = 0,
-                    Blue = 1,
-                },
-            }, 10);
+                    Background = new RGBA
+                    {
+                        Alpha = 0.1,
+                        Green = 0,
+                        Red = 0,
+                        Blue = 1,
+                    },
+                }, 10
+            );
         }
 
         public bool Render(DiffPaneModel diff, string commitId, string path)
@@ -124,13 +130,10 @@ namespace Evergreen.Widgets
             return true;
         }
 
-        private static Buffer CreateBuffer()
+        private static Buffer CreateBuffer() => new()
         {
-            return new()
-            {
-                HighlightSyntax = true,
-            };
-        }
+            HighlightSyntax = true,
+        };
 
         private static Language GetLanguage(string path)
         {

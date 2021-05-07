@@ -14,8 +14,6 @@ namespace Evergreen.Widgets
     {
         private TreeStore store;
 
-        public event EventHandler<CommitSelectedEventArgs> CommitSelected;
-
         public CommitList(TreeView view, GitService git) : base(view, git)
         {
             View.CursorChanged += CommitListCursorChanged;
@@ -45,24 +43,35 @@ namespace Evergreen.Widgets
             View.AppendColumn(idColumn);
         }
 
+        public void Dispose() => View.CursorChanged -= CommitListCursorChanged;
+
+        public event EventHandler<CommitSelectedEventArgs> CommitSelected;
+
         public void Refresh()
         {
             var commits = Git.GetCommits();
             var heads = Git.GetBranchHeadCommits();
 
-            var headDict = heads.Aggregate(new Dictionary<string, List<string>>(), (a, c) =>
-            {
-                if (a.TryGetValue(c.sha, out var item))
+            var headDict = heads.Aggregate(
+                new Dictionary<string, List<string>>(), (a, c) =>
                 {
-                    item.Add(c.label);
-                }
-                else
-                {
-                    a.Add(c.sha, new List<string> { c.label });
-                }
+                    if (a.TryGetValue(c.sha, out var item))
+                    {
+                        item.Add(c.label);
+                    }
+                    else
+                    {
+                        a.Add(
+                            c.sha, new List<string>
+                            {
+                                c.label,
+                            }
+                        );
+                    }
 
-                return a;
-            });
+                    return a;
+                }
+            );
 
             store = new TreeStore(
                 typeof(string),
@@ -104,21 +113,15 @@ namespace Evergreen.Widgets
                 return;
             }
 
-            OnCommitSelected(new CommitSelectedEventArgs
-            {
-                CommitId = selectedId,
-            });
+            OnCommitSelected(
+                new CommitSelectedEventArgs
+                {
+                    CommitId = selectedId,
+                }
+            );
         }
 
-        protected virtual void OnCommitSelected(CommitSelectedEventArgs e)
-        {
-            CommitSelected?.Invoke(this, e);
-        }
-
-        public void Dispose()
-        {
-            View.CursorChanged -= CommitListCursorChanged;
-        }
+        protected virtual void OnCommitSelected(CommitSelectedEventArgs e) => CommitSelected?.Invoke(this, e);
     }
 
     public class CommitSelectedEventArgs : EventArgs

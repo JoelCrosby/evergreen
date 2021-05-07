@@ -82,10 +82,8 @@ namespace Evergreen.Widgets
 
                 return;
             }
-            else
-            {
-                focusedTimer = new Stopwatch();
-            }
+
+            focusedTimer = new Stopwatch();
 
             await Refresh();
 
@@ -254,15 +252,9 @@ namespace Evergreen.Widgets
             }
         }
 
-        private void ChangesSelected(object sender, EventArgs e)
-        {
-            ChangeView(ChangesView.ChangesList);
-        }
+        private void ChangesSelected(object sender, EventArgs e) => ChangeView(ChangesView.ChangesList);
 
-        private void BranchSelected(object sender, EventArgs e)
-        {
-            ChangeView(ChangesView.CommitList);
-        }
+        private void BranchSelected(object sender, EventArgs e) => ChangeView(ChangesView.CommitList);
 
         private void CommitSelected(object sender, CommitSelectedEventArgs e)
         {
@@ -374,13 +366,12 @@ namespace Evergreen.Widgets
             }
         }
 
-        public void CreateBranchClicked(object sender, EventArgs _)
-        {
-            createBranchDialog.Show();
-        }
+        public void CreateBranchClicked(object sender, EventArgs _) => createBranchDialog.Show();
 
         private Task Refresh() => Task.WhenAll(RefreshBranchTree(), RefreshCommitList());
+
         private Task RefreshBranchTree() => Task.Run(branchTreeWidget.Refresh);
+
         private Task RefreshCommitList() => Task.Run(commitListWidget.Refresh);
 
         private void ChangeView(ChangesView view)

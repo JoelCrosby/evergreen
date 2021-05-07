@@ -1,21 +1,26 @@
 using System;
-using System.Threading.Tasks;
+
+using GLib;
 
 using Gtk;
+
+using Task = System.Threading.Tasks.Task;
 
 namespace Evergreen.Widgets
 {
     public class MessageBar : IDisposable
     {
-        private InfoBar View { get; }
-        private Label MessageLabel { get; }
-
         public MessageBar(InfoBar view, Label label)
         {
             View = view;
             MessageLabel = label;
             View.Respond += OnRespond;
         }
+
+        private InfoBar View { get; }
+        private Label MessageLabel { get; }
+
+        public void Dispose() => View.Respond -= OnRespond;
 
         public Task Open(string msg, MessageType type = MessageType.Info)
         {
@@ -33,10 +38,7 @@ namespace Evergreen.Widgets
             return Task.Run(Reveal);
         }
 
-        private void OnRespond(object _, RespondArgs args)
-        {
-            Hide();
-        }
+        private void OnRespond(object _, RespondArgs args) => Hide();
 
         private async Task Reveal()
         {
@@ -47,19 +49,8 @@ namespace Evergreen.Widgets
             Hide();
         }
 
-        private void Show()
-        {
-            View.SetProperty("revealed", new GLib.Value(true));
-        }
+        private void Show() => View.SetProperty("revealed", new Value(true));
 
-        private void Hide()
-        {
-            View.SetProperty("revealed", new GLib.Value(false));
-        }
-
-        public void Dispose()
-        {
-            View.Respond -= OnRespond;
-        }
+        private void Hide() => View.SetProperty("revealed", new Value(false));
     }
 }

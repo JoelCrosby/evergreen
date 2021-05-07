@@ -15,16 +15,13 @@ namespace Evergreen.Dialogs
             Response += OnResponseRecieved;
         }
 
-        public void OnResponseRecieved(object _, EventArgs args)
-        {
-            Hide();
-        }
-
         public new void Dispose()
         {
             Response -= OnResponseRecieved;
 
             base.Dispose();
         }
+
+        public void OnResponseRecieved(object _, EventArgs args) => Hide();
     }
 }

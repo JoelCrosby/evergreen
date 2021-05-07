@@ -6,22 +6,18 @@ using Evergreen.Lib.Helpers;
 using Evergreen.Utils;
 using Evergreen.Widgets.Common;
 
+using GLib;
+
 using Gtk;
+
+using Pango;
 
 namespace Evergreen.Widgets
 {
     public class BranchTree : TreeWidget, IDisposable
     {
-        private TreeStore store;
-
         private const string ChangesItemId = "evergreen:changes";
-
-        public event EventHandler<BranchSelectedEventArgs> CheckoutClicked;
-        public event EventHandler<BranchSelectedEventArgs> DeleteClicked;
-        public event EventHandler<BranchSelectedEventArgs> FastForwardClicked;
-        public event EventHandler<BranchSelectedEventArgs> MergeClicked;
-        public event EventHandler<EventArgs> ChangesSelected;
-        public event EventHandler<BranchSelectedEventArgs> BranchSelected;
+        private TreeStore store;
 
         public BranchTree(TreeView view, GitService git) : base(view, git)
         {
@@ -49,6 +45,19 @@ namespace Evergreen.Widgets
             View.EnableSearch = true;
         }
 
+        public void Dispose()
+        {
+            View.ButtonPressEvent -= BranchTreeOnButtonPress;
+            View.CursorChanged -= BranchTreeCursorChanged;
+        }
+
+        public event EventHandler<BranchSelectedEventArgs> CheckoutClicked;
+        public event EventHandler<BranchSelectedEventArgs> DeleteClicked;
+        public event EventHandler<BranchSelectedEventArgs> FastForwardClicked;
+        public event EventHandler<BranchSelectedEventArgs> MergeClicked;
+        public event EventHandler<EventArgs> ChangesSelected;
+        public event EventHandler<BranchSelectedEventArgs> BranchSelected;
+
         public void Refresh()
         {
             var tree = Git.GetBranchTree();
@@ -67,7 +76,7 @@ namespace Evergreen.Widgets
             void AddTreeItems(TreeIter parentIter, TreeItem<BranchTreeItem> item, BranchTreeItemType type)
             {
                 var isHead = item.Item.Name == activeBranch;
-                var weight = isHead ? Pango.Weight.Bold : Pango.Weight.Normal;
+                var weight = isHead ? Weight.Bold : Weight.Normal;
                 var itemType = isHead ? BranchTreeItemType.Head : type;
 
                 var treeIter = store.AppendValues(
@@ -87,7 +96,7 @@ namespace Evergreen.Widgets
             var headIter = store.AppendValues(
                 Git.GetRepositoryFriendlyName(),
                 "head",
-                Pango.Weight.Bold,
+                Weight.Bold,
                 BranchTreeItemType.Noop
             );
 
@@ -97,14 +106,14 @@ namespace Evergreen.Widgets
                 headIter,
                 $"Changes ({changeCount})",
                 ChangesItemId,
-                Pango.Weight.Normal,
+                Weight.Normal,
                 BranchTreeItemType.Noop
             );
 
             var branchesIter = store.AppendValues(
                 "Branches",
                 "branches",
-                Pango.Weight.Bold,
+                Weight.Bold,
                 BranchTreeItemType.Noop
             );
 
@@ -116,7 +125,7 @@ namespace Evergreen.Widgets
             var remoteIter = store.AppendValues(
                 "Remotes",
                 "remotes",
-                Pango.Weight.Bold,
+                Weight.Bold,
                 BranchTreeItemType.Noop
             );
 
@@ -146,13 +155,15 @@ namespace Evergreen.Widgets
                 return;
             }
 
-            OnBranchSelectedChanged(new BranchSelectedEventArgs
-            {
-                Branch = selected,
-            });
+            OnBranchSelectedChanged(
+                new BranchSelectedEventArgs
+                {
+                    Branch = selected,
+                }
+            );
         }
 
-        [GLib.ConnectBefore]
+        [ConnectBefore]
         private void BranchTreeOnButtonPress(object sender, ButtonPressEventArgs args)
         {
             // right click
@@ -174,21 +185,19 @@ namespace Evergreen.Widgets
             {
                 BranchTreeItemType.Local => new (string, EventHandler)[]
                 {
-                    ("Checkout", CheckoutActivated),
-                    ("Fast-forward", FastForwardActivated),
-                    ($"Merge {selected} into {current}", MergeActivated),
-                    ("Delete", DeleteActivated)
+                    ("Checkout", CheckoutActivated), ("Fast-forward", FastForwardActivated),
+                    ($"Merge {selected} into {current}", MergeActivated), ("Delete", DeleteActivated),
                 },
                 BranchTreeItemType.Remote => new (string, EventHandler)[]
                 {
-                    ("Checkout", CheckoutActivated),
-                    ($"Merge {selected} into {current}", MergeActivated),
-                    ("Delete", DeleteActivated)
+                    ("Checkout", CheckoutActivated), ($"Merge {selected} into {current}", MergeActivated),
+                    ("Delete", DeleteActivated),
                 },
                 BranchTreeItemType.Head => new (string, EventHandler)[]
                 {
                     ("Fast-forward", FastForwardActivated),
                 },
+                BranchTreeItemType.Noop => null,
             };
 
             Menus.Open(menuItems);
@@ -203,10 +212,12 @@ namespace Evergreen.Widgets
                 return;
             }
 
-            OnCheckoutClicked(new BranchSelectedEventArgs
-            {
-                Branch = branch,
-            });
+            OnCheckoutClicked(
+                new BranchSelectedEventArgs
+                {
+                    Branch = branch,
+                }
+            );
         }
 
         private void FastForwardActivated(object sender, EventArgs args)
@@ -218,10 +229,12 @@ namespace Evergreen.Widgets
                 return;
             }
 
-            OnFastForwardClicked(new BranchSelectedEventArgs
-            {
-                Branch = branch,
-            });
+            OnFastForwardClicked(
+                new BranchSelectedEventArgs
+                {
+                    Branch = branch,
+                }
+            );
         }
 
         private void MergeActivated(object sender, EventArgs args)
@@ -233,10 +246,12 @@ namespace Evergreen.Widgets
                 return;
             }
 
-            OnMergeClicked(new BranchSelectedEventArgs
-            {
-                Branch = branch,
-            });
+            OnMergeClicked(
+                new BranchSelectedEventArgs
+                {
+                    Branch = branch,
+                }
+            );
         }
 
         private void DeleteActivated(object sender, EventArgs args)
@@ -248,47 +263,25 @@ namespace Evergreen.Widgets
                 return;
             }
 
-            OnDeleteClicked(new BranchSelectedEventArgs
-            {
-                Branch = branch,
-            });
+            OnDeleteClicked(
+                new BranchSelectedEventArgs
+                {
+                    Branch = branch,
+                }
+            );
         }
 
-        protected virtual void OnCheckoutClicked(BranchSelectedEventArgs e)
-        {
-            CheckoutClicked?.Invoke(this, e);
-        }
+        protected virtual void OnCheckoutClicked(BranchSelectedEventArgs e) => CheckoutClicked?.Invoke(this, e);
 
-        protected virtual void OnFastForwardClicked(BranchSelectedEventArgs e)
-        {
-            FastForwardClicked?.Invoke(this, e);
-        }
+        protected virtual void OnFastForwardClicked(BranchSelectedEventArgs e) => FastForwardClicked?.Invoke(this, e);
 
-        protected virtual void OnMergeClicked(BranchSelectedEventArgs e)
-        {
-            MergeClicked?.Invoke(this, e);
-        }
+        protected virtual void OnMergeClicked(BranchSelectedEventArgs e) => MergeClicked?.Invoke(this, e);
 
-        protected virtual void OnDeleteClicked(BranchSelectedEventArgs e)
-        {
-            DeleteClicked?.Invoke(this, e);
-        }
+        protected virtual void OnDeleteClicked(BranchSelectedEventArgs e) => DeleteClicked?.Invoke(this, e);
 
-        protected virtual void OnBranchSelectedChanged(BranchSelectedEventArgs e)
-        {
-            BranchSelected?.Invoke(this, e);
-        }
+        protected virtual void OnBranchSelectedChanged(BranchSelectedEventArgs e) => BranchSelected?.Invoke(this, e);
 
-        protected virtual void OnChangesSelected()
-        {
-            ChangesSelected?.Invoke(this, EventArgs.Empty);
-        }
-
-        public void Dispose()
-        {
-            View.ButtonPressEvent -= BranchTreeOnButtonPress;
-            View.CursorChanged -= BranchTreeCursorChanged;
-        }
+        protected virtual void OnChangesSelected() => ChangesSelected?.Invoke(this, EventArgs.Empty);
     }
 
     public class BranchSelectedEventArgs : EventArgs

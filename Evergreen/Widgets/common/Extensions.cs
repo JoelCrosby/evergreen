@@ -1,11 +1,10 @@
+using System;
 using System.Collections.Generic;
 
 using Gtk;
 
 namespace Evergreen.Widgets.Common
 {
-    using System;
-
     public static class Extensions
     {
         public static T GetSelected<T>(this TreeView treeView, int index = 0)
@@ -19,18 +18,23 @@ namespace Evergreen.Widgets.Common
         {
             var selectedList = new List<T>();
 
-            treeView.Selection.SelectedForeach((model, _, iter) =>
-            {
-                var selected = (T)model.GetValue(iter, index);
+            treeView.Selection.SelectedForeach(
+                (model, _, iter) =>
+                {
+                    var selected = (T)model.GetValue(iter, index);
 
-                selectedList.Add(selected);
-            });
+                    selectedList.Add(selected);
+                }
+            );
 
             return selectedList;
         }
 
         public static T GetSelectedAtPos<T>(
-            this TreeView treeView, double x, double y, int index = 0)
+            this TreeView treeView,
+            double x,
+            double y,
+            int index = 0)
         {
             var xInt = Convert.ToInt32(x);
             var yInt = Convert.ToInt32(y);
@@ -39,7 +43,10 @@ namespace Evergreen.Widgets.Common
         }
 
         public static T GetSelectedAtPos<T>(
-            this TreeView treeView, int x, int y, int index = 0)
+            this TreeView treeView,
+            int x,
+            int y,
+            int index = 0)
         {
             if (!treeView.GetPathAtPos(x, y, out var path))
             {
@@ -53,7 +60,7 @@ namespace Evergreen.Widgets.Common
                 return default;
             }
 
-            return (T)model.GetValue (iter, index);
+            return (T)model.GetValue(iter, index);
         }
     }
 }

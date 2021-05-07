@@ -76,11 +76,13 @@ namespace Evergreen.Dialogs
                 return;
             }
 
-            OnBranchCreated(new CreateBranchEventArgs
-            {
-                Name = name,
-                Checkout = checkout,
-            });
+            OnBranchCreated(
+                new CreateBranchEventArgs
+                {
+                    Name = name,
+                    Checkout = checkout,
+                }
+            );
 
             Hide();
         }

@@ -25,11 +25,16 @@ namespace Evergreen.Lib.Git
 
         public GitService(string path) => repository = new Repository(path);
 
+        public void Dispose() => repository.Dispose();
+
         public string GetHeadCanonicalName() => repository.Head.CanonicalName;
+
         public string GetHeadFriendlyName() => repository.Head.FriendlyName;
 
         public string GetPath() => repository.Info.WorkingDirectory;
+
         public string GetFriendlyPath() => repository.Info.WorkingDirectory.SubHomePath();
+
         public static bool IsRepository(string path) => Repository.IsValid(path);
 
         public string GetRepositoryFriendlyName()
@@ -53,23 +58,17 @@ namespace Evergreen.Lib.Git
             return new Signature(name, email, DateTimeOffset.UtcNow);
         }
 
-        public IEnumerable<Commit> GetCommits()
-        {
-            return repository.Commits.QueryBy(new CommitFilter
+        public IEnumerable<Commit> GetCommits() => repository.Commits.QueryBy(
+            new CommitFilter
             {
                 IncludeReachableFrom = repository.Refs,
-            });
-        }
+            }
+        );
 
-        public Commit GetHeadCommit()
-        {
-            return repository.Head.Commits.FirstOrDefault();
-        }
+        public Commit GetHeadCommit() => repository.Head.Commits.FirstOrDefault();
 
-        public IEnumerable<(string sha, string label)> GetBranchHeadCommits()
-        {
-            return repository.Branches.Select(b => (b.Commits.FirstOrDefault()?.Sha, b.FriendlyName));
-        }
+        public IEnumerable<(string sha, string label)> GetBranchHeadCommits() =>
+            repository.Branches.Select(b => (b.Commits.FirstOrDefault()?.Sha, b.FriendlyName));
 
         public BranchTree GetBranchTree()
         {
@@ -116,9 +115,10 @@ namespace Evergreen.Lib.Git
                             IsRemote = branch.IsRemote,
                         };
 
-                        var exists = items.Any(i =>
-                            i.Label == branchLevel.Label
-                            && i.Parent == branchLevel.Parent
+                        var exists = items.Any(
+                            i =>
+                                i.Label == branchLevel.Label
+                                && i.Parent == branchLevel.Parent
                         );
 
                         if (exists)
@@ -172,7 +172,11 @@ namespace Evergreen.Lib.Git
 
         public TreeChanges GetChangedFiles()
         {
-            var paths = new[] { repository.Info.WorkingDirectory };
+            var paths = new[]
+            {
+                repository.Info.WorkingDirectory,
+            };
+
             return repository.Diff.Compare<TreeChanges>(paths);
         }
 
@@ -258,19 +262,18 @@ namespace Evergreen.Lib.Git
             }
         }
 
-        public void Checkout(string branch)
-        {
-            Commands.Checkout(repository, branch);
-        }
+        public void Checkout(string branch) => Commands.Checkout(repository, branch);
 
         public void Commit(string message)
         {
             var sig = GetSignature();
 
-            repository.Commit(message, sig, sig, new CommitOptions
-            {
-                PrettifyMessage = true,
-            });
+            repository.Commit(
+                message, sig, sig, new CommitOptions
+                {
+                    PrettifyMessage = true,
+                }
+            );
         }
 
         public Task<Result<ExecResult>> FastForwad(string branch)
@@ -292,9 +295,10 @@ namespace Evergreen.Lib.Git
                 .FirstOrDefault(b => !b.IsRemote && b.CanonicalName == branch);
 
             var sig = GetSignature();
+
             var options = new MergeOptions
             {
-                FileConflictStrategy = CheckoutFileConflictStrategy.Merge
+                FileConflictStrategy = CheckoutFileConflictStrategy.Merge,
             };
 
             repository.Merge(repoBranch, sig, options);
@@ -307,20 +311,11 @@ namespace Evergreen.Lib.Git
             return Result.Success();
         }
 
-        public Task<Result<ExecResult>> Fetch()
-        {
-            return ExecAsync("fetch --prune");
-        }
+        public Task<Result<ExecResult>> Fetch() => ExecAsync("fetch --prune");
 
-        public Task<Result<ExecResult>> Pull()
-        {
-            return ExecAsync("pull");
-        }
+        public Task<Result<ExecResult>> Pull() => ExecAsync("pull");
 
-        public Task<Result<ExecResult>> Push()
-        {
-            return ExecAsync("push");
-        }
+        public Task<Result<ExecResult>> Push() => ExecAsync("push");
 
         public Task<Result<ExecResult>> DeleteBranch(string name)
         {
@@ -395,15 +390,17 @@ namespace Evergreen.Lib.Git
         {
             try
             {
-                var proc = Process.Start(new ProcessStartInfo
-                {
-                    Arguments = args,
-                    FileName = "git",
-                    UseShellExecute = false,
-                    RedirectStandardOutput = true,
-                    StandardOutputEncoding = Encoding.UTF8,
-                    WorkingDirectory = repository.Info.WorkingDirectory,
-                });
+                var proc = Process.Start(
+                    new ProcessStartInfo
+                    {
+                        Arguments = args,
+                        FileName = "git",
+                        UseShellExecute = false,
+                        RedirectStandardOutput = true,
+                        StandardOutputEncoding = Encoding.UTF8,
+                        WorkingDirectory = repository.Info.WorkingDirectory,
+                    }
+                );
 
                 await proc.WaitForExitAsync().ConfigureAwait(false);
 
@@ -426,11 +423,6 @@ namespace Evergreen.Lib.Git
             {
                 return Result<ExecResult>.Failed($"Git exec failed. {ex.Message}");
             }
-        }
-
-        public void Dispose()
-        {
-            repository.Dispose();
         }
     }
 }

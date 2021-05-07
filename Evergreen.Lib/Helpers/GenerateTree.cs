@@ -12,11 +12,13 @@ namespace Evergreen.Lib.Helpers
             Func<T, TK> parentIdSelector,
             TK rootId = default)
         {
-            var tree = collection.Where(c => parentIdSelector(c).Equals(rootId)).Select(c => new TreeItem<T>
-            {
-                Item = c,
-                Children = collection.GenerateTree(idSelector, parentIdSelector, idSelector(c)),
-            });
+            var tree = collection.Where(c => parentIdSelector(c).Equals(rootId)).Select(
+                c => new TreeItem<T>
+                {
+                    Item = c,
+                    Children = collection.GenerateTree(idSelector, parentIdSelector, idSelector(c)),
+                }
+            );
 
             return tree.OrderBy(l => l.Children.Any());
         }

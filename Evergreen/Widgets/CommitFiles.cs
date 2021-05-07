@@ -13,11 +13,9 @@ namespace Evergreen.Widgets
 {
     public class CommitFiles : TreeWidget, IDisposable
     {
-        private TreeStore store;
-        private string commitId;
         private TreeChanges commitChanges;
-
-        public event EventHandler<CommitFileSelectedEventArgs> CommitFileSelected;
+        private string commitId;
+        private TreeStore store;
 
         public CommitFiles(TreeView view, GitService git) : base(view, git)
         {
@@ -29,6 +27,10 @@ namespace Evergreen.Widgets
             View.AppendColumn(nameColumn);
             View.AppendColumn(pathColumn);
         }
+
+        public void Dispose() => View.CursorChanged -= CommitFilesCursorChanged;
+
+        public event EventHandler<CommitFileSelectedEventArgs> CommitFileSelected;
 
         public bool Update(string commitOid)
         {
@@ -79,22 +81,23 @@ namespace Evergreen.Widgets
                 return;
             }
 
-            OnCommitFileSelected(new CommitFileSelectedEventArgs
-            {
-                CommitId = commitId,
-                Path = selectedPath,
-                CommitChanges = commitChanges,
-            });
+            OnCommitFileSelected(
+                new CommitFileSelectedEventArgs
+                {
+                    CommitId = commitId,
+                    Path = selectedPath,
+                    CommitChanges = commitChanges,
+                }
+            );
         }
 
-        protected virtual void OnCommitFileSelected(CommitFileSelectedEventArgs e)
-        {
+        protected virtual void OnCommitFileSelected(CommitFileSelectedEventArgs e) =>
             CommitFileSelected?.Invoke(this, e);
-        }
 
         private static string GetFileLabel(TreeEntryChanges change)
         {
             var name = Path.GetFileName(change.Path);
+
             var prefix = change.Status switch
             {
                 ChangeKind.Added => "[A]",
@@ -113,11 +116,6 @@ namespace Evergreen.Widgets
 
             return $"{prefix} {name}";
         }
-
-        public void Dispose()
-        {
-            View.CursorChanged -= CommitFilesCursorChanged;
-        }
     }
 
     public class CommitFileSelectedEventArgs : EventArgs
@@ -129,4 +127,3 @@ namespace Evergreen.Widgets
         public string Path { get; init; }
     }
 }
-
