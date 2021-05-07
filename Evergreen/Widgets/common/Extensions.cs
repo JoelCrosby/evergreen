@@ -4,6 +4,8 @@ using Gtk;
 
 namespace Evergreen.Widgets.Common
 {
+    using System;
+
     public static class Extensions
     {
         public static T GetSelected<T>(this TreeView treeView, int index = 0)
@@ -25,6 +27,33 @@ namespace Evergreen.Widgets.Common
             });
 
             return selectedList;
+        }
+
+        public static T GetSelectedAtPos<T>(
+            this TreeView treeView, double x, double y, int index = 0)
+        {
+            var xInt = Convert.ToInt32(x);
+            var yInt = Convert.ToInt32(y);
+
+            return GetSelectedAtPos<T>(treeView, xInt, yInt, index);
+        }
+
+        public static T GetSelectedAtPos<T>(
+            this TreeView treeView, int x, int y, int index = 0)
+        {
+            if (!treeView.GetPathAtPos(x, y, out var path))
+            {
+                return default;
+            }
+
+            var model = treeView.Model;
+
+            if (!model.GetIter(out var iter, path))
+            {
+                return default;
+            }
+
+            return (T)model.GetValue (iter, index);
         }
     }
 }

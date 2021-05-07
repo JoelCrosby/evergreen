@@ -53,29 +53,43 @@ namespace Evergreen.Widgets
         {
             var tree = Git.GetBranchTree();
 
-            store = new TreeStore(typeof(string), typeof(string), typeof(int));
+            store = new TreeStore(
+                typeof(string),
+                typeof(string),
+                typeof(int),
+                typeof(BranchTreeItemType)
+            );
+
             View.Model = store;
 
             var activeBranch = Git.GetHeadCanonicalName();
 
-            void AddTreeItems(TreeIter parentIter, TreeItem<BranchTreeItem> item)
+            void AddTreeItems(TreeIter parentIter, TreeItem<BranchTreeItem> item, BranchTreeItemType type)
             {
-                var weight = item.Item.Name == activeBranch ? Pango.Weight.Bold : Pango.Weight.Normal;
+                var isHead = item.Item.Name == activeBranch;
+                var weight = isHead ? Pango.Weight.Bold : Pango.Weight.Normal;
+                var itemType = isHead ? BranchTreeItemType.Head : type;
 
                 var treeIter = store.AppendValues(
                     parentIter,
                     item.Item.Label,
                     item.Item.Name,
-                    weight
+                    weight,
+                    itemType
                 );
 
                 foreach (var child in item.Children)
                 {
-                    AddTreeItems(treeIter, child);
+                    AddTreeItems(treeIter, child, type);
                 }
             }
 
-            var headIter = store.AppendValues(Git.GetRepositoryFriendlyName(), "head", Pango.Weight.Bold);
+            var headIter = store.AppendValues(
+                Git.GetRepositoryFriendlyName(),
+                "head",
+                Pango.Weight.Bold,
+                BranchTreeItemType.Noop
+            );
 
             var changeCount = Git.GetHeadDiffCount();
 
@@ -83,21 +97,32 @@ namespace Evergreen.Widgets
                 headIter,
                 $"Changes ({changeCount})",
                 ChangesItemId,
-                Pango.Weight.Normal
+                Pango.Weight.Normal,
+                BranchTreeItemType.Noop
             );
 
-            var branchesIter = store.AppendValues("Branches", "branches", Pango.Weight.Bold);
+            var branchesIter = store.AppendValues(
+                "Branches",
+                "branches",
+                Pango.Weight.Bold,
+                BranchTreeItemType.Noop
+            );
 
             foreach (var b in tree.Local)
             {
-                AddTreeItems(branchesIter, b);
+                AddTreeItems(branchesIter, b, BranchTreeItemType.Local);
             }
 
-            var remoteIter = store.AppendValues("Remotes", "remotes", Pango.Weight.Bold);
+            var remoteIter = store.AppendValues(
+                "Remotes",
+                "remotes",
+                Pango.Weight.Bold,
+                BranchTreeItemType.Noop
+            );
 
             foreach (var b in tree.Remote)
             {
-                AddTreeItems(remoteIter, b);
+                AddTreeItems(remoteIter, b, BranchTreeItemType.Remote);
             }
 
             View.ExpandAll();
@@ -136,15 +161,37 @@ namespace Evergreen.Widgets
                 return;
             }
 
+            var selected = View.GetSelectedAtPos<string>(args.Event.X, args.Event.Y);
+            var itemType = View.GetSelectedAtPos<BranchTreeItemType>(args.Event.X, args.Event.Y, 3);
             var current = Git.GetHeadFriendlyName();
 
-            Menus.Open(
-                ("Checkout", CheckoutActivated),
-                ("Fast-forward", FastForwardActivated),
-                ($"Merge into {current}", MergeActivated),
-                ("Rename", null),
-                ("Delete", DeleteActivated)
-            );
+            if (itemType == BranchTreeItemType.Noop)
+            {
+                return;
+            }
+
+            var menuItems = itemType switch
+            {
+                BranchTreeItemType.Local => new (string, EventHandler)[]
+                {
+                    ("Checkout", CheckoutActivated),
+                    ("Fast-forward", FastForwardActivated),
+                    ($"Merge {selected} into {current}", MergeActivated),
+                    ("Delete", DeleteActivated)
+                },
+                BranchTreeItemType.Remote => new (string, EventHandler)[]
+                {
+                    ("Checkout", CheckoutActivated),
+                    ($"Merge {selected} into {current}", MergeActivated),
+                    ("Delete", DeleteActivated)
+                },
+                BranchTreeItemType.Head => new (string, EventHandler)[]
+                {
+                    ("Fast-forward", FastForwardActivated),
+                },
+            };
+
+            Menus.Open(menuItems);
         }
 
         private void CheckoutActivated(object sender, EventArgs args)
