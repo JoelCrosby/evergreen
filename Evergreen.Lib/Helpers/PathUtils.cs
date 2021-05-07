@@ -29,7 +29,7 @@ namespace Evergreen.Lib.Helpers
             Platform.OSX => Environment.GetEnvironmentVariable("HOME"),
             Platform.FreeBsd => Environment.GetEnvironmentVariable("HOME"),
             Platform.Windows => GetHomePathWindows(),
-            _ => throw new Exception("Unsupported Platform"),
+            _ => throw new PlatformNotSupportedException(),
         };
 
         public static Platform GetPlatform()

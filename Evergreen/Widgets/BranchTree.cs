@@ -197,7 +197,7 @@ namespace Evergreen.Widgets
                 {
                     ("Fast-forward", FastForwardActivated),
                 },
-                BranchTreeItemType.Noop => null,
+                _ => null,
             };
 
             Menus.Open(menuItems);

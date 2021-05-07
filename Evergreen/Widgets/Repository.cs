@@ -40,7 +40,7 @@ namespace Evergreen.Widgets
 
 #pragma warning restore 064
 
-        public string Path { get; }
+        public new string Path { get; }
         public GitService Git { get; set; }
 
         private BranchTree branchTreeWidget;

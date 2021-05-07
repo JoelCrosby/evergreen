@@ -52,7 +52,7 @@ namespace Evergreen.Lib.Git
 
             if (name is null || email is null)
             {
-                throw new Exception("user.name or user.email is not configured.");
+                throw new GitException("user.name or user.email is not configured.");
             }
 
             return new Signature(name, email, DateTimeOffset.UtcNow);
