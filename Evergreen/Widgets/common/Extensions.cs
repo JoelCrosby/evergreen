@@ -9,7 +9,12 @@ namespace Evergreen.Widgets.Common
     {
         public static T GetSelected<T>(this TreeView treeView, int index = 0)
         {
-            treeView.Selection.GetSelected(out var model, out var iter);
+            var selected = treeView.Selection.GetSelected(out var model, out var iter);
+
+            if (!selected)
+            {
+                return default;
+            }
 
             return (T)model?.GetValue(iter, index);
         }

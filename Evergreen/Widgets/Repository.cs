@@ -147,13 +147,14 @@ namespace Evergreen.Widgets
         {
             var (sourceView, scroller) = SourceViews.Create();
 
-            if (parent is Paned panned)
+            switch (parent)
             {
-                panned.Pack2(scroller, true, true);
-            }
-            else if (parent is Box box)
-            {
-                box.PackStart(scroller, true, true, 0);
+                case Paned panned:
+                    panned.Pack2(scroller, true, true);
+                    break;
+                case Box box:
+                    box.PackStart(scroller, true, true, 0);
+                    break;
             }
 
             return sourceView;
