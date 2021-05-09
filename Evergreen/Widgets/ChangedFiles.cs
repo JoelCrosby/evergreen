@@ -23,11 +23,15 @@ namespace Evergreen.Widgets
             View.CursorChanged += OnCursorChanged;
             View.RowActivated += OnRowActivated;
 
-            var nameColumn = Columns.Create("Changes", 0);
-            var pathColumn = Columns.Create("Path", 0, null, true);
+            var nameColumn = Columns.Create("Changes", 0, isFixed: true);
+            var pathColumn = Columns.Create("Path", 0, null, true, true);
 
             View.AppendColumn(nameColumn);
             View.AppendColumn(pathColumn);
+
+            View.HeadersVisible = false;
+            View.FixedHeightMode = true;
+            View.Selection.Mode = SelectionMode.Multiple;
         }
 
         public TreeMode Mode { get; }
@@ -137,18 +141,18 @@ namespace Evergreen.Widgets
 
             var prefix = change.Status switch
             {
-                ChangeKind.Added => "[A]",
-                ChangeKind.Conflicted => "[CF]",
-                ChangeKind.Copied => "[C]",
-                ChangeKind.Deleted => "[D]",
-                ChangeKind.Ignored => "[I]",
-                ChangeKind.Modified => "[M]",
-                ChangeKind.Renamed => "[R]",
-                ChangeKind.TypeChanged => "[TC]",
-                ChangeKind.Unmodified => "[UM]",
-                ChangeKind.Unreadable => "[UR]",
-                ChangeKind.Untracked => "[UT]",
-                _ => "[Unknown]",
+                ChangeKind.Added => "(A)",
+                ChangeKind.Conflicted => "(CF)",
+                ChangeKind.Copied => "(C)",
+                ChangeKind.Deleted => "(D)",
+                ChangeKind.Ignored => "(I)",
+                ChangeKind.Modified => "(M)",
+                ChangeKind.Renamed => "(R)",
+                ChangeKind.TypeChanged => "(TC)",
+                ChangeKind.Unmodified => "(UM)",
+                ChangeKind.Unreadable => "(UR)",
+                ChangeKind.Untracked => "(UT)",
+                _ => "(Unknown)",
             };
 
             return $"{prefix} {name}";

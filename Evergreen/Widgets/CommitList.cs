@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 
 using Evergreen.Lib.Git;
@@ -8,28 +9,32 @@ using Evergreen.Widgets.Common;
 
 using Gtk;
 
+using LibGit2Sharp;
+
 namespace Evergreen.Widgets
 {
     public class CommitList : TreeWidget, IDisposable
     {
         private TreeStore store;
 
+        private enum Column
+        {
+            Message,
+            Author,
+            Sha,
+            Date,
+            ID,
+        }
+
         public CommitList(TreeView view, GitService git) : base(view, git)
         {
             View.CursorChanged += CommitListCursorChanged;
 
-            var messageColumn = Columns.Create("Message", 0, 800);
-            var authorColumn = Columns.Create("Author", 1);
-            var shaColumn = Columns.Create("Sha", 2);
-            var dateColumn = Columns.Create("Date", 3, 20);
-            var idColumn = Columns.Create("ID", 4, 20);
-
-            messageColumn.Resizable = true;
-            authorColumn.Resizable = true;
-            shaColumn.Resizable = true;
-            dateColumn.Resizable = true;
-
-            idColumn.Visible = false;
+            var messageColumn = Columns.Create("Message", (int)Column.Message, 800, isFixed: true);
+            var authorColumn = Columns.Create("Author", (int)Column.Author, isFixed: true);
+            var shaColumn = Columns.Create("Sha", (int)Column.Sha, isFixed: true);
+            var dateColumn = Columns.Create("Date", (int)Column.Date, 20, isFixed: true);
+            var idColumn = Columns.Create("ID", (int)Column.ID, 20, isFixed: true, isHidden: true);
 
             foreach (var column in View.Columns)
             {
@@ -49,8 +54,19 @@ namespace Evergreen.Widgets
 
         public void Refresh()
         {
+            var sw = Stopwatch.StartNew();
+
             var commits = Git.GetCommits();
+
+            Console.WriteLine("GetCommits {0}ms", sw.ElapsedMilliseconds);
+
+            sw.Restart();
+
             var heads = Git.GetBranchHeadCommits();
+
+            Console.WriteLine("GetBranchHeadCommits {0}ms", sw.ElapsedMilliseconds);
+
+            sw.Restart();
 
             var headDict = heads.Aggregate(
                 new Dictionary<string, List<string>>(), (a, c) =>
@@ -73,6 +89,10 @@ namespace Evergreen.Widgets
                 }
             );
 
+            Console.WriteLine("build headDict {0}ms", sw.ElapsedMilliseconds);
+
+            sw.Reset();
+
             store = new TreeStore(
                 typeof(string),
                 typeof(string),
@@ -81,14 +101,26 @@ namespace Evergreen.Widgets
                 typeof(string)
             );
 
+            sw.Start();
+
+            static string CommitMessageShort(string s, Commit commit)
+            {
+                return s is { } ? $"{commit.MessageShort} {s}" : commit.MessageShort;
+            }
+
+            static string BranchLabel(bool hasValue, IEnumerable<string> value)
+            {
+                return hasValue ? string.Join(' ', value.Select(b => $"({b})")) : null;
+            }
+
             foreach (var commit in commits)
             {
                 var hasValue = headDict.TryGetValue(commit.Sha, out var branches);
-                var branchLabel = hasValue ? string.Join(' ', branches.Select(b => $"({b})")) : null;
+                var branchLabel = BranchLabel(hasValue, branches);
 
-                var commitDate = $"{commit.Author.When:dd MMM yyyy HH:mm}";
+                var commitDate = commit.Author.When.ToString("dd MMM yyyy HH:mm");
                 var author = commit.Author.Name;
-                var message = branchLabel is { } ? $"{commit.MessageShort} {branchLabel}" : commit.MessageShort;
+                var message = CommitMessageShort(branchLabel, commit);
                 var sha = commit.Sha[..7];
                 var id = commit.Id.Sha;
 
@@ -100,6 +132,8 @@ namespace Evergreen.Widgets
                     id
                 );
             }
+
+            Console.WriteLine("store AppendValues {0}ms", sw.ElapsedMilliseconds);
 
             View.Model = store;
         }

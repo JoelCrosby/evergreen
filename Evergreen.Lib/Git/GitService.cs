@@ -209,7 +209,7 @@ namespace Evergreen.Lib.Git
             }
 
             var prevCommit = commit.Parents.FirstOrDefault();
-            var content = GetFileContent(path, commit.Sha);
+            var content = GetCommitContent(path, commit.Sha);
             var diffBuilder = new InlineDiffBuilder(new Differ());
 
             if (prevCommit is null)
@@ -217,7 +217,7 @@ namespace Evergreen.Lib.Git
                 return diffBuilder.BuildDiffModel(content, content);
             }
 
-            var prevContent = GetFileContent(path, prevCommit.Sha);
+            var prevContent = GetCommitContent(path, prevCommit.Sha);
 
             return diffBuilder.BuildDiffModel(prevContent ?? string.Empty, content ?? string.Empty);
         }
@@ -241,7 +241,7 @@ namespace Evergreen.Lib.Git
                 return diffBuilder.BuildDiffModel(content, content);
             }
 
-            var prevContent = GetFileContent(path, prevCommit.Sha);
+            var prevContent = GetCommitContent(path, prevCommit.Sha);
 
             return diffBuilder.BuildDiffModel(prevContent ?? string.Empty, content ?? string.Empty);
         }
@@ -276,11 +276,9 @@ namespace Evergreen.Lib.Git
             );
         }
 
-        public Task<Result<ExecResult>> FastForwad(string branch)
+        public Task<Result<ExecResult>> FastForward(string branch)
         {
-            var repoBranch = repository
-                .Branches
-                .FirstOrDefault(b => !b.IsRemote && b.CanonicalName == branch);
+            var repoBranch = repository.Branches[branch];
 
             var remote = repoBranch.TrackedBranch.RemoteName;
             var shortBranchName = branch[(branch.LastIndexOf('/') + 1)..];
@@ -359,7 +357,7 @@ namespace Evergreen.Lib.Git
             return $"{commit.Author.Name} {commit.Author.Email}";
         }
 
-        public string GetFileContent(string relPath, string commitId)
+        private string GetCommitContent(string relPath, string commitId)
         {
             var commit = repository.Lookup<Commit>(commitId);
 
@@ -371,11 +369,12 @@ namespace Evergreen.Lib.Git
             }
 
             var blob = (Blob)treeEntry.Target;
-
             using var contentStream = blob.GetContentStream();
-            using var sr = new StreamReader(contentStream, Encoding.UTF8);
 
-            return sr.ReadToEnd();
+            return FileUtils
+                .GetFileContent(contentStream)
+                .GetAwaiter()
+                .GetResult();
         }
 
         public int GetHeadDiffCount()

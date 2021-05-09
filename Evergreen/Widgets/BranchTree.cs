@@ -1,4 +1,5 @@
 using System;
+using System.Linq;
 
 using Evergreen.Lib.Git;
 using Evergreen.Lib.Git.Models;
@@ -16,12 +17,13 @@ namespace Evergreen.Widgets
 {
     public class BranchTree : TreeWidget, IDisposable
     {
-        private const string ChangesItemId = "evergreen:changes";
+        private const string ChangesItemId = "[evergreen:changes]";
         private TreeStore store;
 
         public BranchTree(TreeView view, GitService git) : base(view, git)
         {
             View.HeadersVisible = false;
+            View.FixedHeightMode = true;
             View.ButtonPressEvent += BranchTreeOnButtonPress;
             View.CursorChanged += BranchTreeCursorChanged;
 
@@ -31,12 +33,12 @@ namespace Evergreen.Widgets
             labelColumn.PackStart(cellName, true);
             labelColumn.AddAttribute(cellName, "text", 0);
             labelColumn.AddAttribute(cellName, "weight", 2);
+            labelColumn.Sizing = TreeViewColumnSizing.Fixed;
 
             View.AppendColumn(labelColumn);
 
             var nameColumn = new TreeViewColumn
             {
-                Title = "CanonicalName",
                 Visible = false,
             };
 
@@ -69,15 +71,16 @@ namespace Evergreen.Widgets
                 typeof(BranchTreeItemType)
             );
 
-            View.Model = store;
-
             var activeBranch = Git.GetHeadCanonicalName();
 
             void AddTreeItems(TreeIter parentIter, TreeItem<BranchTreeItem> item, BranchTreeItemType type)
             {
                 var isHead = item.Item.Name == activeBranch;
                 var weight = isHead ? Weight.Bold : Weight.Normal;
-                var itemType = isHead ? BranchTreeItemType.Head : type;
+
+                var itemType = isHead
+                    ? BranchTreeItemType.Head : item.Children.Any()
+                        ? BranchTreeItemType.Noop : type;
 
                 var treeIter = store.AppendValues(
                     parentIter,
@@ -133,6 +136,8 @@ namespace Evergreen.Widgets
             {
                 AddTreeItems(remoteIter, b, BranchTreeItemType.Remote);
             }
+
+            View.Model = store;
 
             View.ExpandAll();
             View.EnableSearch = true;

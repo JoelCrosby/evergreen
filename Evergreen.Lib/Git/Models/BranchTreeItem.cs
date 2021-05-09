@@ -1,6 +1,6 @@
 namespace Evergreen.Lib.Git.Models
 {
-    public class BranchTreeItem
+    public record BranchTreeItem
     {
         public string Label { get; init; }
 

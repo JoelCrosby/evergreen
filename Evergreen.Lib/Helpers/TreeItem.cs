@@ -2,10 +2,10 @@ using System.Collections.Generic;
 
 namespace Evergreen.Lib.Helpers
 {
-    public class TreeItem<T>
+    public record TreeItem<T>
     {
-        public T Item { get; set; }
+        public T Item { get; init; }
 
-        public IEnumerable<TreeItem<T>> Children { get; set; }
+        public IEnumerable<TreeItem<T>> Children { get; init; }
     }
 }

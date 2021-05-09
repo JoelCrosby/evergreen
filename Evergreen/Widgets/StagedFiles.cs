@@ -23,11 +23,15 @@ namespace Evergreen.Widgets
             View.CursorChanged += OnCursorChanged;
             View.RowActivated += OnRowActivated;
 
-            var nameColumn = Columns.Create("Staged", 0);
-            var pathColumn = Columns.Create("Path", 0, null, true);
+            var nameColumn = Columns.Create("Staged", 0, isFixed: true);
+            var pathColumn = Columns.Create("Path", 0, null, true, true);
 
             View.AppendColumn(nameColumn);
             View.AppendColumn(pathColumn);
+
+            View.HeadersVisible = false;
+            View.FixedHeightMode = true;
+            View.Selection.Mode = SelectionMode.Multiple;
         }
 
         public void Dispose()
@@ -107,18 +111,18 @@ namespace Evergreen.Widgets
 
             var prefix = change.State switch
             {
-                FileStatus.NewInIndex => "[A]",
-                FileStatus.Conflicted => "[CF]",
-                FileStatus.DeletedFromWorkdir => "[D]",
-                FileStatus.Ignored => "[I]",
-                FileStatus.ModifiedInIndex => "[M]",
-                FileStatus.RenamedInIndex => "[R]",
-                FileStatus.DeletedFromIndex => "[D]",
-                FileStatus.TypeChangeInIndex => "[TC]",
-                FileStatus.Unaltered => "[UA]",
-                FileStatus.Unreadable => "[UR]",
-                FileStatus.Nonexistent => "[NE]",
-                _ => "[Unknown]",
+                FileStatus.NewInIndex => "(A)",
+                FileStatus.Conflicted => "(CF)",
+                FileStatus.DeletedFromWorkdir => "(D)",
+                FileStatus.Ignored => "(I)",
+                FileStatus.ModifiedInIndex => "(M)",
+                FileStatus.RenamedInIndex => "(R)",
+                FileStatus.DeletedFromIndex => "(D)",
+                FileStatus.TypeChangeInIndex => "(TC)",
+                FileStatus.Unaltered => "(UA)",
+                FileStatus.Unreadable => "(UR)",
+                FileStatus.Nonexistent => "(NE)",
+                _ => "(Unknown)",
             };
 
             return $"{prefix} {name}";

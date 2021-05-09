@@ -4,10 +4,10 @@ using Evergreen.Lib.Helpers;
 
 namespace Evergreen.Lib.Git.Models
 {
-    public class BranchTree
+    public record BranchTree
     {
-        public IEnumerable<TreeItem<BranchTreeItem>> Local { get; set; }
+        public IEnumerable<TreeItem<BranchTreeItem>> Local { get; init; }
 
-        public IEnumerable<TreeItem<BranchTreeItem>> Remote { get; set; }
+        public IEnumerable<TreeItem<BranchTreeItem>> Remote { get; init; }
     }
 }

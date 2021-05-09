@@ -40,7 +40,7 @@ namespace Evergreen.Widgets
 
 #pragma warning restore 064
 
-        public new string Path { get; }
+        public string Path { get; }
         public GitService Git { get; set; }
 
         private BranchTree branchTreeWidget;
@@ -187,7 +187,7 @@ namespace Evergreen.Widgets
 
         private async void FastforwardClicked(object sender, BranchSelectedEventArgs e)
         {
-            var result = await Git.FastForwad(e.Branch);
+            var result = await Git.FastForward(e.Branch);
 
             if (!result.IsSuccess)
             {
@@ -382,12 +382,12 @@ namespace Evergreen.Widgets
                 stagedFilesWidget.Update();
                 changedFilesWidget.Update();
 
-                changesViewStack.SetVisibleChildFull("changesViewContainer", StackTransitionType.OverRight);
+                changesViewStack.SetVisibleChildFull("changesViewContainer", StackTransitionType.None);
 
                 return;
             }
 
-            changesViewStack.SetVisibleChildFull("commitsViewContainer", StackTransitionType.OverLeft);
+            changesViewStack.SetVisibleChildFull("commitsViewContainer", StackTransitionType.None);
         }
     }
 
