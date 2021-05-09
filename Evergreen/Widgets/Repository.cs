@@ -119,7 +119,7 @@ namespace Evergreen.Widgets
             createBranchDialog.BranchCreated += BranchCreated;
             commitListWidget.CommitSelected += CommitSelected;
             branchTreeWidget.CheckoutClicked += CheckoutClicked;
-            branchTreeWidget.FastForwardClicked += FastforwardClicked;
+            branchTreeWidget.FastForwardClicked += FastForwardClicked;
             branchTreeWidget.DeleteClicked += DeleteBranchClicked;
             branchTreeWidget.ChangesSelected += ChangesSelected;
             branchTreeWidget.BranchSelected += BranchSelected;
@@ -185,13 +185,13 @@ namespace Evergreen.Widgets
             RefreshBranchTree();
         }
 
-        private async void FastforwardClicked(object sender, BranchSelectedEventArgs e)
+        private async void FastForwardClicked(object sender, BranchSelectedEventArgs e)
         {
             var result = await Git.FastForward(e.Branch);
 
             if (!result.IsSuccess)
             {
-                await messageBarWidget.Error("Failed to delete branch.");
+                await messageBarWidget.Error($"Fast forward failed. {result.Message}");
             }
             else
             {
