@@ -71,23 +71,35 @@ namespace Evergreen.Widgets
                 typeof(BranchTreeItemType)
             );
 
-            var activeBranch = Git.GetHeadCanonicalName();
+            var activeBranch = Git.GetHeadFriendlyName();
 
             void AddTreeItems(TreeIter parentIter, TreeItem<BranchTreeItem> item, BranchTreeItemType type)
             {
                 var isHead = item.Item.Name == activeBranch;
                 var weight = isHead ? Weight.Bold : Weight.Normal;
 
-                var itemType = isHead
-                    ? BranchTreeItemType.Head : item.Children.Any()
-                        ? BranchTreeItemType.Noop : type;
+                BranchTreeItemType GetItemType()
+                {
+                    if (isHead)
+                    {
+                        return BranchTreeItemType.Head;
+                    }
+                    else if (item.Children.Any())
+                    {
+                        return BranchTreeItemType.Noop;
+                    }
+                    else
+                    {
+                        return type;
+                    }
+                }
 
                 var treeIter = store.AppendValues(
                     parentIter,
                     item.Item.Label,
                     item.Item.Name,
                     weight,
-                    itemType
+                    GetItemType()
                 );
 
                 foreach (var child in item.Children)
