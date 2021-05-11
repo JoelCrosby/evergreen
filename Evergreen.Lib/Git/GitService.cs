@@ -76,61 +76,96 @@ namespace Evergreen.Lib.Git
 
             static string GetBranchLabel(string name, int ahead, int behind)
             {
+                var label = name[(name.LastIndexOf('/') + 1)..];
+
                 if (ahead == 0 && behind == 0)
                 {
-                    return name;
+                    return label;
                 }
 
                 return (ahead, behind) switch
                 {
-                    (int, int) when ahead != 0 && behind == 0 => $"{name} ↑{ahead}",
-                    (int, int) when ahead == 0 && behind != 0 => $"{name} ↓{behind}",
-                    (int, int) when ahead != 0 && behind != 0 => $"{name} ↑{ahead} ↓{behind}",
-                    _ => name,
+                    (int, int) when ahead != 0 && behind == 0 => $"{label} ↑{ahead}",
+                    (int, int) when ahead == 0 && behind != 0 => $"{label} ↓{behind}",
+                    (int, int) when ahead != 0 && behind != 0 => $"{label} ↑{ahead} ↓{behind}",
+                    _ => label,
                 };
             }
 
             static IEnumerable<TreeItem<BranchTreeItem>> Tree(IEnumerable<Branch> branches, bool isLocal)
             {
+                const string rootLocal = "Branches";
+                const string rootRemote = "Remotes";
+
                 var items = new List<BranchTreeItem>();
-                var root = isLocal ? "Branches" : "Remotes";
+                var root = isLocal ? rootLocal : rootRemote;
+
+                var parents = new HashSet<string>();
 
                 foreach (var branch in branches.Where(b => b.IsRemote != isLocal))
                 {
-                    var branchLevels = branch.CanonicalName.Split('/').Skip(2).ToList();
+                    var cName = branch.CanonicalName;
+                    var branchLevels = branch.CanonicalName.Split('/');
                     var ahead = branch.TrackingDetails.AheadBy ?? 0;
                     var behind = branch.TrackingDetails.BehindBy ?? 0;
+                    var label = GetBranchLabel(branch.CanonicalName, ahead, behind);
 
-                    for (var i = 0; i < branchLevels.Count; i++)
+                    var name = string.Join('/', branchLevels.Skip(2));
+                    var hasChild = name.Contains('/');
+                    var parent = hasChild ? cName[..cName.LastIndexOf('/')] : root;
+
+                    var branchLevel = new BranchTreeItem
                     {
-                        var label = GetBranchLabel(branchLevels.ElementAtOrDefault(i), ahead, behind);
+                        Name = name,
+                        Label = label,
+                        Parent = parent,
+                        Ahead = ahead,
+                        Behind = behind,
+                        IsRemote = !isLocal,
+                    };
 
-                        var branchLevel = new BranchTreeItem
-                        {
-                            Name = branch.CanonicalName,
-                            Label = label,
-                            Parent = branchLevels.ElementAtOrDefault(i - 1) ?? root,
-                            Ahead = ahead,
-                            Behind = behind,
-                            IsRemote = branch.IsRemote,
-                        };
+                    parents.Add(parent);
+                    items.Add(branchLevel);
+                }
 
-                        var exists = items.Any(
-                            i =>
-                                i.Label == branchLevel.Label
-                                && i.Parent == branchLevel.Parent
-                        );
+                var parentBranches = new HashSet<string>();
 
-                        if (exists)
-                        {
-                            continue;
-                        }
-
-                        items.Add(branchLevel);
+                foreach (var parent in parents)
+                {
+                    foreach (var level in parent.Split('/').Skip(2))
+                    {
+                        parentBranches.Add(parent);
                     }
                 }
 
-                return items.GenerateTree(c => c.Label, c => c.Parent, root);
+                foreach (var parentBranch in parentBranches)
+                {
+                    var name = parentBranch;
+                    var hasChild = name.Contains('/');
+
+                    var label = hasChild ? name[(name.LastIndexOf('/') + 1)..] : name;
+                    var parent = hasChild ? name[..name.LastIndexOf('/')] : root;
+
+                    const string refsHeads = "refs/heads";
+                    const string refsRmotes = "refs/remotes";
+
+                    static string ParentPath(string path) => path switch
+                    {
+                        refsHeads => rootLocal,
+                        refsRmotes => rootRemote,
+                        _ => path,
+                    };
+
+                    items.Add(new BranchTreeItem
+                    {
+                        Name = name,
+                        Label = label,
+                        Parent = ParentPath(parent),
+                        IsRemote = !isLocal,
+                    });
+                }
+
+                return items.GenerateTree(c => c.Name, c => c.Parent, root);
             }
 
             var local = Tree(branches, true);
