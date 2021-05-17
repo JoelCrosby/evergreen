@@ -19,11 +19,11 @@ namespace Evergreen.Widgets
 
         private enum Column
         {
-            Message,
-            Author,
-            Sha,
-            Date,
-            ID,
+            Message = 0,
+            Author = 1,
+            Sha = 2,
+            Date = 3,
+            ID = 4,
         }
 
         public CommitList(TreeView view, GitService git) : base(view, git)

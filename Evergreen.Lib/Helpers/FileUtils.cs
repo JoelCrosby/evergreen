@@ -14,7 +14,6 @@ namespace Evergreen.Lib.Helpers
                 throw new ArgumentNullException(nameof(path));
             }
 
-
             try
             {
                 if (IsBinary(path))
@@ -104,16 +103,24 @@ namespace Evergreen.Lib.Helpers
 
         private static class Chars
         {
-            // Null char
+            /// <summary>
+            /// Null char
+            /// </summary>
             public const char NUL = (char)0;
 
-            // Back Space
+            /// <summary>
+            /// Back Space
+            /// </summary>
             public const char BS = (char)8;
 
-            // Carriage Return
+            /// <summary>
+            /// Carriage Return
+            /// </summary>
             public const char CR = (char)13;
 
-            // Substitute
+            /// <summary>
+            /// Substitute
+            /// </summary>
             public const char SUB = (char)26;
         }
     }
