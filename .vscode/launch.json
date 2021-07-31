@@ -18,6 +18,22 @@
       }
     },
     {
+      "name": "Launch App",
+      "type": "coreclr",
+      "request": "launch",
+      "preLaunchTask": "build-app",
+      "program": "${workspaceFolder}/Evergreen.App/bin/Debug/net5.0/Evergreen.App.dll",
+      "args": [],
+      "cwd": "${workspaceFolder}",
+      "console": "internalConsole",
+      "internalConsoleOptions": "neverOpen",
+      "stopAtEntry": false,
+      "logging": {
+        "moduleLoad": false,
+        "engineLogging": false
+      }
+    },
+    {
       "name": "Attach",
       "type": "coreclr",
       "request": "attach",

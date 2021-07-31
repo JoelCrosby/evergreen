@@ -8,8 +8,14 @@
     </PropertyGroup>
 
     <ItemGroup>
+      <PackageReference Include="Avalonia" Version="0.10.3" />
       <PackageReference Include="DiffPlex" Version="1.7.0" />
       <PackageReference Include="LibGit2Sharp" Version="0.26.2" />
+      <PackageReference Include="MediatR" Version="9.0.0" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <Folder Include="Commands" />
     </ItemGroup>
 
 </Project>

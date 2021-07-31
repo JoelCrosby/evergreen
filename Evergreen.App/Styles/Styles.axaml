@@ -1,0 +1,59 @@
+<Styles xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    <Design.PreviewWith>
+        <Border Padding="20">
+            <!-- Add Controls for Previewer Here -->
+        </Border>
+    </Design.PreviewWith>
+
+    <!-- Add Styles Here -->
+
+    <Style Selector="Window">
+        <Setter Property="FontSize" Value="13"/>
+        <Setter Property="FontFamily" Value="Fira Sans"/>
+        <Setter Property="Background" Value="{StaticResource Background}"/>
+        <Setter Property="Foreground" Value="{StaticResource Text}"/>
+    </Style>
+
+    <Style Selector="ScrollViewer">
+        <Setter Property="Background" Value="{StaticResource Background}"/>
+    </Style>
+
+    <Style Selector="TreeView">
+        <Setter Property="FontSize" Value="13"/>
+        <Setter Property="FontFamily" Value="Fira Sans"/>
+        <Setter Property="Background" Value="{StaticResource Background}"/>
+        <Setter Property="Foreground" Value="{StaticResource Text}"/>
+    </Style>
+
+    <Style Selector="TreeViewItem">
+        <Setter Property="MinHeight" Value="26"/>
+    </Style>
+
+    <Style Selector="TreeViewItem StackPanel">
+        <Setter Property="MinHeight" Value="26"/>
+    </Style>
+
+    <Style Selector="TreeViewItem Border">
+        <Setter Property="BorderThickness" Value="0"/>
+    </Style>
+
+    <Style Selector="Button">
+        <Setter Property="Background" Value="{StaticResource Button}"/>
+        <Setter Property="Foreground" Value="{StaticResource Text}"/>
+    </Style>
+
+    <Style Selector="DataGrid">
+        <Setter Property="Margin" Value="-1"></Setter>
+    </Style>
+
+    <Style Selector="DataGrid DataGridRow">
+        <Setter Property="Height" Value="26"></Setter>
+    </Style>
+
+    <Style Selector="DataGrid TextBlock">
+        <Setter Property="FontSize" Value="13"/>
+        <Setter Property="Padding" Value="2"/>
+    </Style>
+
+</Styles>

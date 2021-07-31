@@ -6,6 +6,8 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
+using Avalonia.Media;
+
 using DiffPlex;
 using DiffPlex.DiffBuilder;
 using DiffPlex.DiffBuilder.Model;
@@ -70,7 +72,7 @@ namespace Evergreen.Lib.Git
         public IEnumerable<(string sha, string label)> GetBranchHeadCommits() =>
             repository.Branches.Select(b => (b.Commits.FirstOrDefault()?.Sha, b.FriendlyName));
 
-        public BranchTree GetBranchTree()
+        public IEnumerable<BranchTreeItem> GetBranchTree()
         {
             var branches = repository.Branches.ToList();
 
@@ -92,7 +94,8 @@ namespace Evergreen.Lib.Git
                 };
             }
 
-            static IEnumerable<TreeItem<BranchTreeItem>> Tree(IEnumerable<Branch> branches, bool isLocal)
+
+            IEnumerable<BranchTreeItem> Tree(IEnumerable<Branch> branches, bool isLocal)
             {
                 const string rootLocal = "Branches";
                 const string rootRemote = "Remotes";
@@ -101,6 +104,7 @@ namespace Evergreen.Lib.Git
                 var root = isLocal ? rootLocal : rootRemote;
 
                 var parents = new HashSet<string>();
+                var activeBranch = GetHeadFriendlyName();
 
                 foreach (var branch in branches.Where(b => b.IsRemote != isLocal))
                 {
@@ -113,6 +117,7 @@ namespace Evergreen.Lib.Git
                     var name = string.Join('/', branchLevels.Skip(2));
                     var hasChild = name.Contains('/');
                     var parent = hasChild ? cName[..cName.LastIndexOf('/')] : root;
+                    var isHead = activeBranch == name;
 
                     var branchLevel = new BranchTreeItem
                     {
@@ -122,6 +127,8 @@ namespace Evergreen.Lib.Git
                         Ahead = ahead,
                         Behind = behind,
                         IsRemote = !isLocal,
+                        FontWeight = isHead ? FontWeight.ExtraBold : FontWeight.Regular,
+                        IsHead = isHead,
                     };
 
                     parents.Add(parent);
@@ -162,20 +169,41 @@ namespace Evergreen.Lib.Git
                         Label = label,
                         Parent = ParentPath(parent),
                         IsRemote = !isLocal,
+                        FontWeight = FontWeight.Regular,
                     });
                 }
 
-                return items.GenerateTree(c => c.Name, c => c.Parent, root);
+                return GenerateTree(items, c => c.Name, c => c.Parent, root);
             }
 
             var local = Tree(branches, true);
             var remote = Tree(branches, false);
 
-            return new BranchTree
-            {
-                Local = local,
-                Remote = remote,
-            };
+            return local.Concat(remote);
+        }
+
+        private static IEnumerable<BranchTreeItem> GenerateTree(
+            IEnumerable<BranchTreeItem> collection,
+            Func<BranchTreeItem, string> idSelector,
+            Func<BranchTreeItem, string> parentIdSelector,
+            string rootId = default)
+        {
+            var tree = collection.Where(c => parentIdSelector(c).Equals(rootId)).Select(
+                c => new BranchTreeItem
+                {
+                    Ahead = c.Ahead,
+                    Behind = c.Behind,
+                    Label = c.Label,
+                    Name = c.Name,
+                    Parent = c.Parent,
+                    IsRemote = c.IsRemote,
+                    IsHead = c.IsHead,
+                    FontWeight = c.FontWeight,
+                    Children = GenerateTree(collection, idSelector, parentIdSelector, idSelector(c)),
+                }
+            );
+
+            return tree.OrderBy(l => l.Children.Any());
         }
 
         public TreeChanges GetCommitFiles(string commitId)
@@ -457,6 +485,66 @@ namespace Evergreen.Lib.Git
             {
                 return Result<ExecResult>.Failed($"Git exec failed. {ex.Message}");
             }
+        }
+
+        public IEnumerable<CommitListItem> GetCommitListItems()
+        {
+            var result = new List<CommitListItem>();
+
+            var commits = GetCommits();
+            var heads = GetBranchHeadCommits();
+
+            var headDict = heads.Aggregate(
+                new Dictionary<string, List<string>>(), (a, c) =>
+                {
+                    if (a.TryGetValue(c.sha, out var item))
+                    {
+                        item.Add(c.label);
+                    }
+                    else
+                    {
+                        a.Add(c.sha, new List<string>
+                        {
+                            c.label,
+                        });
+                    }
+
+                    return a;
+                }
+            );
+
+            static string CommitMessageShort(string s, Commit commit)
+            {
+                return s is { } ? $"{commit.MessageShort} {s}" : commit.MessageShort;
+            }
+
+            static string? BranchLabel(bool hasValue, IEnumerable<string> value)
+            {
+                return hasValue ? string.Join(' ', value.Select(b => $"({b})")) : null;
+            }
+
+            foreach (var commit in commits)
+            {
+                var hasValue = headDict.TryGetValue(commit.Sha, out var branches);
+                var branchLabel = BranchLabel(hasValue, branches);
+
+                var commitDate = commit.Author.When.ToString("dd MMM yyyy HH:mm");
+                var author = commit.Author.Name;
+                var message = CommitMessageShort(branchLabel, commit);
+                var sha = commit.Sha[..7];
+                var id = commit.Id.Sha;
+
+                result.Add(new CommitListItem
+                {
+                    Message = message,
+                    Author = author,
+                    Sha = sha,
+                    CommitDate = commitDate,
+                    Id = id,
+                });
+            }
+
+            return result;
         }
     }
 }
