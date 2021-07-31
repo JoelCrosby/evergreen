@@ -100,21 +100,21 @@ namespace Evergreen.Lib.Helpers
             return false;
         }
 
-        private static bool IsControlChar(int ch) => ch is > Chars.NUL and < Chars.BS or > Chars.CR and < Chars.SUB;
+        private static bool IsControlChar(int ch) => ch is > Chars.Nul and < Chars.Bs or > Chars.Cr and < Chars.Sub;
 
         private static class Chars
         {
             // Null char
-            public const char NUL = (char)0;
+            public const char Nul = (char)0;
 
             // Back Space
-            public const char BS = (char)8;
+            public const char Bs = (char)8;
 
             // Carriage Return
-            public const char CR = (char)13;
+            public const char Cr = (char)13;
 
             // Substitute
-            public const char SUB = (char)26;
+            public const char Sub = (char)26;
         }
     }
 }

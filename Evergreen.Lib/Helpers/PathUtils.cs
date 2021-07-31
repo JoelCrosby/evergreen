@@ -23,10 +23,10 @@ namespace Evergreen.Lib.Helpers
             return Path.Join(home, configFolder, "evergreen");
         }
 
-        public static string GetHomeFolder() => GetPlatform() switch
+        public static string? GetHomeFolder() => GetPlatform() switch
         {
             Platform.Linux => Environment.GetEnvironmentVariable("HOME"),
-            Platform.OSX => Environment.GetEnvironmentVariable("HOME"),
+            Platform.Osx => Environment.GetEnvironmentVariable("HOME"),
             Platform.FreeBsd => Environment.GetEnvironmentVariable("HOME"),
             Platform.Windows => GetHomePathWindows(),
             _ => throw new PlatformNotSupportedException(),
@@ -41,7 +41,7 @@ namespace Evergreen.Lib.Helpers
 
             if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
             {
-                return Platform.OSX;
+                return Platform.Osx;
             }
 
             if (RuntimeInformation.IsOSPlatform(OSPlatform.FreeBSD))

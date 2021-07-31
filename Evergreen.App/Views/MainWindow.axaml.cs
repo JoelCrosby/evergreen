@@ -1,5 +1,4 @@
 using System;
-using System.Threading.Tasks;
 
 using Avalonia;
 using Avalonia.Controls;
@@ -46,7 +45,7 @@ namespace Evergreen.App.Views
                 return;
             }
 
-            Model.OpenCommand.Execute(response);
+            Model?.OpenCommand.Execute(response);
         }
 
         private void CloseRepoClicked(object sender, EventArgs _)

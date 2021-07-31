@@ -1,8 +1,6 @@
-using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 
-using Evergreen.Lib.Models;
 using Evergreen.Lib.Queries;
 using Evergreen.Lib.Services;
 
@@ -12,16 +10,16 @@ namespace Evergreen.Lib.Handlers
 {
     public class OpenRepositoryHandler : IRequestHandler<OpenRepositoryQuery>
     {
-        private readonly RepositoriesService _repos;
+        private readonly RepositoriesService repos;
 
         public OpenRepositoryHandler(RepositoriesService repos)
         {
-            _repos = repos;
+            this.repos = repos;
         }
 
         public Task<Unit> Handle(OpenRepositoryQuery request, CancellationToken cancellationToken)
         {
-            _repos.OpenRepository(request.path);
+            repos.OpenRepository(request.Path);
 
             return Task.FromResult(Unit.Value);
         }

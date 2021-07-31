@@ -3,7 +3,6 @@ using System.Linq;
 
 using Evergreen.Lib.Git;
 using Evergreen.Lib.Git.Models;
-using Evergreen.Lib.Helpers;
 using Evergreen.Utils;
 using Evergreen.Widgets.Common;
 
@@ -73,9 +72,9 @@ namespace Evergreen.Widgets
 
             var activeBranch = Git.GetHeadFriendlyName();
 
-            void AddTreeItems(TreeIter parentIter, TreeItem<BranchTreeItem> item, BranchTreeItemType type)
+            void AddTreeItems(TreeIter parentIter, BranchTreeItem item, BranchTreeItemType type)
             {
-                var isHead = item.Item.Name == activeBranch;
+                var isHead = item.Name == activeBranch;
                 var weight = isHead ? Weight.Bold : Weight.Normal;
 
                 BranchTreeItemType GetItemType()
@@ -96,8 +95,8 @@ namespace Evergreen.Widgets
 
                 var treeIter = store.AppendValues(
                     parentIter,
-                    item.Item.Label,
-                    item.Item.Name,
+                    item.Label,
+                    item.Name,
                     weight,
                     GetItemType()
                 );

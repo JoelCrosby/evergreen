@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -18,6 +19,7 @@ using Evergreen.Lib.Models;
 using Evergreen.Lib.Models.Common;
 
 using LibGit2Sharp;
+using GitCommands = LibGit2Sharp.Commands;
 
 namespace Evergreen.Lib.Git
 {
@@ -72,7 +74,7 @@ namespace Evergreen.Lib.Git
         public IEnumerable<(string sha, string label)> GetBranchHeadCommits() =>
             repository.Branches.Select(b => (b.Commits.FirstOrDefault()?.Sha, b.FriendlyName));
 
-        public IEnumerable<BranchTreeItem> GetBranchTree()
+        public BranchTree GetBranchTree()
         {
             var branches = repository.Branches.ToList();
 
@@ -179,7 +181,11 @@ namespace Evergreen.Lib.Git
             var local = Tree(branches, true);
             var remote = Tree(branches, false);
 
-            return local.Concat(remote);
+            return new BranchTree
+            {
+                Local = local,
+                Remote = remote,
+            };
         }
 
         private static IEnumerable<BranchTreeItem> GenerateTree(
@@ -188,20 +194,11 @@ namespace Evergreen.Lib.Git
             Func<BranchTreeItem, string> parentIdSelector,
             string rootId = default)
         {
-            var tree = collection.Where(c => parentIdSelector(c).Equals(rootId)).Select(
-                c => new BranchTreeItem
-                {
-                    Ahead = c.Ahead,
-                    Behind = c.Behind,
-                    Label = c.Label,
-                    Name = c.Name,
-                    Parent = c.Parent,
-                    IsRemote = c.IsRemote,
-                    IsHead = c.IsHead,
-                    FontWeight = c.FontWeight,
-                    Children = GenerateTree(collection, idSelector, parentIdSelector, idSelector(c)),
-                }
-            );
+
+            var list = collection.ToList();
+            var tree = list
+                .Where(c => parentIdSelector(c).Equals(rootId, StringComparison.Ordinal))
+                .Select(c => c.SetChildren(GenerateTree(list, idSelector, parentIdSelector, idSelector(c))));
 
             return tree.OrderBy(l => l.Children.Any());
         }
@@ -313,7 +310,7 @@ namespace Evergreen.Lib.Git
         {
             foreach (var path in paths)
             {
-                Commands.Stage(repository, path);
+                GitCommands.Stage(repository, path);
             }
         }
 
@@ -321,11 +318,11 @@ namespace Evergreen.Lib.Git
         {
             foreach (var path in paths)
             {
-                Commands.Unstage(repository, path);
+                GitCommands.Unstage(repository, path);
             }
         }
 
-        public void Checkout(string branch) => Commands.Checkout(repository, branch);
+        public void Checkout(string branch) => GitCommands.Checkout(repository, branch);
 
         public void Commit(string message)
         {
@@ -408,7 +405,7 @@ namespace Evergreen.Lib.Git
 
             if (checkout)
             {
-                Commands.Checkout(repository, newBranch.CanonicalName);
+                GitCommands.Checkout(repository, newBranch.CanonicalName);
             }
 
             return Result<Branch>.Success(newBranch);
@@ -464,26 +461,32 @@ namespace Evergreen.Lib.Git
                     }
                 );
 
+                if (proc is null)
+                {
+                    throw new InvalidOperationException($"unable to start sub process 'git {args}'");
+                }
+
                 await proc.WaitForExitAsync().ConfigureAwait(false);
 
                 Debug.Assert(proc.ExitCode == 0);
 
-                if (proc.ExitCode != 0)
+                if (proc.ExitCode == 0)
                 {
-                    var stdOut = await proc.StandardOutput
-                        .ReadToEndAsync()
-                        .ConfigureAwait(false);
-
-                    Debug.WriteLine(stdOut);
-
-                    return Result<ExecResult>.Failed(stdOut);
+                    return Result<ExecResult>.Success();
                 }
 
-                return Result<ExecResult>.Success();
+                var stdOut = await proc.StandardOutput
+                    .ReadToEndAsync()
+                    .ConfigureAwait(false);
+
+                Debug.WriteLine(stdOut);
+
+                return Result<ExecResult>.Failed(stdOut);
+
             }
             catch (Exception ex)
             {
-                return Result<ExecResult>.Failed($"Git exec failed. {ex.Message}");
+                return Result<ExecResult>.Failed($"exec 'git {args}' failed. {ex.Message}");
             }
         }
 
@@ -528,7 +531,7 @@ namespace Evergreen.Lib.Git
                 var hasValue = headDict.TryGetValue(commit.Sha, out var branches);
                 var branchLabel = BranchLabel(hasValue, branches);
 
-                var commitDate = commit.Author.When.ToString("dd MMM yyyy HH:mm");
+                var commitDate = commit.Author.When.ToString("dd MMM yyyy HH:mm", CultureInfo.InvariantCulture);
                 var author = commit.Author.Name;
                 var message = CommitMessageShort(branchLabel, commit);
                 var sha = commit.Sha[..7];

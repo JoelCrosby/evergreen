@@ -1,4 +1,3 @@
-using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -10,18 +9,18 @@ using MediatR;
 
 namespace Evergreen.Lib.Handlers
 {
-    public class GetBranchTreeHandler : IRequestHandler<GetBranchTreeQuery, IEnumerable<BranchTreeItem>>
+    public class GetBranchTreeHandler : IRequestHandler<GetBranchTreeQuery, BranchTree>
     {
-        private readonly RepositoriesService _repos;
+        private readonly RepositoriesService repos;
 
-        public GetBranchTreeHandler(RepositoriesService repos)
+        public GetBranchTreeHandler(RepositoriesService repositoriesService)
         {
-            _repos = repos;
+            repos = repositoriesService;
         }
 
-        public async Task<IEnumerable<BranchTreeItem>> Handle(GetBranchTreeQuery request, CancellationToken cancellationToken)
+        public async Task<BranchTree> Handle(GetBranchTreeQuery request, CancellationToken cancellationToken)
         {
-            return _repos.GetBranchTree();
+            return repos.GetBranchTree();
         }
     }
 }

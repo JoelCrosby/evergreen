@@ -1,22 +1,19 @@
 <Window xmlns="https://github.com/avaloniaui"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        xmlns:vm="using:Evergreen.App.ViewModels"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:models="clr-namespace:Evergreen.Lib.Git.Models;assembly=evergreen-lib"
-        xmlns:helpers="clr-namespace:Evergreen.Lib.Helpers;assembly=evergreen-lib"
         mc:Ignorable="d" d:DesignWidth="1280" d:DesignHeight="720"
         x:Class="Evergreen.App.Views.MainWindow"
         Icon="/Assets/avalonia-logo.ico"
-        Title="Evergreen.App">
+        Title="Evergreen.App"
+        Width="1280"
+        Height="720"
+>
 
     <Window.Styles>
         <StyleInclude Source="/Styles/Styles.axaml" />
     </Window.Styles>
-
-    <Design.DataContext>
-        <vm:MainWindowViewModel/>
-    </Design.DataContext>
 
     <Grid ColumnDefinitions="*" RowDefinitions="48,*" ShowGridLines="False">
         <Border
@@ -28,16 +25,22 @@
                 Spacing="8"
                 Margin="8"
             >
-                <Button Click="OpenRepoClicked">
-                    Open
-                </Button>
+                <StackPanel Orientation="Horizontal">
+                    <Button Click="OpenRepoClicked">
+                        Open
+                    </Button>
 
-                <Separator></Separator>
+                    <Separator></Separator>
 
-                <Button>Fetch</Button>
-                <Button>Pull</Button>
-                <Button>Push</Button>
-                <Button>Create Branch</Button>
+                    <Button Command="{Binding FetchCommand}" >Fetch</Button>
+                    <Button>Pull</Button>
+                    <Button>Push</Button>
+                    <Button>Create Branch</Button>
+                </StackPanel>
+                <StackPanel>
+                    <Label Content="{Binding RepositoryName}"></Label>
+                    <Label></Label>
+                </StackPanel>
             </StackPanel>
         </Border>
 
@@ -47,10 +50,10 @@
             <SplitView.Pane>
 
                 <ScrollViewer>
-                    <StackPanel>
-                        <TreeView Items="{Binding Branches}">
-                            <TreeView.DataTemplates>
+                    <StackPanel Orientation="Vertical">
 
+                        <TreeView Items="{Binding Local}">
+                            <TreeView.DataTemplates>
                                 <TreeDataTemplate
                                     DataType="models:BranchTreeItem"
                                     ItemsSource="{Binding Children}"
@@ -60,9 +63,39 @@
                                         FontWeight="{Binding FontWeight}"
                                     />
                                 </TreeDataTemplate>
-
                             </TreeView.DataTemplates>
                         </TreeView>
+
+                        <TreeView Items="{Binding Remote}">
+                            <TreeView.DataTemplates>
+                                <TreeDataTemplate
+                                    DataType="models:BranchTreeItem"
+                                    ItemsSource="{Binding Children}"
+                                >
+                                    <TextBlock
+                                        Text="{Binding Label}"
+                                        FontWeight="{Binding FontWeight}"
+                                    />
+                                </TreeDataTemplate>
+                            </TreeView.DataTemplates>
+
+                            <TreeView.ContextMenu>
+                                <ContextMenu Name="PropertiesSaveContextMenu" PlacementMode="Pointer">
+                                    <MenuItem
+                                        Command="{Binding OnClickPropertiesSaveFile}"
+                                        Header="To File">
+                                    </MenuItem>
+
+                                    <MenuItem
+                                        Command="{Binding OnClickPropertiesSaveClipboard}"
+                                        Header="To Clipboard">
+                                    </MenuItem>
+
+                                </ContextMenu>
+                            </TreeView.ContextMenu>
+
+                        </TreeView>
+
                     </StackPanel>
                 </ScrollViewer>
 
@@ -72,7 +105,6 @@
                 Items="{Binding Commits}"
                 AutoGenerateColumns="False"
                 HeadersVisibility="None"
-                FontSize="12"
                 IsReadOnly="True"
                 SelectionMode="Extended"
             >

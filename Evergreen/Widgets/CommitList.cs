@@ -23,7 +23,7 @@ namespace Evergreen.Widgets
             Author,
             Sha,
             Date,
-            ID,
+            Id,
         }
 
         public CommitList(TreeView view, GitService git) : base(view, git)
@@ -34,7 +34,7 @@ namespace Evergreen.Widgets
             var authorColumn = Columns.Create("Author", (int)Column.Author, isFixed: true);
             var shaColumn = Columns.Create("Sha", (int)Column.Sha, isFixed: true);
             var dateColumn = Columns.Create("Date", (int)Column.Date, 20, isFixed: true);
-            var idColumn = Columns.Create("ID", (int)Column.ID, 20, isFixed: true, isHidden: true);
+            var idColumn = Columns.Create("ID", (int)Column.Id, 20, isFixed: true, isHidden: true);
 
             foreach (var column in View.Columns)
             {

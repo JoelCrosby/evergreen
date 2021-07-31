@@ -28,6 +28,7 @@
 
     <Style Selector="TreeViewItem">
         <Setter Property="MinHeight" Value="26"/>
+        <Setter Property="Foreground" Value="{StaticResource Text}"/>
     </Style>
 
     <Style Selector="TreeViewItem StackPanel">
@@ -44,6 +45,7 @@
     </Style>
 
     <Style Selector="DataGrid">
+        <Setter Property="FontSize" Value="12"/>
         <Setter Property="Margin" Value="-1"></Setter>
     </Style>
 

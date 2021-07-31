@@ -4,7 +4,7 @@ namespace Evergreen.Lib.Helpers
     {
         Linux = 0,
         FreeBsd = 1,
-        OSX = 2,
+        Osx = 2,
         Windows = 3,
     }
 }

@@ -1,5 +1,4 @@
 using System;
-using System.ComponentModel;
 
 using Avalonia;
 using Avalonia.Controls.ApplicationLifetimes;
@@ -56,7 +55,7 @@ namespace Evergreen.App
             Container.UseMicrosoftDependencyResolver();
         }
 
-        private void ConfigureServices(IServiceCollection services)
+        private static void ConfigureServices(IServiceCollection services)
         {
             services.AddMediatR(typeof(GitService).Assembly);
 

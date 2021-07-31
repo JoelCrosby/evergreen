@@ -1,20 +1,22 @@
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 
 using Evergreen.Lib.Configuration;
 using Evergreen.Lib.Git;
 using Evergreen.Lib.Git.Models;
 using Evergreen.Lib.Models;
+using Evergreen.Lib.Models.Common;
 using Evergreen.Lib.Session;
 
 namespace Evergreen.Lib.Services
 {
     public class RepositoriesService
     {
-        private int _selectedRepoIndex;
-        private readonly List<GitService> _repositories = new();
-        private GitService Repository => _repositories.ElementAtOrDefault(_selectedRepoIndex);
-        private readonly RepositorySession _session;
+        private int selectedRepoIndex;
+        private readonly List<GitService> repositories = new();
+        private GitService Repository => repositories.ElementAt(selectedRepoIndex);
+        private readonly RepositorySession session;
 
         public void OpenRepository(string path)
         {
@@ -25,14 +27,25 @@ namespace Evergreen.Lib.Services
                 return;
             }
 
-            _repositories.Add(new GitService(path));
-            _selectedRepoIndex = _repositories.Count - 1;
+            repositories.Add(new GitService(path));
+            selectedRepoIndex = repositories.Count - 1;
 
-            Sessions.SaveSession(_session);
+            Sessions.SaveSession(session);
         }
 
-        public IEnumerable<CommitListItem> GetCommits() => Repository.GetCommitListItems();
+        public IEnumerable<CommitListItem> GetCommits()
+        {
+            return Repository.GetCommitListItems();
+        }
 
-        public IEnumerable<BranchTreeItem> GetBranchTree() => Repository.GetBranchTree();
+        public BranchTree GetBranchTree()
+        {
+            return Repository.GetBranchTree();
+        }
+
+        public Task<Result<ExecResult>> Fetch()
+        {
+            return Repository.Fetch();
+        }
     }
 }
