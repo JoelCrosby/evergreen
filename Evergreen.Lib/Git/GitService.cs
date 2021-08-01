@@ -32,13 +32,9 @@ namespace Evergreen.Lib.Git
         public void Dispose() => repository.Dispose();
 
         public string GetHeadCanonicalName() => repository.Head.CanonicalName;
-
         public string GetHeadFriendlyName() => repository.Head.FriendlyName;
-
         public string GetPath() => repository.Info.WorkingDirectory;
-
         public string GetFriendlyPath() => repository.Info.WorkingDirectory.SubHomePath();
-
         public static bool IsRepository(string path) => Repository.IsValid(path);
 
         public string GetRepositoryFriendlyName()
@@ -69,10 +65,15 @@ namespace Evergreen.Lib.Git
             }
         );
 
-        public Commit GetHeadCommit() => repository.Head.Commits.FirstOrDefault();
+        public Commit? GetHeadCommit() => repository.Head.Commits.FirstOrDefault();
 
-        public IEnumerable<(string sha, string label)> GetBranchHeadCommits() =>
-            repository.Branches.Select(b => (b.Commits.FirstOrDefault()?.Sha, b.FriendlyName));
+        public IEnumerable<(string? Sha, string FriendlyName)> GetBranchHeadCommits()
+        {
+            return repository.Branches.Select(b =>
+            {
+                return (b.Commits.FirstOrDefault()?.Sha, b.FriendlyName);
+            });
+        }
 
         public BranchTree GetBranchTree()
         {
@@ -156,12 +157,12 @@ namespace Evergreen.Lib.Git
                     var parent = hasChild ? name[..name.LastIndexOf('/')] : root;
 
                     const string refsHeads = "refs/heads";
-                    const string refsRmotes = "refs/remotes";
+                    const string refsRemotes = "refs/remotes";
 
                     static string ParentPath(string path) => path switch
                     {
                         refsHeads => rootLocal,
-                        refsRmotes => rootRemote,
+                        refsRemotes => rootRemote,
                         _ => path,
                     };
 
@@ -192,7 +193,7 @@ namespace Evergreen.Lib.Git
             IEnumerable<BranchTreeItem> collection,
             Func<BranchTreeItem, string> idSelector,
             Func<BranchTreeItem, string> parentIdSelector,
-            string rootId = default)
+            string? rootId = null)
         {
 
             var list = collection.ToList();
@@ -203,7 +204,7 @@ namespace Evergreen.Lib.Git
             return tree.OrderBy(l => l.Children.Any());
         }
 
-        public TreeChanges GetCommitFiles(string commitId)
+        public TreeChanges? GetCommitFiles(string commitId)
         {
             var commit = repository.Lookup<Commit>(commitId);
 
@@ -240,7 +241,7 @@ namespace Evergreen.Lib.Git
             return repository.Diff.Compare<TreeChanges>(paths);
         }
 
-        public Patch GetCommitPatch(string commitId)
+        public Patch? GetCommitPatch(string commitId)
         {
             var commit = repository.Lookup<Commit>(commitId);
 
@@ -259,7 +260,7 @@ namespace Evergreen.Lib.Git
             return repository.Diff.Compare<Patch>(prevCommit.Tree, commit.Tree);
         }
 
-        public DiffPaneModel GetCommitDiff(string commitId, string path)
+        public DiffPaneModel? GetCommitDiff(string commitId, string path)
         {
             var commit = repository.Lookup<Commit>(commitId);
 
@@ -282,7 +283,7 @@ namespace Evergreen.Lib.Git
             return diffBuilder.BuildDiffModel(prevContent ?? string.Empty, content ?? string.Empty);
         }
 
-        public async Task<DiffPaneModel> GetChangesDiff(string path)
+        public async Task<DiffPaneModel?> GetChangesDiff(string path)
         {
             var commit = GetHeadCommit();
 
@@ -417,7 +418,7 @@ namespace Evergreen.Lib.Git
             return $"{commit.Author.Name} {commit.Author.Email}";
         }
 
-        private string GetCommitContent(string relPath, string commitId)
+        private string? GetCommitContent(string relPath, string commitId)
         {
             var commit = repository.Lookup<Commit>(commitId);
 
@@ -500,15 +501,15 @@ namespace Evergreen.Lib.Git
             var headDict = heads.Aggregate(
                 new Dictionary<string, List<string>>(), (a, c) =>
                 {
-                    if (a.TryGetValue(c.sha, out var item))
+                    if (a.TryGetValue(c.Sha, out var item))
                     {
-                        item.Add(c.label);
+                        item.Add(c.FriendlyName);
                     }
                     else
                     {
-                        a.Add(c.sha, new List<string>
+                        a.Add(c.Sha, new List<string>
                         {
-                            c.label,
+                            c.FriendlyName,
                         });
                     }
 

@@ -1,5 +1,3 @@
-using System;
-
 using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Interactivity;
@@ -7,8 +5,6 @@ using Avalonia.Markup.Xaml;
 using Avalonia.ReactiveUI;
 
 using Evergreen.App.ViewModels;
-using Evergreen.Lib.Git;
-
 
 namespace Evergreen.App.Views
 {
@@ -26,7 +22,7 @@ namespace Evergreen.App.Views
 
         private void InitializeComponent() => AvaloniaXamlLoader.Load(this);
 
-        private async void OpenRepoClicked(object? sender, RoutedEventArgs routedEventArgs)
+        private async void OpenRepoClicked(object? _, RoutedEventArgs __)
         {
             var dialog = new OpenFolderDialog
             {
@@ -35,22 +31,7 @@ namespace Evergreen.App.Views
 
             var response = await dialog.ShowAsync(this);
 
-            if (response is null)
-            {
-                return;
-            }
-
-            if (!GitService.IsRepository(response))
-            {
-                return;
-            }
-
             Model?.OpenCommand.Execute(response);
-        }
-
-        private void CloseRepoClicked(object sender, EventArgs _)
-        {
-
         }
     }
 }
