@@ -13,9 +13,9 @@ namespace Evergreen.Widgets
 {
     public class CommitFiles : TreeWidget, IDisposable
     {
-        private TreeChanges commitChanges;
-        private string commitId;
-        private TreeStore store;
+        private TreeChanges _commitChanges;
+        private string _commitId;
+        private TreeStore _store;
 
         public CommitFiles(TreeView view, GitService git) : base(view, git)
         {
@@ -36,28 +36,28 @@ namespace Evergreen.Widgets
 
         public bool Update(string commitOid)
         {
-            if (commitId == commitOid)
+            if (_commitId == commitOid)
             {
                 return false;
             }
 
-            commitChanges = Git.GetCommitFiles(commitOid);
+            _commitChanges = Git.GetCommitFiles(commitOid);
 
-            store = new TreeStore(
+            _store = new TreeStore(
                 typeof(string),
                 typeof(string)
             );
 
-            foreach (var change in commitChanges)
+            foreach (var change in _commitChanges)
             {
-                store.AppendValues(
+                _store.AppendValues(
                     GetFileLabel(change),
                     change.Path
                 );
             }
 
-            View.Model = store;
-            commitId = commitOid;
+            View.Model = _store;
+            _commitId = commitOid;
 
             return true;
         }
@@ -71,7 +71,7 @@ namespace Evergreen.Widgets
 
         private void CommitFilesCursorChanged(object sender, EventArgs args)
         {
-            if (commitId is null)
+            if (_commitId is null)
             {
                 return;
             }
@@ -86,9 +86,9 @@ namespace Evergreen.Widgets
             OnCommitFileSelected(
                 new CommitFileSelectedEventArgs
                 {
-                    CommitId = commitId,
+                    CommitId = _commitId,
                     Path = selectedPath,
-                    CommitChanges = commitChanges,
+                    CommitChanges = _commitChanges,
                 }
             );
         }

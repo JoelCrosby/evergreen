@@ -7,7 +7,7 @@ namespace Evergreen.Lib.Helpers
 {
     public static class FileUtils
     {
-        public static async Task<string> ReadToString(string path)
+        public static async Task<string?> ReadToString(string? path)
         {
             if (string.IsNullOrEmpty(path))
             {
@@ -33,7 +33,7 @@ namespace Evergreen.Lib.Helpers
             }
         }
 
-        public static async Task<string> GetFileContent(Stream stream)
+        public static async Task<string?> GetFileContent(Stream stream)
         {
             if (stream is null)
             {

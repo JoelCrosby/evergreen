@@ -5,6 +5,6 @@ namespace Evergreen.Lib.Events
 {
     public class FilesSelectedEventArgs : EventArgs
     {
-        public List<string> Paths { get; set; }
+        public IEnumerable<string>? Paths { get; init; }
     }
 }

@@ -23,7 +23,7 @@ namespace Evergreen.App
 {
     public class App : Application
     {
-        public IServiceProvider Container { get; private set; }
+        public IServiceProvider Container { get; private set; } = null!;
 
         public override void Initialize()
         {

@@ -15,16 +15,16 @@ namespace Evergreen.Dialogs
     {
 #pragma warning disable 0649
 
-        [UI] private readonly Button btnCancel;
-        [UI] private readonly Button btnCreate;
-        [UI] private readonly CheckButton checkCheckout;
-        [UI] private readonly HeaderBar headerBar;
-        [UI] private readonly Label labelErrorText;
-        [UI] private readonly Entry entryBranchName;
+        [UI] private readonly Button _btnCancel;
+        [UI] private readonly Button _btnCreate;
+        [UI] private readonly CheckButton _checkCheckout;
+        [UI] private readonly HeaderBar _headerBar;
+        [UI] private readonly Label _labelErrorText;
+        [UI] private readonly Entry _entryBranchName;
 
 #pragma warning restore 064
 
-        private readonly GitService git;
+        private readonly GitService _git;
 
         public event EventHandler<CreateBranchEventArgs> BranchCreated;
 
@@ -32,18 +32,18 @@ namespace Evergreen.Dialogs
 
         private CreateBranchDialog(GitService git, Builder builder) : base(builder.GetObject("create-branch").Handle)
         {
-            this.git = git;
+            _git = git;
 
             builder.Autoconnect(this);
 
-            btnCancel.Clicked += CancelClicked;
-            btnCreate.Clicked += CreateClicked;
+            _btnCancel.Clicked += CancelClicked;
+            _btnCreate.Clicked += CreateClicked;
         }
 
         public new Result<CreateBranchResult> Show()
         {
-            headerBar.Subtitle = $"Base - {git.GetHeadFriendlyName()}";
-            checkCheckout.Active = true;
+            _headerBar.Subtitle = $"Base - {_git.GetHeadFriendlyName()}";
+            _checkCheckout.Active = true;
 
             base.Show();
 
@@ -61,8 +61,8 @@ namespace Evergreen.Dialogs
 
         private void CreateClicked(object sender, EventArgs _)
         {
-            var name = entryBranchName.Text;
-            var checkout = checkCheckout.Active;
+            var name = _entryBranchName.Text;
+            var checkout = _checkCheckout.Active;
 
             if (string.IsNullOrWhiteSpace(name))
             {
@@ -89,20 +89,20 @@ namespace Evergreen.Dialogs
 
         private async void ShowError(string message)
         {
-            labelErrorText.Text = message;
-            labelErrorText.Visible = true;
+            _labelErrorText.Text = message;
+            _labelErrorText.Visible = true;
 
             await Task.Delay(3000).ConfigureAwait(false);
 
-            labelErrorText.Visible = false;
+            _labelErrorText.Visible = false;
         }
 
         private void Reset()
         {
-            labelErrorText.Text = null;
-            labelErrorText.Visible = false;
-            entryBranchName.Text = null;
-            checkCheckout.Active = false;
+            _labelErrorText.Text = null;
+            _labelErrorText.Visible = false;
+            _entryBranchName.Text = null;
+            _checkCheckout.Active = false;
         }
 
         protected virtual void OnBranchCreated(CreateBranchEventArgs e)
@@ -116,8 +116,8 @@ namespace Evergreen.Dialogs
         {
             base.Dispose();
 
-            btnCancel.Clicked -= CancelClicked;
-            btnCreate.Clicked -= CreateClicked;
+            _btnCancel.Clicked -= CancelClicked;
+            _btnCreate.Clicked -= CreateClicked;
         }
     }
 

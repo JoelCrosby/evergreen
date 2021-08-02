@@ -1,7 +1,6 @@
 using System;
 using System.IO;
 
-using Evergreen.Lib.Common;
 using Evergreen.Lib.Events;
 using Evergreen.Lib.Git;
 using Evergreen.Utils;
@@ -15,8 +14,8 @@ namespace Evergreen.Widgets
 {
     public class ChangedFiles : TreeWidget, IDisposable
     {
-        private TreeChanges changes;
-        private TreeStore store;
+        private TreeChanges _changes;
+        private TreeStore _store;
 
         public ChangedFiles(TreeView view, GitService git) : base(view, git)
         {
@@ -33,8 +32,6 @@ namespace Evergreen.Widgets
             View.FixedHeightMode = true;
             View.Selection.Mode = SelectionMode.Multiple;
         }
-
-        public TreeMode Mode { get; }
 
         public void Dispose()
         {
@@ -55,32 +52,27 @@ namespace Evergreen.Widgets
 
         private void UpdateList()
         {
-            changes = Git.GetChangedFiles();
+            _changes = Git.GetChangedFiles();
 
-            store = new TreeStore(
+            _store = new TreeStore(
                 typeof(string),
                 typeof(string)
             );
 
-            foreach (var change in changes)
+            foreach (var change in _changes)
             {
-                store.AppendValues(
+                _store.AppendValues(
                     GetFileLabel(change),
                     change.Path
                 );
             }
 
-            View.Model = store;
-        }
-
-        private void UpdateTree()
-        {
-            // TODO: Implement a tree view for files
+            View.Model = _store;
         }
 
         private void SelectFirst()
         {
-            store.GetIterFirst(out var iter);
+            _store.GetIterFirst(out var iter);
 
             var selected = View.GetSelected<string>();
 

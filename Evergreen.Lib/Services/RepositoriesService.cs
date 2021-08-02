@@ -13,10 +13,17 @@ namespace Evergreen.Lib.Services
 {
     public class RepositoriesService
     {
-        private int selectedRepoIndex;
-        private readonly List<GitService> repositories = new();
-        private GitService Repository => repositories.ElementAt(selectedRepoIndex);
-        private readonly RepositorySession session;
+        private int _selectedRepoIndex;
+
+        private readonly RepositorySession _session;
+        private readonly List<GitService> _repositories = new();
+
+        private GitService Repository => _repositories.ElementAt(_selectedRepoIndex);
+
+        public RepositoriesService()
+        {
+            _session = Sessions.LoadSession();
+        }
 
         public void OpenRepository(string path)
         {
@@ -27,10 +34,10 @@ namespace Evergreen.Lib.Services
                 return;
             }
 
-            repositories.Add(new GitService(path));
-            selectedRepoIndex = repositories.Count - 1;
+            _repositories.Add(new GitService(path));
+            _selectedRepoIndex = _repositories.Count - 1;
 
-            Sessions.SaveSession(session);
+            Sessions.SaveSession(_session);
         }
 
         public IEnumerable<CommitListItem> GetCommits()

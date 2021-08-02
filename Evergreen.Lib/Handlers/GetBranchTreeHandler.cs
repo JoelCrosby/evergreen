@@ -11,16 +11,16 @@ namespace Evergreen.Lib.Handlers
 {
     public class GetBranchTreeHandler : IRequestHandler<GetBranchTreeQuery, BranchTree>
     {
-        private readonly RepositoriesService repos;
+        private readonly RepositoriesService _repos;
 
         public GetBranchTreeHandler(RepositoriesService repositoriesService)
         {
-            repos = repositoriesService;
+            _repos = repositoriesService;
         }
 
-        public async Task<BranchTree> Handle(GetBranchTreeQuery request, CancellationToken cancellationToken)
+        public Task<BranchTree> Handle(GetBranchTreeQuery request, CancellationToken cancellationToken)
         {
-            return repos.GetBranchTree();
+            return Task.FromResult(_repos.GetBranchTree());
         }
     }
 }

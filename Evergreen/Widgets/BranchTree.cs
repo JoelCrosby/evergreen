@@ -17,7 +17,7 @@ namespace Evergreen.Widgets
     public class BranchTree : TreeWidget, IDisposable
     {
         private const string ChangesItemId = "[evergreen:changes]";
-        private TreeStore store;
+        private TreeStore _store;
 
         public BranchTree(TreeView view, GitService git) : base(view, git)
         {
@@ -63,7 +63,7 @@ namespace Evergreen.Widgets
         {
             var tree = Git.GetBranchTree();
 
-            store = new TreeStore(
+            _store = new TreeStore(
                 typeof(string),
                 typeof(string),
                 typeof(int),
@@ -93,7 +93,7 @@ namespace Evergreen.Widgets
                     }
                 }
 
-                var treeIter = store.AppendValues(
+                var treeIter = _store.AppendValues(
                     parentIter,
                     item.Label,
                     item.Name,
@@ -107,7 +107,7 @@ namespace Evergreen.Widgets
                 }
             }
 
-            var headIter = store.AppendValues(
+            var headIter = _store.AppendValues(
                 Git.GetRepositoryFriendlyName(),
                 "head",
                 Weight.Bold,
@@ -116,7 +116,7 @@ namespace Evergreen.Widgets
 
             var changeCount = Git.GetHeadDiffCount();
 
-            store.AppendValues(
+            _store.AppendValues(
                 headIter,
                 $"Changes ({changeCount})",
                 ChangesItemId,
@@ -124,7 +124,7 @@ namespace Evergreen.Widgets
                 BranchTreeItemType.Noop
             );
 
-            var branchesIter = store.AppendValues(
+            var branchesIter = _store.AppendValues(
                 "Branches",
                 "branches",
                 Weight.Bold,
@@ -136,7 +136,7 @@ namespace Evergreen.Widgets
                 AddTreeItems(branchesIter, b, BranchTreeItemType.Local);
             }
 
-            var remoteIter = store.AppendValues(
+            var remoteIter = _store.AppendValues(
                 "Remotes",
                 "remotes",
                 Weight.Bold,
@@ -148,7 +148,7 @@ namespace Evergreen.Widgets
                 AddTreeItems(remoteIter, b, BranchTreeItemType.Remote);
             }
 
-            View.Model = store;
+            View.Model = _store;
 
             View.ExpandAll();
             View.EnableSearch = true;

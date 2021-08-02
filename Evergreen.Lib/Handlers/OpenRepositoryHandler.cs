@@ -10,16 +10,16 @@ namespace Evergreen.Lib.Handlers
 {
     public class OpenRepositoryHandler : IRequestHandler<OpenRepositoryQuery>
     {
-        private readonly RepositoriesService repos;
+        private readonly RepositoriesService _repos;
 
         public OpenRepositoryHandler(RepositoriesService repos)
         {
-            this.repos = repos;
+            _repos = repos;
         }
 
         public Task<Unit> Handle(OpenRepositoryQuery request, CancellationToken cancellationToken)
         {
-            repos.OpenRepository(request.Path);
+            _repos.OpenRepository(request.Path);
 
             return Task.FromResult(Unit.Value);
         }

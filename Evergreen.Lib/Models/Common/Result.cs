@@ -4,7 +4,7 @@ namespace Evergreen.Lib.Models.Common
     {
         public bool IsSuccess { get; init; }
 
-        public string Message { get; set; }
+        public string? Message { get; init; }
 
         public static Result Success() => new()
         {
@@ -22,20 +22,26 @@ namespace Evergreen.Lib.Models.Common
     {
         public bool IsSuccess { get; init; }
 
-        public string Message { get; set; }
+        public string? Message { get; init; }
 
-        public T Payload { get; set; }
+        public T? Payload { get; init; }
 
-        public static Result<T> Success(T payload = default) => new()
+        public static Result<T> Success(T payload = default!)
         {
-            IsSuccess = true,
-            Payload = payload,
-        };
+            return new()
+            {
+                IsSuccess = true,
+                Payload = payload,
+            };
+        }
 
-        public static Result<T> Failed(string message) => new()
+        public static Result<T> Failed(string message)
         {
-            IsSuccess = false,
-            Message = message,
-        };
+            return new()
+            {
+                IsSuccess = false,
+                Message = message,
+            };
+        }
     }
 }

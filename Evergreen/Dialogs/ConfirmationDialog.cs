@@ -27,9 +27,8 @@ namespace Evergreen.Dialogs
             var box = dialog.Children.FirstOrDefault() as Box;
             var innerBox = box?.Children.LastOrDefault() as Box;
             var btnBox = innerBox?.Children.LastOrDefault() as ButtonBox;
-            var okBtn = btnBox?.Children.LastOrDefault() as Button;
 
-            if (okBtn is { })
+            if (btnBox?.Children.LastOrDefault() is Button { } okBtn)
             {
                 okBtn.Label = confirmLabel;
             }

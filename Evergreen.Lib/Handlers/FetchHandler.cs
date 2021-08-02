@@ -1,4 +1,4 @@
-﻿using System.Threading;
+using System.Threading;
 using System.Threading.Tasks;
 
 using Evergreen.Lib.Commands;
@@ -12,16 +12,16 @@ namespace Evergreen.Lib.Handlers
 {
     public class FetchHandler : IRequestHandler<FetchCommand, Result<ExecResult>>
     {
-        private readonly RepositoriesService repos;
+        private readonly RepositoriesService _repos;
 
         public FetchHandler(RepositoriesService repositoriesService)
         {
-            repos = repositoriesService;
+            _repos = repositoriesService;
         }
 
-        public async Task<Result<ExecResult>> Handle(FetchCommand command, CancellationToken cancellationToken)
+        public async Task<Result<ExecResult>> Handle(FetchCommand request, CancellationToken cancellationToken)
         {
-            return await repos.Fetch().ConfigureAwait(false);
+            return await _repos.Fetch().ConfigureAwait(false);
         }
     }
 }

@@ -1,3 +1,4 @@
+using System;
 using System.Diagnostics;
 using System.IO;
 using System.Text.Json;
@@ -18,11 +19,6 @@ namespace Evergreen.Lib.Configuration
 
         public static void SaveSession(RepositorySession session)
         {
-            if (session is null)
-            {
-                return;
-            }
-
             var sessionCachePath = GetSessionCachePath();
             var sessionJson = JsonSerializer.Serialize(session, JsonSerializerOptions);
 
@@ -50,8 +46,9 @@ namespace Evergreen.Lib.Configuration
             try
             {
                 var contents = File.ReadAllText(sessionCachePath);
+                var session = JsonSerializer.Deserialize<RepositorySession>(contents, JsonSerializerOptions);
 
-                return JsonSerializer.Deserialize<RepositorySession>(contents, JsonSerializerOptions);
+                return session ?? throw new Exception("unable to read session state config");
             }
             catch
             {

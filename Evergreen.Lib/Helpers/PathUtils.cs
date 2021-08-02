@@ -64,6 +64,11 @@ namespace Evergreen.Lib.Helpers
         {
             var home = GetHomeFolder();
 
+            if (home is null)
+            {
+                throw new Exception("unable to get user home directory path");
+            }
+
             if (path.StartsWith(home, false, CultureInfo.InvariantCulture))
             {
                 return $"~{path[home.Length..]}";

@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Globalization;
 using System.Linq;
 
 using Evergreen.Lib.Git;
@@ -15,7 +16,7 @@ namespace Evergreen.Widgets
 {
     public class CommitList : TreeWidget, IDisposable
     {
-        private TreeStore store;
+        private TreeStore _store;
 
         private enum Column
         {
@@ -58,7 +59,7 @@ namespace Evergreen.Widgets
 
             var commits = Git.GetCommits();
 
-            Console.WriteLine("GetCommits {0}ms", sw.ElapsedMilliseconds);
+            Debug.WriteLine("GetCommits {0}ms", sw.ElapsedMilliseconds);
 
             sw.Restart();
 
@@ -71,16 +72,16 @@ namespace Evergreen.Widgets
             var headDict = heads.Aggregate(
                 new Dictionary<string, List<string>>(), (a, c) =>
                 {
-                    if (a.TryGetValue(c.sha, out var item))
+                    if (a.TryGetValue(c.Sha, out var item))
                     {
-                        item.Add(c.label);
+                        item.Add(c.FriendlyName);
                     }
                     else
                     {
                         a.Add(
-                            c.sha, new List<string>
+                            c.Sha, new List<string>
                             {
-                                c.label,
+                                c.FriendlyName,
                             }
                         );
                     }
@@ -89,11 +90,11 @@ namespace Evergreen.Widgets
                 }
             );
 
-            Console.WriteLine("build headDict {0}ms", sw.ElapsedMilliseconds);
+            Debug.WriteLine("build headDict {0}ms", sw.ElapsedMilliseconds);
 
             sw.Reset();
 
-            store = new TreeStore(
+            _store = new TreeStore(
                 typeof(string),
                 typeof(string),
                 typeof(string),
@@ -118,13 +119,13 @@ namespace Evergreen.Widgets
                 var hasValue = headDict.TryGetValue(commit.Sha, out var branches);
                 var branchLabel = BranchLabel(hasValue, branches);
 
-                var commitDate = commit.Author.When.ToString("dd MMM yyyy HH:mm");
+                var commitDate = commit.Author.When.ToString("dd MMM yyyy HH:mm", CultureInfo.InvariantCulture);
                 var author = commit.Author.Name;
                 var message = CommitMessageShort(branchLabel, commit);
                 var sha = commit.Sha[..7];
                 var id = commit.Id.Sha;
 
-                store.AppendValues(
+                _store.AppendValues(
                     message,
                     author,
                     sha,
@@ -133,9 +134,9 @@ namespace Evergreen.Widgets
                 );
             }
 
-            Console.WriteLine("store AppendValues {0}ms", sw.ElapsedMilliseconds);
+            Debug.WriteLine("store AppendValues {0}ms", sw.ElapsedMilliseconds);
 
-            View.Model = store;
+            View.Model = _store;
         }
 
         private void CommitListCursorChanged(object sender, EventArgs args)

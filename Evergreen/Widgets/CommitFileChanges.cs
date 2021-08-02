@@ -12,19 +12,19 @@ namespace Evergreen.Widgets
 {
     public class CommitFileChanges
     {
-        private readonly SourceView view;
+        private readonly SourceView _view;
 
-        private string currentCommitId;
-        private string currentPath;
+        private string _currentCommitId;
+        private string _currentPath;
 
         public CommitFileChanges(SourceView view)
         {
-            this.view = view;
-            this.view.Visible = true;
+            _view = view;
+            _view.Visible = true;
 
             Clear();
 
-            this.view.SetMarkAttributes(
+            _view.SetMarkAttributes(
                 "Inserted", new MarkAttributes
                 {
                     IconName = "list-add",
@@ -38,7 +38,7 @@ namespace Evergreen.Widgets
                 }, 10
             );
 
-            this.view.SetMarkAttributes(
+            _view.SetMarkAttributes(
                 "Deleted", new MarkAttributes
                 {
                     IconName = "list-remove",
@@ -52,7 +52,7 @@ namespace Evergreen.Widgets
                 }, 10
             );
 
-            this.view.SetMarkAttributes(
+            _view.SetMarkAttributes(
                 "Modified", new MarkAttributes
                 {
                     Background = new RGBA
@@ -68,7 +68,7 @@ namespace Evergreen.Widgets
 
         public bool Render(DiffPaneModel diff, string commitId, string path)
         {
-            if (currentCommitId == commitId && currentPath == path)
+            if (_currentCommitId == commitId && _currentPath == path)
             {
                 return false;
             }
@@ -78,32 +78,32 @@ namespace Evergreen.Widgets
                 return false;
             }
 
-            currentCommitId = commitId;
-            currentPath = path;
+            _currentCommitId = commitId;
+            _currentPath = path;
 
-            view.Buffer = CreateBuffer();
+            _view.Buffer = CreateBuffer();
 
             var buffer = diff.Lines.Aggregate(new StringBuilder(), (b, l) => b.AppendLine(l.Text));
 
-            view.IsMapped = true;
-            view.Buffer.Language = GetLanguage(path);
-            view.Buffer.Text = buffer.ToString();
+            _view.IsMapped = true;
+            _view.Buffer.Language = GetLanguage(path);
+            _view.Buffer.Text = buffer.ToString();
 
             Mark firstMark = null;
 
             for (var i = 0; i < diff.Lines.Count; i++)
             {
                 var line = diff.Lines[i];
-                var lineIter = view.Buffer.GetIterAtLine(i);
+                var lineIter = _view.Buffer.GetIterAtLine(i);
 
                 var mark = line.Type switch
                 {
                     ChangeType.Inserted =>
-                        view.Buffer.CreateSourceMark($"{i}", "Inserted", lineIter),
+                        _view.Buffer.CreateSourceMark($"{i}", "Inserted", lineIter),
                     ChangeType.Deleted =>
-                        view.Buffer.CreateSourceMark($"{i}", "Deleted", lineIter),
+                        _view.Buffer.CreateSourceMark($"{i}", "Deleted", lineIter),
                     ChangeType.Modified =>
-                        view.Buffer.CreateSourceMark($"{i}", "Modified", lineIter),
+                        _view.Buffer.CreateSourceMark($"{i}", "Modified", lineIter),
                     _ => null,
                 };
 
@@ -125,7 +125,7 @@ namespace Evergreen.Widgets
 
         public bool Clear()
         {
-            view.Buffer = CreateBuffer();
+            _view.Buffer = CreateBuffer();
 
             return true;
         }

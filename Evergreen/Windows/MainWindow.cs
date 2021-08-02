@@ -20,26 +20,26 @@ namespace Evergreen.Windows
     {
 #pragma warning disable 0649
 
-        [UI] private readonly Button openRepo;
-        [UI] private readonly Button fetch;
-        [UI] private readonly Button pull;
-        [UI] private readonly Button push;
-        [UI] private readonly Button btnCreateBranch;
-        [UI] private readonly Button search;
-        [UI] private readonly Button about;
-        [UI] private readonly Button closeRepo;
-        [UI] private readonly HeaderBar headerBar;
-        [UI] private readonly SearchBar searchBar;
-        [UI] private readonly Spinner spinner;
-        [UI] private readonly Notebook repoNotebook;
+        [UI] private readonly Button _openRepo;
+        [UI] private readonly Button _fetch;
+        [UI] private readonly Button _pull;
+        [UI] private readonly Button _push;
+        [UI] private readonly Button _btnCreateBranch;
+        [UI] private readonly Button _search;
+        [UI] private readonly Button _about;
+        [UI] private readonly Button _closeRepo;
+        [UI] private readonly HeaderBar _headerBar;
+        [UI] private readonly SearchBar _searchBar;
+        [UI] private readonly Spinner _spinner;
+        [UI] private readonly Notebook _repoNotebook;
 
 #pragma warning restore 064
 
-        private int selectedRepoIndex;
-        private readonly List<Repository> repositories = new();
-        private Repository Repository => repositories.ElementAtOrDefault(selectedRepoIndex);
-        private readonly RepositorySession session;
-        private readonly AboutDialog aboutDialog = new();
+        private int _selectedRepoIndex;
+        private readonly List<Repository> _repositories = new();
+        private Repository Repository => _repositories.ElementAtOrDefault(_selectedRepoIndex);
+        private readonly RepositorySession _session;
+        private readonly AboutDialog _aboutDialog = new();
 
         public MainWindow() : this(new Builder("main.ui")) { }
 
@@ -50,27 +50,27 @@ namespace Evergreen.Windows
             // Gtk widget events
             DeleteEvent += WindowDeleteEvent;
             FocusInEvent += WindowFocusGrabbed;
-            openRepo.Clicked += OpenRepoClicked;
-            closeRepo.Clicked += CloseRepoClicked;
-            fetch.Clicked += FetchClicked;
-            pull.Clicked += PullClicked;
-            push.Clicked += PushClicked;
-            search.Clicked += SearchClicked;
-            about.Clicked += AboutClicked;
-            btnCreateBranch.Clicked += CreateBranchClicked;
-            repoNotebook.SwitchPage += RepoTabChanged;
+            _openRepo.Clicked += OpenRepoClicked;
+            _closeRepo.Clicked += CloseRepoClicked;
+            _fetch.Clicked += FetchClicked;
+            _pull.Clicked += PullClicked;
+            _push.Clicked += PushClicked;
+            _search.Clicked += SearchClicked;
+            _about.Clicked += AboutClicked;
+            _btnCreateBranch.Clicked += CreateBranchClicked;
+            _repoNotebook.SwitchPage += RepoTabChanged;
 
             // Set the clientside header bar
-            Titlebar = headerBar;
+            Titlebar = _headerBar;
 
-            session = Sessions.LoadSession();
+            _session = Sessions.LoadSession();
 
             OpenRepository();
         }
 
         private void WindowDeleteEvent(object sender, DeleteEventArgs a)
         {
-            Sessions.SaveSession(session);
+            Sessions.SaveSession(_session);
             Application.Quit();
         }
 
@@ -78,7 +78,7 @@ namespace Evergreen.Windows
 
         private void OpenRepository()
         {
-            if (session.Paths.Count == 0)
+            if (_session.Paths.Count == 0)
             {
                 ToggleRepositoryButtons(false);
                 return;
@@ -86,9 +86,9 @@ namespace Evergreen.Windows
 
             ToggleRepositoryButtons(true);
 
-            var paths = repositories.Select(r => r.Path).ToHashSet();
+            var paths = _repositories.Select(r => r.Path).ToHashSet();
 
-            foreach (var path in session.Paths)
+            foreach (var path in _session.Paths)
             {
                 if (paths.Contains(path))
                 {
@@ -103,9 +103,9 @@ namespace Evergreen.Windows
                 var repo = new Repository(path);
                 var tabLabel = repo.Git.GetRepositoryFriendlyName();
 
-                repositories.Add(repo);
+                _repositories.Add(repo);
 
-                repoNotebook.AppendPage(
+                _repoNotebook.AppendPage(
                     repo, new Label
                     {
                         Text = tabLabel,
@@ -116,22 +116,22 @@ namespace Evergreen.Windows
                 SetPanedPositions(repo);
             }
 
-            selectedRepoIndex = repositories.Count - 1;
-            repoNotebook.Page = selectedRepoIndex;
+            _selectedRepoIndex = _repositories.Count - 1;
+            _repoNotebook.Page = _selectedRepoIndex;
 
             UpdateHeaderBar();
 
-            Sessions.SaveSession(session);
+            Sessions.SaveSession(_session);
         }
 
         private void ToggleRepositoryButtons(bool isEnabled)
         {
-            fetch.Sensitive = isEnabled;
-            pull.Sensitive = isEnabled;
-            push.Sensitive = isEnabled;
-            btnCreateBranch.Sensitive = isEnabled;
-            search.Sensitive = isEnabled;
-            about.Sensitive = isEnabled;
+            _fetch.Sensitive = isEnabled;
+            _pull.Sensitive = isEnabled;
+            _push.Sensitive = isEnabled;
+            _btnCreateBranch.Sensitive = isEnabled;
+            _search.Sensitive = isEnabled;
+            _about.Sensitive = isEnabled;
         }
 
         private void SetPanedPositions(Repository repo)
@@ -146,13 +146,13 @@ namespace Evergreen.Windows
             var repoName = Repository.Git.GetRepositoryFriendlyName();
 
             Title = repoName;
-            headerBar.Title = repoName;
-            headerBar.Subtitle = Repository.Git.GetFriendlyPath();
+            _headerBar.Title = repoName;
+            _headerBar.Subtitle = Repository.Git.GetFriendlyPath();
         }
 
         private void RepoTabChanged(object o, SwitchPageArgs args)
         {
-            selectedRepoIndex = (int)args.PageNum;
+            _selectedRepoIndex = (int)args.PageNum;
 
             UpdateHeaderBar();
 
@@ -172,7 +172,7 @@ namespace Evergreen.Windows
                     return;
                 }
 
-                session.Paths.Add(path);
+                _session.Paths.Add(path);
 
                 OpenRepository();
             }
@@ -182,19 +182,19 @@ namespace Evergreen.Windows
 
         private void CloseRepoClicked(object sender, EventArgs _)
         {
-            if (repositories.Count == 0)
+            if (_repositories.Count == 0)
             {
                 return;
             }
 
             Repository.Dispose();
-            repositories.RemoveAt(selectedRepoIndex);
+            _repositories.RemoveAt(_selectedRepoIndex);
 
-            repoNotebook.RemovePage(selectedRepoIndex);
+            _repoNotebook.RemovePage(_selectedRepoIndex);
 
-            session.Paths.RemoveAt(selectedRepoIndex);
+            _session.Paths.RemoveAt(_selectedRepoIndex);
 
-            Sessions.SaveSession(session);
+            Sessions.SaveSession(_session);
         }
 
         private void FetchClicked(object sender, EventArgs e) =>
@@ -203,22 +203,22 @@ namespace Evergreen.Windows
         private void PullClicked(object sender, EventArgs e) => ShowProgress(() => Repository?.PullClicked(sender, e));
 
         private void SearchClicked(object sender, EventArgs _) =>
-            searchBar.SearchModeEnabled = !searchBar.SearchModeEnabled;
+            _searchBar.SearchModeEnabled = !_searchBar.SearchModeEnabled;
 
         private void PushClicked(object sender, EventArgs e) => ShowProgress(() => Repository?.PushClicked(sender, e));
 
-        private void AboutClicked(object sender, EventArgs _) => aboutDialog.Show();
+        private void AboutClicked(object sender, EventArgs _) => _aboutDialog.Show();
 
         private void CreateBranchClicked(object sender, EventArgs e) => Repository?.CreateBranchClicked(sender, e);
 
         private void ShowProgress(Action action)
         {
-            spinner.Active = true;
-            spinner.Show();
+            _spinner.Active = true;
+            _spinner.Show();
 
             action();
 
-            spinner.Hide();
+            _spinner.Hide();
         }
     }
 }

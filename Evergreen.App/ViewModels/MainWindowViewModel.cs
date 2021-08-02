@@ -1,4 +1,4 @@
-using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Threading.Tasks;
 
 using Avalonia.Media;
@@ -17,37 +17,37 @@ namespace Evergreen.App.ViewModels
 {
     public class MainWindowViewModel : ViewModelBase
     {
-        private readonly IMediator mediator;
+        private readonly IMediator _mediator;
 
-        private IEnumerable<CommitListItem> commits;
-        public IEnumerable<CommitListItem> Commits
+        private ObservableCollection<CommitListItem> _commits = new();
+        public ObservableCollection<CommitListItem> Commits
         {
-            get => commits;
-            set => this.RaiseAndSetIfChanged(ref commits, value);
+            get => _commits;
+            set => this.RaiseAndSetIfChanged(ref _commits, value);
         }
 
-        private IEnumerable<BranchTreeItem> local;
-        public IEnumerable<BranchTreeItem> Local
+        private ObservableCollection<BranchTreeItem> _local = new();
+        public ObservableCollection<BranchTreeItem> Local
         {
-            get => local;
-            set => this.RaiseAndSetIfChanged(ref local, value);
+            get => _local;
+            set => this.RaiseAndSetIfChanged(ref _local, value);
         }
 
-        private IEnumerable<BranchTreeItem> remote;
-        public IEnumerable<BranchTreeItem> Remote
+        private ObservableCollection<BranchTreeItem> _remote = new();
+        public ObservableCollection<BranchTreeItem> Remote
         {
-            get => remote;
-            set => this.RaiseAndSetIfChanged(ref remote, value);
+            get => _remote;
+            set => this.RaiseAndSetIfChanged(ref _remote, value);
         }
 
-        public string RepositoryName { get; set; }
+        public string? RepositoryName { get; set; }
 
         public ReactiveCommand<string, Unit> OpenCommand { get; }
         public ReactiveCommand<Unit, Unit> FetchCommand { get; }
 
         public MainWindowViewModel(IMediator mediator)
         {
-            this.mediator = mediator;
+            _mediator = mediator;
 
             OpenCommand = ReactiveCommand.CreateFromTask<string>(Open);
             FetchCommand = ReactiveCommand.CreateFromTask(Fetch);
@@ -55,13 +55,13 @@ namespace Evergreen.App.ViewModels
 
         private async Task Open(string path)
         {
-            await mediator.Send(new OpenRepositoryQuery(path));
+            await _mediator.Send(new OpenRepositoryQuery(path));
             await Refresh();
         }
 
         public async Task Fetch()
         {
-            var result = await mediator.Send(new FetchCommand()).ConfigureAwait(false);
+            var result = await _mediator.Send(new FetchCommand()).ConfigureAwait(false);
 
             if (result.IsSuccess)
             {
@@ -71,15 +71,15 @@ namespace Evergreen.App.ViewModels
 
         private async Task Refresh()
         {
-            var branchTree = await mediator.Send(new GetBranchTreeQuery());
+            var branchTree = await _mediator.Send(new GetBranchTreeQuery());
 
-            Commits = await mediator.Send(new GetCommitsQuery());
-            Local = new List<BranchTreeItem>
+            Commits = new ObservableCollection<CommitListItem>(await _mediator.Send(new GetCommitsQuery()));
+            Local = new ObservableCollection<BranchTreeItem>
             {
                 new BranchTreeItem("Repository", FontWeight.ExtraBold)
                     .SetChildren(branchTree.Local)
             };
-            Remote = new List<BranchTreeItem>
+            Remote = new ObservableCollection<BranchTreeItem>
             {
                 new BranchTreeItem("Remotes", FontWeight.ExtraBold)
                     .SetChildren(branchTree.Remote)

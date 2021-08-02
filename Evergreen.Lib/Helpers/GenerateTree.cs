@@ -10,17 +10,14 @@ namespace Evergreen.Lib.Helpers
             this IEnumerable<T> collection,
             Func<T, TK> idSelector,
             Func<T, TK> parentIdSelector,
-            TK rootId = default)
+            TK rootId = default!)
         {
-            var tree = collection.Where(c => parentIdSelector(c).Equals(rootId)).Select(
-                c => new TreeItem<T>
-                {
-                    Item = c,
-                    Children = collection.GenerateTree(idSelector, parentIdSelector, idSelector(c)),
-                }
-            );
+            var list = collection.ToList();
 
-            return tree.OrderBy(l => l.Children.Any());
+            return list
+                .Where(c => parentIdSelector(c)?.Equals(rootId) ?? false)
+                .Select(c => new TreeItem<T>(c, list.GenerateTree(idSelector, parentIdSelector, idSelector(c))))
+                .OrderBy(l => l.Children.Any());
         }
     }
 }

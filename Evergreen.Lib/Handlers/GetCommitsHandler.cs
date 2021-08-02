@@ -12,16 +12,16 @@ namespace Evergreen.Lib.Handlers
 {
     public class GetCommitsHandler : IRequestHandler<GetCommitsQuery, IEnumerable<CommitListItem>>
     {
-        private readonly RepositoriesService repos;
+        private readonly RepositoriesService _repos;
 
         public GetCommitsHandler(RepositoriesService repos)
         {
-            this.repos = repos;
+            _repos = repos;
         }
 
-        public async Task<IEnumerable<CommitListItem>> Handle(GetCommitsQuery request, CancellationToken cancellationToken)
+        public Task<IEnumerable<CommitListItem>> Handle(GetCommitsQuery request, CancellationToken cancellationToken)
         {
-            return repos.GetCommits();
+            return Task.FromResult(_repos.GetCommits());
         }
     }
 }

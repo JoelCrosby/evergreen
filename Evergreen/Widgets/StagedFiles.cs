@@ -15,8 +15,8 @@ namespace Evergreen.Widgets
 {
     public class StagedFiles : TreeWidget, IDisposable
     {
-        private IEnumerable<StatusEntry> changes;
-        private TreeStore store;
+        private IEnumerable<StatusEntry> _changes;
+        private TreeStore _store;
 
         public StagedFiles(TreeView view, GitService git) : base(view, git)
         {
@@ -45,22 +45,22 @@ namespace Evergreen.Widgets
 
         public bool Update()
         {
-            changes = Git.GetStagedFiles();
+            _changes = Git.GetStagedFiles();
 
-            store = new TreeStore(
+            _store = new TreeStore(
                 typeof(string),
                 typeof(string)
             );
 
-            foreach (var change in changes)
+            foreach (var change in _changes)
             {
-                store.AppendValues(
+                _store.AppendValues(
                     GetFileLabel(change),
                     change.FilePath
                 );
             }
 
-            View.Model = store;
+            View.Model = _store;
 
             return true;
         }
