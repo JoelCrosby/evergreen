@@ -1,4 +1,4 @@
-using Evergreen.Lib.Git;
+using Evergreen.Core.Git;
 
 using Gtk;
 

@@ -2,9 +2,9 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 
-using Evergreen.Lib.Configuration;
-using Evergreen.Lib.Git;
-using Evergreen.Lib.Session;
+using Evergreen.Core.Configuration;
+using Evergreen.Core.Git;
+using Evergreen.Core.Session;
 using Evergreen.Utils;
 using Evergreen.Widgets;
 

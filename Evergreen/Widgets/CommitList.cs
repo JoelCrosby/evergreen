@@ -4,7 +4,7 @@ using System.Diagnostics;
 using System.Globalization;
 using System.Linq;
 
-using Evergreen.Lib.Git;
+using Evergreen.Core.Git;
 using Evergreen.Utils;
 using Evergreen.Widgets.Common;
 

@@ -1,8 +1,8 @@
 using System;
 using System.IO;
 
-using Evergreen.Lib.Events;
-using Evergreen.Lib.Git;
+using Evergreen.Core.Events;
+using Evergreen.Core.Git;
 using Evergreen.Utils;
 using Evergreen.Widgets.Common;
 

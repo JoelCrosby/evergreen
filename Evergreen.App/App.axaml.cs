@@ -6,8 +6,8 @@ using Avalonia.Markup.Xaml;
 
 using Evergreen.App.ViewModels;
 using Evergreen.App.Views;
-using Evergreen.Lib.Git;
-using Evergreen.Lib.Services;
+using Evergreen.Core.Git;
+using Evergreen.Core.Services;
 
 using MediatR;
 

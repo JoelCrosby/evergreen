@@ -1,9 +1,9 @@
 using System;
 using System.Threading.Tasks;
 
-using Evergreen.Lib.Git;
-using Evergreen.Lib.Models;
-using Evergreen.Lib.Models.Common;
+using Evergreen.Core.Git;
+using Evergreen.Core.Models;
+using Evergreen.Core.Models.Common;
 
 using Gtk;
 

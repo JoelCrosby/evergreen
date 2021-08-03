@@ -24,7 +24,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Evergreen.Lib\Evergreen.Lib.csproj" />
+    <ProjectReference Include="..\Evergreen.Core\Evergreen.Core.csproj" />
   </ItemGroup>
 
 </Project>

@@ -1,7 +1,7 @@
 using System;
 using System.IO;
 
-using Evergreen.Lib.Helpers;
+using Evergreen.Core.Helpers;
 using Evergreen.Windows;
 
 using GLib;

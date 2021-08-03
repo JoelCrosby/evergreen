@@ -1,8 +1,8 @@
 using System;
 using System.Linq;
 
-using Evergreen.Lib.Git;
-using Evergreen.Lib.Git.Models;
+using Evergreen.Core.Git;
+using Evergreen.Core.Git.Models;
 using Evergreen.Utils;
 using Evergreen.Widgets.Common;
 

@@ -1,7 +1,7 @@
 using System;
 using System.IO;
 
-using Evergreen.Lib.Git;
+using Evergreen.Core.Git;
 using Evergreen.Utils;
 using Evergreen.Widgets.Common;
 

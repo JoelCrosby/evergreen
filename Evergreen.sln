@@ -1,11 +1,10 @@
-
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 16
 VisualStudioVersion = 16.0.31515.178
 MinimumVisualStudioVersion = 15.0.26124.0
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Evergreen", "Evergreen\Evergreen.csproj", "{E8442D0C-22FD-43F7-9CDD-201C2ABC0F5F}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Evergreen.Lib", "Evergreen.Lib\Evergreen.Lib.csproj", "{BA1BDD4E-211A-491D-AC76-42525150CE9F}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Evergreen.Core", "Evergreen.Core\Evergreen.Core.csproj", "{BA1BDD4E-211A-491D-AC76-42525150CE9F}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Evergreen.App", "Evergreen.App\Evergreen.App.csproj", "{25238D37-35DF-421F-BEF3-9E1FCB0CCF8C}"
 EndProject

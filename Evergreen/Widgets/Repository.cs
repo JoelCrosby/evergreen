@@ -4,8 +4,8 @@ using System.Linq;
 using System.Threading.Tasks;
 
 using Evergreen.Dialogs;
-using Evergreen.Lib.Events;
-using Evergreen.Lib.Git;
+using Evergreen.Core.Events;
+using Evergreen.Core.Git;
 using Evergreen.Utils;
 
 using Gtk;

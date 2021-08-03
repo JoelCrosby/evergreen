@@ -3,10 +3,10 @@ using System.Threading.Tasks;
 
 using Avalonia.Media;
 
-using Evergreen.Lib.Commands;
-using Evergreen.Lib.Git.Models;
-using Evergreen.Lib.Models;
-using Evergreen.Lib.Queries;
+using Evergreen.Core.Commands;
+using Evergreen.Core.Git.Models;
+using Evergreen.Core.Models;
+using Evergreen.Core.Queries;
 
 using MediatR;
 
