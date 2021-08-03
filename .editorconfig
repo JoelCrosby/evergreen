@@ -125,13 +125,13 @@ csharp_style_var_for_built_in_types = true:warning
 csharp_style_var_when_type_is_apparent = true:warning
 csharp_style_var_elsewhere = true:warning
 # Expression-bodied members
-csharp_style_expression_bodied_methods = false:suggestion
+csharp_style_expression_bodied_methods = false:silent
 csharp_style_expression_bodied_constructors = false:suggestion
 csharp_style_expression_bodied_operators = false:suggestion
-csharp_style_expression_bodied_properties = false:suggestion
+csharp_style_expression_bodied_properties = false:none
 csharp_style_expression_bodied_indexers = false:suggestion
-csharp_style_expression_bodied_accessors = false:suggestion
-csharp_style_expression_bodied_lambdas = false:suggestion
+csharp_style_expression_bodied_accessors = false:none
+csharp_style_expression_bodied_lambdas = false:none
 csharp_style_expression_bodied_local_functions = false:suggestion
 # Pattern matching preferences
 csharp_style_pattern_matching_over_is_with_cast_check = true:warning
@@ -404,3 +404,15 @@ dotnet_naming_rule.parameters_rule.severity             = warning
 
 # IDE0055: Fix formatting
 dotnet_diagnostic.IDE0055.severity = none
+
+# IDE0053: Use block body for lambda expressions
+dotnet_diagnostic.IDE0053.severity = none
+
+# IDE0027: Use block body for accessors
+dotnet_diagnostic.IDE0027.severity = none
+
+# IDE0022: Use block body for methods
+dotnet_diagnostic.IDE0022.severity = none
+
+# IDE0025: Use block body for properties
+dotnet_diagnostic.IDE0025.severity = none

@@ -43,6 +43,11 @@ namespace Evergreen.Widgets
 
             _commitChanges = Git.GetCommitFiles(commitOid);
 
+            if (_commitChanges is null)
+            {
+                return false;
+            }
+
             _store = new TreeStore(
                 typeof(string),
                 typeof(string)

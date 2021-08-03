@@ -6,7 +6,7 @@ using Avalonia.ReactiveUI;
 
 using Evergreen.App.ViewModels;
 
-using JetBrains.Annotations;
+// ReSharper disable UnusedParameter.Local
 
 namespace Evergreen.App.Views
 {
@@ -27,7 +27,7 @@ namespace Evergreen.App.Views
 
         private void InitializeComponent() => AvaloniaXamlLoader.Load(this);
 
-        private async void OpenRepoClicked([CanBeNull] object? _, RoutedEventArgs __)
+        private async void OpenRepoClicked(object? sender, RoutedEventArgs args)
         {
             var dialog = new OpenFolderDialog
             {

@@ -40,7 +40,7 @@ namespace Evergreen.Widgets
 
 #pragma warning restore 064
 
-        public string Path { get; }
+        public string WorkingDir { get; }
         public GitService Git { get; set; }
 
         private BranchTree _branchTreeWidget;
@@ -58,20 +58,20 @@ namespace Evergreen.Widgets
 
         private Stopwatch _focusedTimer;
 
-        public Repository(string path) : this(path, new Builder("repository.ui")) { }
+        public Repository(string workingDir) : this(workingDir, new Builder("repository.ui")) { }
 
-        private Repository(string path, Builder builder) : base(builder.GetObject("repository").Handle)
+        private Repository(string workingDir, Builder builder) : base(builder.GetObject("repository").Handle)
         {
             builder.Autoconnect(this);
 
-            Path = path;
+            WorkingDir = workingDir;
 
             _commitFileSourceView = BuildDiffView(_commitFilesDiffPanned);
             _changesFileSourceView = BuildDiffView(_changesSourceBox);
 
             _commit.Clicked += CommitClicked;
 
-            RenderSession(path);
+            RenderSession(workingDir);
         }
 
         public async void OnFocus()
@@ -155,6 +155,8 @@ namespace Evergreen.Widgets
                 case Box box:
                     box.PackStart(scroller, true, true, 0);
                     break;
+                default:
+                    return sourceView;
             }
 
             return sourceView;

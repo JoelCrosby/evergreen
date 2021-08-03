@@ -60,7 +60,7 @@ namespace Evergreen.Windows
             _btnCreateBranch.Clicked += CreateBranchClicked;
             _repoNotebook.SwitchPage += RepoTabChanged;
 
-            // Set the clientside header bar
+            // Set the client side header bar
             Titlebar = _headerBar;
 
             _session = Sessions.LoadSession();
@@ -86,7 +86,7 @@ namespace Evergreen.Windows
 
             ToggleRepositoryButtons(true);
 
-            var paths = _repositories.Select(r => r.Path).ToHashSet();
+            var paths = _repositories.Select(r => r.WorkingDir).ToHashSet();
 
             foreach (var path in _session.Paths)
             {
