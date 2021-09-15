@@ -98,7 +98,7 @@ namespace Evergreen.Widgets
             );
         }
 
-        protected virtual void OnCommitFileSelected(CommitFileSelectedEventArgs e) =>
+        private void OnCommitFileSelected(CommitFileSelectedEventArgs e) =>
             CommitFileSelected?.Invoke(this, e);
 
         private static string GetFileLabel(TreeEntryChanges change)

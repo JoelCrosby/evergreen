@@ -156,7 +156,7 @@ namespace Evergreen.Widgets
             );
         }
 
-        protected virtual void OnCommitSelected(CommitSelectedEventArgs e) => CommitSelected?.Invoke(this, e);
+        private void OnCommitSelected(CommitSelectedEventArgs e) => CommitSelected?.Invoke(this, e);
     }
 
     public class CommitSelectedEventArgs : EventArgs

@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Linq;
 
 using Avalonia.Media;
 
@@ -22,17 +23,17 @@ namespace Evergreen.Core.Git.Models
 
         public FontWeight FontWeight { get; init; } = FontWeight.Regular;
 
-        public IEnumerable<BranchTreeItem> Children { get; private set; }
+        public IEnumerable<BranchTreeItem> Children { get; private set; } = new List<BranchTreeItem>();
 
-        public BranchTreeItem(string label, FontWeight weight)
+        public BranchTreeItem() {}
+
+        public BranchTreeItem(string label, FontWeight weight, IEnumerable<BranchTreeItem> children)
         {
             Label = label;
             Name = label.ToLowerInvariant();
             FontWeight = weight;
-            Children = new List<BranchTreeItem>();
+            Children = children.ToList();
         }
-
-        public BranchTreeItem() => Children = new List<BranchTreeItem>();
 
         public BranchTreeItem SetChildren(IEnumerable<BranchTreeItem> children)
         {

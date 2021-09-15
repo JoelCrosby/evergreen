@@ -20,23 +20,56 @@ namespace Evergreen.Widgets
     {
 #pragma warning disable 0649
 
-        [UI] private readonly TreeView _branchTree;
-        [UI] private readonly TreeView _commitList;
-        [UI] private readonly TreeView _stagedList;
-        [UI] private readonly TreeView _changedList;
-        [UI] private readonly Button _commit;
-        [UI] private readonly Entry _commitMessage;
-        [UI] private readonly TreeView _commitFiles;
-        [UI] private readonly Label _commitShaLabel;
-        [UI] private readonly Label _commitFileLabel;
-        [UI] private readonly Label _commitAuthorLabel;
-        [UI] private readonly InfoBar _infoBar;
-        [UI] private readonly Label _infoMessage;
-        [UI] private readonly Paned _commitFilesDiffPanned;
-        [UI] private readonly Paned _commitsListView;
-        [UI] private readonly Paned _changesListView;
-        [UI] private readonly Box _changesSourceBox;
-        [UI] private readonly Stack _changesViewStack;
+        [UI("branchTree")]
+        private readonly TreeView _branchTree;
+
+        [UI("commitList")]
+        private readonly TreeView _commitList;
+
+        [UI("stagedList")]
+        private readonly TreeView _stagedList;
+
+        [UI("changedList")]
+        private readonly TreeView _changedList;
+
+        [UI("commit")]
+        private readonly Button _commit;
+
+        [UI("commitMessage")]
+        private readonly Entry _commitMessage;
+
+        [UI("commitFiles")]
+        private readonly TreeView _commitFiles;
+
+        [UI("commitShaLabel")]
+        private readonly Label _commitShaLabel;
+
+        [UI("commitFileLabel")]
+        private readonly Label _commitFileLabel;
+
+        [UI("commitAuthorLabel")]
+        private readonly Label _commitAuthorLabel;
+
+        [UI("infoBar")]
+        private readonly InfoBar _infoBar;
+
+        [UI("infoMessage")]
+        private readonly Label _infoMessage;
+
+        [UI("commitFilesDiffPanned")]
+        private readonly Paned _commitFilesDiffPanned;
+
+        [UI("commitsListView")]
+        private readonly Paned _commitsListView;
+
+        [UI("changesListView")]
+        private readonly Paned _changesListView;
+
+        [UI("changesSourceBox")]
+        private readonly Box _changesSourceBox;
+
+        [UI("changesViewStack")]
+        private readonly Stack _changesViewStack;
 
 #pragma warning restore 064
 

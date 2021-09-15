@@ -15,12 +15,23 @@ namespace Evergreen.Dialogs
     {
 #pragma warning disable 0649
 
-        [UI] private readonly Button _btnCancel;
-        [UI] private readonly Button _btnCreate;
-        [UI] private readonly CheckButton _checkCheckout;
-        [UI] private readonly HeaderBar _headerBar;
-        [UI] private readonly Label _labelErrorText;
-        [UI] private readonly Entry _entryBranchName;
+        [UI("btnCancel")]
+        private readonly Button _btnCancel;
+
+        [UI("btnCreate")]
+        private readonly Button _btnCreate;
+
+        [UI("checkCheckout")]
+        private readonly CheckButton _checkCheckout;
+
+        [UI("headerBar")]
+        private readonly HeaderBar _headerBar;
+
+        [UI("labelErrorText")]
+        private readonly Label _labelErrorText;
+
+        [UI("entryBranchName")]
+        private readonly Entry _entryBranchName;
 
 #pragma warning restore 064
 

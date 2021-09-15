@@ -101,9 +101,9 @@ namespace Evergreen.Widgets
             );
         }
 
-        protected virtual void OnFilesSelected(FilesSelectedEventArgs e) => FilesSelected?.Invoke(this, e);
+        private void OnFilesSelected(FilesSelectedEventArgs e) => FilesSelected?.Invoke(this, e);
 
-        protected virtual void OnFilesUnStaged(FilesSelectedEventArgs e) => FilesUnStaged?.Invoke(this, e);
+        private void OnFilesUnStaged(FilesSelectedEventArgs e) => FilesUnStaged?.Invoke(this, e);
 
         private static string GetFileLabel(StatusEntry change)
         {

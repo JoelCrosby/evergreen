@@ -69,7 +69,7 @@ namespace Evergreen.Core.Git
             return dirInfo.Name.ToTitleCase();
         }
 
-        public Signature GetSignature()
+        private Signature GetSignature()
         {
             var config = _repository.Config;
 

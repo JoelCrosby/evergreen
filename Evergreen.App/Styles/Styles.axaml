@@ -10,7 +10,6 @@
 
     <Style Selector="Window">
         <Setter Property="FontSize" Value="13"/>
-        <Setter Property="FontFamily" Value="Fira Sans"/>
         <Setter Property="Background" Value="{StaticResource Background}"/>
         <Setter Property="Foreground" Value="{StaticResource Text}"/>
     </Style>
@@ -21,7 +20,6 @@
 
     <Style Selector="TreeView">
         <Setter Property="FontSize" Value="13"/>
-        <Setter Property="FontFamily" Value="Fira Sans"/>
         <Setter Property="Background" Value="{StaticResource Background}"/>
         <Setter Property="Foreground" Value="{StaticResource Text}"/>
     </Style>

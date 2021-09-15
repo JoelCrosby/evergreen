@@ -19,6 +19,8 @@ namespace Evergreen
         [STAThread]
         public static void Main()
         {
+            AppDomain.CurrentDomain.UnhandledException += ApplicationExceptionHandler;
+
             Application.Init();
 
             var app = new Application("org.evergreen.evergreen", ApplicationFlags.None);
@@ -26,8 +28,6 @@ namespace Evergreen
 
             var win = new MainWindow();
             app.AddWindow(win);
-
-            AppDomain.CurrentDomain.UnhandledException += ApplicationExceptionHandler;
 
             Window = win;
 
@@ -45,7 +45,7 @@ namespace Evergreen
 
                 if (stacktrace is null)
                 {
-                    return;
+                    Environment.Exit(1);
                 }
 
                 Directory.CreateDirectory(logDir);

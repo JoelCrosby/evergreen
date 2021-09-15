@@ -71,18 +71,16 @@ namespace Evergreen.App.ViewModels
 
         private async Task Refresh()
         {
-            var branchTree = await _mediator.Send(new GetBranchTreeQuery());
+            var (local, remote) = await _mediator.Send(new GetBranchTreeQuery());
 
             Commits = new ObservableCollection<CommitListItem>(await _mediator.Send(new GetCommitsQuery()));
             Local = new ObservableCollection<BranchTreeItem>
             {
-                new BranchTreeItem("Repository", FontWeight.ExtraBold)
-                    .SetChildren(branchTree.Local)
+                new ("Repository", FontWeight.ExtraBold, local),
             };
             Remote = new ObservableCollection<BranchTreeItem>
             {
-                new BranchTreeItem("Remotes", FontWeight.ExtraBold)
-                    .SetChildren(branchTree.Remote)
+                new ("Remotes", FontWeight.ExtraBold, remote),
             };
         }
     }

@@ -20,18 +20,41 @@ namespace Evergreen.Windows
     {
 #pragma warning disable 0649
 
-        [UI] private readonly Button _openRepo;
-        [UI] private readonly Button _fetch;
-        [UI] private readonly Button _pull;
-        [UI] private readonly Button _push;
-        [UI] private readonly Button _btnCreateBranch;
-        [UI] private readonly Button _search;
-        [UI] private readonly Button _about;
-        [UI] private readonly Button _closeRepo;
-        [UI] private readonly HeaderBar _headerBar;
-        [UI] private readonly SearchBar _searchBar;
-        [UI] private readonly Spinner _spinner;
-        [UI] private readonly Notebook _repoNotebook;
+        [UI("openRepo")]
+        private readonly Button _openRepo;
+
+        [UI("fetch")]
+        private readonly Button _fetch;
+
+        [UI("pull")]
+        private readonly Button _pull;
+
+        [UI("push")]
+        private readonly Button _push;
+
+        [UI("btnCreateBranch")]
+        private readonly Button _btnCreateBranch;
+
+        [UI("search")]
+        private readonly Button _search;
+
+        [UI("about")]
+        private readonly Button _about;
+
+        [UI("closeRepo")]
+        private readonly Button _closeRepo;
+
+        [UI("headerBar")]
+        private readonly HeaderBar _headerBar;
+
+        [UI("searchBar")]
+        private readonly SearchBar _searchBar;
+
+        [UI("spinner")]
+        private readonly Spinner _spinner;
+
+        [UI("repoNotebook")]
+        private readonly Notebook _repoNotebook;
 
 #pragma warning restore 064
 

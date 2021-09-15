@@ -287,17 +287,17 @@ namespace Evergreen.Widgets
             );
         }
 
-        protected virtual void OnCheckoutClicked(BranchSelectedEventArgs e) => CheckoutClicked?.Invoke(this, e);
+        private void OnCheckoutClicked(BranchSelectedEventArgs e) => CheckoutClicked?.Invoke(this, e);
 
-        protected virtual void OnFastForwardClicked(BranchSelectedEventArgs e) => FastForwardClicked?.Invoke(this, e);
+        private void OnFastForwardClicked(BranchSelectedEventArgs e) => FastForwardClicked?.Invoke(this, e);
 
-        protected virtual void OnMergeClicked(BranchSelectedEventArgs e) => MergeClicked?.Invoke(this, e);
+        private void OnMergeClicked(BranchSelectedEventArgs e) => MergeClicked?.Invoke(this, e);
 
-        protected virtual void OnDeleteClicked(BranchSelectedEventArgs e) => DeleteClicked?.Invoke(this, e);
+        private void OnDeleteClicked(BranchSelectedEventArgs e) => DeleteClicked?.Invoke(this, e);
 
-        protected virtual void OnBranchSelectedChanged(BranchSelectedEventArgs e) => BranchSelected?.Invoke(this, e);
+        private void OnBranchSelectedChanged(BranchSelectedEventArgs e) => BranchSelected?.Invoke(this, e);
 
-        protected virtual void OnChangesSelected() => ChangesSelected?.Invoke(this, EventArgs.Empty);
+        private void OnChangesSelected() => ChangesSelected?.Invoke(this, EventArgs.Empty);
     }
 
     public class BranchSelectedEventArgs : EventArgs
