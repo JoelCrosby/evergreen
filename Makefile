@@ -7,7 +7,9 @@ build:
 clean:
 	rm -rf src/ pkg/ evergreen/
 
-install: clean build
+install:
+	mkdir -p $(DESTDIR)/opt/$(PACKAGE_NAME)
+
 	install -d $(DESTDIR)/opt/$(PACKAGE_NAME)
 	install -d $(DESTDIR)/usr/bin
 
