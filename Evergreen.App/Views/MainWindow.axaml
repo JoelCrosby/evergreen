@@ -1,0 +1,121 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:models="clr-namespace:Evergreen.Core.Git.Models;assembly=evergreen-lib"
+        mc:Ignorable="d" d:DesignWidth="1280" d:DesignHeight="720"
+        x:Class="Evergreen.App.Views.MainWindow"
+        Icon="/Assets/avalonia-logo.ico"
+        Title="Evergreen.App"
+        Width="1280"
+        Height="720"
+>
+
+    <Window.Styles>
+        <StyleInclude Source="/Styles/Styles.axaml" />
+    </Window.Styles>
+
+    <Grid ColumnDefinitions="*" RowDefinitions="48,*" ShowGridLines="False">
+        <Border
+            Grid.Row="0"
+            Background="{StaticResource Header}"
+        >
+            <StackPanel
+                Orientation="Horizontal"
+                Spacing="8"
+                Margin="8"
+            >
+                <StackPanel Orientation="Horizontal">
+                    <Button Click="OpenRepoClicked">
+                        Open
+                    </Button>
+
+                    <Separator></Separator>
+
+                    <Button Command="{Binding FetchCommand}" >Fetch</Button>
+                    <Button>Pull</Button>
+                    <Button>Push</Button>
+                    <Button>Create Branch</Button>
+                </StackPanel>
+                <StackPanel>
+                    <Label Content="{Binding RepositoryName}"></Label>
+                    <Label></Label>
+                </StackPanel>
+            </StackPanel>
+        </Border>
+
+        <SplitView Grid.Row="1" IsPaneOpen="True"
+                   DisplayMode="Inline"
+                   OpenPaneLength="296">
+            <SplitView.Pane>
+
+                <ScrollViewer>
+                    <StackPanel Orientation="Vertical">
+
+                        <TreeView Items="{Binding Local}">
+                            <TreeView.DataTemplates>
+                                <TreeDataTemplate
+                                    DataType="models:BranchTreeItem"
+                                    ItemsSource="{Binding Children}"
+                                >
+                                    <TextBlock
+                                        Text="{Binding Label}"
+                                        FontWeight="{Binding FontWeight}"
+                                    />
+                                </TreeDataTemplate>
+                            </TreeView.DataTemplates>
+                        </TreeView>
+
+                        <TreeView Items="{Binding Remote}">
+                            <TreeView.DataTemplates>
+                                <TreeDataTemplate
+                                    DataType="models:BranchTreeItem"
+                                    ItemsSource="{Binding Children}"
+                                >
+                                    <TextBlock
+                                        Text="{Binding Label}"
+                                        FontWeight="{Binding FontWeight}"
+                                    />
+                                </TreeDataTemplate>
+                            </TreeView.DataTemplates>
+
+                            <TreeView.ContextMenu>
+                                <ContextMenu Name="PropertiesSaveContextMenu" PlacementMode="Pointer">
+                                    <MenuItem
+                                        Command="{Binding OnClickPropertiesSaveFile}"
+                                        Header="To File">
+                                    </MenuItem>
+
+                                    <MenuItem
+                                        Command="{Binding OnClickPropertiesSaveClipboard}"
+                                        Header="To Clipboard">
+                                    </MenuItem>
+
+                                </ContextMenu>
+                            </TreeView.ContextMenu>
+
+                        </TreeView>
+
+                    </StackPanel>
+                </ScrollViewer>
+
+            </SplitView.Pane>
+
+            <DataGrid
+                Items="{Binding Commits}"
+                AutoGenerateColumns="False"
+                HeadersVisibility="None"
+                IsReadOnly="True"
+                SelectionMode="Extended"
+            >
+                <DataGrid.Columns>
+                    <DataGridTextColumn Width="*" Header="Message"  Binding="{Binding Message}"/>
+                    <DataGridTextColumn MinWidth="196" Header="Author" Binding="{Binding Author}" />
+                    <DataGridTextColumn MinWidth="128" Header="Sha" Binding="{Binding Sha}" />
+                </DataGrid.Columns>
+            </DataGrid>
+
+        </SplitView>
+    </Grid>
+
+</Window>
