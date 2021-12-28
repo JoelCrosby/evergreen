@@ -2,7 +2,7 @@
 name="evergreen"
 
 pkgname="evergreen-git"
-pkgver=r102.2c89bd0
+pkgver=r117.d76141f
 pkgrel=1
 pkgdesc=""
 arch=(x86_64)
