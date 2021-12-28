@@ -32,6 +32,36 @@
       "problemMatcher": "$msCompile"
     },
     {
+      "label": "build-app",
+      "command": "dotnet",
+      "type": "process",
+      "args": [
+        "build",
+        "${workspaceFolder}/Evergreen.App/Evergreen.App.csproj",
+        "/property:GenerateFullPaths=true",
+        "/consoleloggerparameters:NoSummary"
+      ],
+      "linux": {
+        "command": "/usr/share/dotnet/dotnet",
+        "type": "process",
+        "args": [
+          "build",
+          "${workspaceFolder}/Evergreen.App/Evergreen.App.csproj",
+          "/property:GenerateFullPaths=true",
+          "/consoleloggerparameters:NoSummary"
+        ]
+      },
+      "presentation": {
+        "echo": true,
+        "reveal": "silent",
+        "focus": false,
+        "panel": "dedicated",
+        "showReuseMessage": false,
+        "clear": false
+      },
+      "problemMatcher": "$msCompile"
+    },
+    {
       "label": "install",
       "type": "shell",
       "command": "sh",

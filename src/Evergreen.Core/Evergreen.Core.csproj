@@ -1,0 +1,18 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFramework>net5.0</TargetFramework>
+        <TargetName>evergreen-lib</TargetName>
+        <AssemblyName>evergreen-lib</AssemblyName>
+        <Nullable>enable</Nullable>
+        <NoWarn>IDE0058,IDE0022,CA1816,CA1000</NoWarn>
+    </PropertyGroup>
+
+    <ItemGroup>
+      <PackageReference Include="Avalonia" Version="0.10.7" />
+      <PackageReference Include="DiffPlex" Version="1.7.0" />
+      <PackageReference Include="LibGit2Sharp" Version="0.26.2" />
+      <PackageReference Include="MediatR" Version="9.0.0" />
+    </ItemGroup>
+
+</Project>
