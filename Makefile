@@ -1,4 +1,4 @@
-BINARY_NAME=dotnet-install
+PACKAGE_NAME=evergreen
 DESTDIR ?= /usr/local/bin
 
 build:
@@ -10,10 +10,10 @@ clean:
 	rm -rf evergreen
 
 install: clean build
-    install -d ${pkgdir}/opt/${name}
-    install -d ${pkgdir}/usr/bin
+    install -d /opt/$(PACKAGE_NAME)
+    install -d /usr/bin
 
-    cp -rf ${srcdir}/${name}/Evergreen/bin/Release/net6.0/linux-x64/publish/* ${pkgdir}/opt/${name}
-    ln -s "/opt/${name}/${name}" "${pkgdir}/usr/bin/${name}"
+    cp -rf $(PACKAGE_NAME)/Evergreen/bin/Release/net6.0/linux-x64/publish/* /opt/$(PACKAGE_NAME)
+    ln -s "/opt/$(PACKAGE_NAME)/$(PACKAGE_NAME)" "/usr/bin/$(PACKAGE_NAME)"
 
-    install -Dm644 ${name}.desktop "${pkgdir}/usr/share/applications/${name}.desktop"
+    install -Dm644 $(PACKAGE_NAME).desktop "/usr/share/applications/$(PACKAGE_NAME).desktop"
