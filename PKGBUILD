@@ -2,7 +2,7 @@
 name="evergreen"
 
 pkgname="evergreen-git"
-pkgver=r117.d76141f
+pkgver=r119.bc9242c
 pkgrel=1
 pkgdesc=""
 arch=(x86_64)
@@ -34,7 +34,7 @@ build() {
 package() {
 	cd "$srcdir/${name}/"
   mkdir -p ${pkgdir}/opt/${pkgdir}
-  cp -rf "Evergreen/bin/Release/net5.0/linux-x64/publish/*" ${pkgdir}/opt/${pkgdir}
+  cp -rf "${srcdir}/${name}/Evergreen/bin/Release/net5.0/linux-x64/publish/*" ${pkgdir}/opt/${pkgdir}
   install -Dm644 evergreen.desktop "${pkgdir}/usr/share/applications"
   ln -s "${pkgdir}/opt/${pkgdir}/${name}" "${pkgdir}/usr/bin/${name}"
 }
