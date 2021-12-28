@@ -23,7 +23,7 @@ md5sums=('SKIP')
 
 pkgver() {
 	cd "$srcdir/${name}"
-	
+
   printf "r%s.%s" "$(git rev-list --count HEAD)" "$(git rev-parse --short HEAD)"
 }
 
@@ -35,12 +35,12 @@ build() {
 
 package() {
 	cd $srcdir/${name}/
-  
+
   install -d ${pkgdir}/opt/${name}
   install -d ${pkgdir}/usr/bin
-  
-  cp -rf ${srcdir}/${name}/Evergreen/bin/Release/net5.0/linux-x64/publish/* ${pkgdir}/opt/${name}
+
+  cp -rf ${srcdir}/${name}/Evergreen/bin/Release/net6.0/linux-x64/publish/* ${pkgdir}/opt/${name}
   ln -s "/opt/${name}/${name}" "${pkgdir}/usr/bin/${name}"
-  
+
   install -Dm644 ${name}.desktop "${pkgdir}/usr/share/applications/${name}.desktop"
 }
