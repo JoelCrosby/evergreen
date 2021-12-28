@@ -83,14 +83,8 @@ namespace Evergreen.Widgets
                     {
                         return BranchTreeItemType.Head;
                     }
-                    else if (item.Children.Any())
-                    {
-                        return BranchTreeItemType.Noop;
-                    }
-                    else
-                    {
-                        return type;
-                    }
+
+                    return item.Children.Any() ? BranchTreeItemType.Noop : type;
                 }
 
                 var treeIter = _store.AppendValues(
