@@ -2,7 +2,7 @@
 name="evergreen"
 
 pkgname="evergreen-git"
-pkgver=r124.ce63d1e
+pkgver=r125.138fc35
 pkgrel=1
 pkgdesc="Simple GTK+ git client"
 arch=(x86_64)
@@ -33,5 +33,5 @@ build() {
 
 package() {
 	cd $srcdir/${name}/
-    make install
+    DESTDIR=${pkgdir} make install
 }
