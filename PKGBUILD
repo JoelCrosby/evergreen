@@ -2,7 +2,7 @@
 name="evergreen"
 
 pkgname="evergreen-git"
-pkgver=r130.5a4b501
+pkgver=r131.ab2a46b
 pkgrel=1
 pkgdesc="Simple GTK+ git client"
 arch=(x86_64)

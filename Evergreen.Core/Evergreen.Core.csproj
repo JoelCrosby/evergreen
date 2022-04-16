@@ -9,10 +9,10 @@
     </PropertyGroup>
 
     <ItemGroup>
-      <PackageReference Include="Avalonia" Version="0.10.11" />
-      <PackageReference Include="DiffPlex" Version="1.7.0" />
+      <PackageReference Include="Avalonia" Version="0.10.13" />
+      <PackageReference Include="DiffPlex" Version="1.7.1" />
       <PackageReference Include="LibGit2Sharp" Version="0.26.2" />
-      <PackageReference Include="MediatR" Version="9.0.0" />
+      <PackageReference Include="MediatR" Version="10.0.1" />
     </ItemGroup>
 
 </Project>
