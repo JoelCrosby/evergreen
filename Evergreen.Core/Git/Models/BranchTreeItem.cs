@@ -1,7 +1,7 @@
 using System.Collections.Generic;
 using System.Linq;
 
-using Avalonia.Media;
+using Cairo;
 
 namespace Evergreen.Core.Git.Models
 {
@@ -21,7 +21,7 @@ namespace Evergreen.Core.Git.Models
 
         public bool IsHead { get; init; }
 
-        public FontWeight FontWeight { get; init; } = FontWeight.Regular;
+        public FontWeight FontWeight { get; init; } = FontWeight.Normal;
 
         public IEnumerable<BranchTreeItem> Children { get; private set; } = new List<BranchTreeItem>();
 

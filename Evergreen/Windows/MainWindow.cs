@@ -18,7 +18,7 @@ namespace Evergreen.Windows
 {
     public class MainWindow : Window
     {
-#pragma warning disable 0649
+        #pragma warning disable 0649
 
         [UI("openRepo")]
         private readonly Button _openRepo;
@@ -56,7 +56,7 @@ namespace Evergreen.Windows
         [UI("repoNotebook")]
         private readonly Notebook _repoNotebook;
 
-#pragma warning restore 064
+        #pragma warning restore 064
 
         private int _selectedRepoIndex;
         private readonly List<Repository> _repositories = new();

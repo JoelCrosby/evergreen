@@ -7,7 +7,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-using Avalonia.Media;
+using Cairo;
 
 using DiffPlex;
 using DiffPlex.DiffBuilder;
@@ -21,6 +21,7 @@ using Evergreen.Core.Models.Common;
 using LibGit2Sharp;
 
 using GitCommands = LibGit2Sharp.Commands;
+using Path = System.IO.Path;
 
 namespace Evergreen.Core.Git
 {
@@ -60,7 +61,7 @@ namespace Evergreen.Core.Git
 
         public static bool IsRepository(string path)
         {
-            return Repository.IsValid(path);
+            return Directory.Exists(path) && Repository.IsValid(path);
         }
 
         public string GetRepositoryFriendlyName()
@@ -156,7 +157,7 @@ namespace Evergreen.Core.Git
                         Ahead = ahead,
                         Behind = behind,
                         IsRemote = !isLocal,
-                        FontWeight = isHead ? FontWeight.ExtraBold : FontWeight.Regular,
+                        FontWeight = isHead ? FontWeight.Bold : FontWeight.Normal,
                         IsHead = isHead,
                     };
 
@@ -201,7 +202,7 @@ namespace Evergreen.Core.Git
                         Label = label,
                         Parent = ParentPath(parent),
                         IsRemote = !isLocal,
-                        FontWeight = FontWeight.Regular,
+                        FontWeight = FontWeight.Normal,
                     });
                 }
 
@@ -368,7 +369,6 @@ namespace Evergreen.Core.Git
         public Task<Result<ExecResult>> FastForward(string branch)
         {
             var repoBranch = _repository.Branches[branch];
-
             var remote = repoBranch.TrackedBranch.RemoteName;
             var shortBranchName = branch[(branch.LastIndexOf('/') + 1)..];
 
@@ -505,8 +505,6 @@ namespace Evergreen.Core.Git
                 }
 
                 await proc.WaitForExitAsync().ConfigureAwait(false);
-
-                Debug.Assert(proc.ExitCode == 0);
 
                 if (proc.ExitCode == 0)
                 {

@@ -17,10 +17,8 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="DiffPlex" Version="1.7.1" />
-    <PackageReference Include="GtkSharp" Version="3.24.24.34" />
-    <PackageReference Include="GtkSourceSharp" Version="3.24.24.34" />
-    <PackageReference Include="LibGit2Sharp" Version="0.26.2" />
+    <PackageReference Include="GtkSharp" Version="3.24.24.38" />
+    <PackageReference Include="GtkSourceSharp" Version="3.24.24.38" />
   </ItemGroup>
 
   <ItemGroup>

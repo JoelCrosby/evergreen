@@ -12,16 +12,16 @@ namespace Evergreen.Dialogs
         {
             builder.Autoconnect(this);
 
-            Response += OnResponseRecieved;
+            Response += OnResponseReceived;
         }
 
         public new void Dispose()
         {
-            Response -= OnResponseRecieved;
+            Response -= OnResponseReceived;
 
             base.Dispose();
         }
 
-        public void OnResponseRecieved(object _, EventArgs args) => Hide();
+        public void OnResponseReceived(object _, EventArgs args) => Hide();
     }
 }

@@ -13,7 +13,7 @@ namespace Evergreen.Dialogs
 {
     public class CreateBranchDialog : Dialog, IDisposable
     {
-#pragma warning disable 0649
+        #pragma warning disable 0649
 
         [UI("btnCancel")]
         private readonly Button _btnCancel;
@@ -33,7 +33,7 @@ namespace Evergreen.Dialogs
         [UI("entryBranchName")]
         private readonly Entry _entryBranchName;
 
-#pragma warning restore 064
+        #pragma warning restore 064
 
         private readonly GitService _git;
 
@@ -61,14 +61,14 @@ namespace Evergreen.Dialogs
             return Result<CreateBranchResult>.Success();
         }
 
-        public new void Hide()
+        private void HideDialog()
         {
             Reset();
 
-            base.Hide();
+            Hide();
         }
 
-        private void CancelClicked(object sender, EventArgs _) => Hide();
+        private void CancelClicked(object sender, EventArgs _) => HideDialog();
 
         private void CreateClicked(object sender, EventArgs _)
         {
@@ -81,7 +81,7 @@ namespace Evergreen.Dialogs
                 return;
             }
 
-            if (name.Contains(" "))
+            if (name.Contains(' '))
             {
                 ShowError("name cannot contain spaces");
                 return;

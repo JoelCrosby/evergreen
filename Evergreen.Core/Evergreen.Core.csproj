@@ -9,10 +9,15 @@
     </PropertyGroup>
 
     <ItemGroup>
-      <PackageReference Include="Avalonia" Version="0.10.13" />
       <PackageReference Include="DiffPlex" Version="1.7.1" />
-      <PackageReference Include="LibGit2Sharp" Version="0.26.2" />
+      <PackageReference Include="LibGit2Sharp" Version="0.27.0-preview-0182" />
       <PackageReference Include="MediatR" Version="10.0.1" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <Reference Include="CairoSharp">
+        <HintPath>..\..\..\..\.nuget\packages\cairosharp\3.24.24.38\lib\net6.0\CairoSharp.dll</HintPath>
+      </Reference>
     </ItemGroup>
 
 </Project>
